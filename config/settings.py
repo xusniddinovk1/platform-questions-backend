@@ -30,9 +30,11 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'drf_yasg',
     'django_filters',
+    'corsheaders'
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware'
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -68,7 +70,7 @@ DATABASES = {
     }
 }
 
-AUTH_USER_MODEL = 'custom_auth.CustomUser'
+# AUTH_USER_MODEL = 'custom_auth.CustomUser'
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -130,3 +132,8 @@ SWAGGER_SETTINGS = {
     },
     'USE_SESSION_AUTH': False,
 }
+
+CORS_ALLOWED_ORIGINS = [
+    'https://localhost:3000',
+    'https://platform-questions-fronted.vercel.app/'
+]
