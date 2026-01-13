@@ -34,7 +34,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware'
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -135,5 +135,5 @@ SWAGGER_SETTINGS = {
 
 CORS_ALLOWED_ORIGINS = [
     'https://localhost:3000',
-    'https://platform-questions-fronted.vercel.app/'
+    'https://platform-questions-fronted.vercel.app'
 ]
