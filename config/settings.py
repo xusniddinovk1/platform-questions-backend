@@ -23,8 +23,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'core',
-    'custom_auth',
+    'app.core',
+    'app.custom_auth',
 
     'rest_framework',
     'rest_framework_simplejwt',
@@ -117,7 +117,7 @@ SIMPLE_JWT = {
 }
 
 AUTHENTICATION_BACKENDS = [
-    'users.authentication.PhoneNumberBackend',
+    'app.custom_auth.authentication.PhoneNumberBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
 
