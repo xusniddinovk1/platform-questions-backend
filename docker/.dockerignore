@@ -1,0 +1,8 @@
+.venv
+docker
+.gitignore
+.python-version
+db.sqlite3
+LICENSE
+Makefile
+uv.lock
