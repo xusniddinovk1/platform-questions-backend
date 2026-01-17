@@ -1,12 +1,14 @@
-import os
+# import os
 
-ENV = os.getenv("DJANGO_ENV", "dev")
+# ENV = os.getenv("DJANGO_ENV", "dev")
 
-if ENV == "prod":
-    from .prod import ALLOWED_HOSTS, CORS_ALLOWED_ORIGINS, DATABASES, DEBUG
-else:
-    from .dev import ALLOWED_HOSTS, CORS_ALLOWED_ORIGINS, DATABASES, DEBUG
+# print("SETTINGS LOADED:", __file__)
 
-__all__ = ["ALLOWED_HOSTS", "CORS_ALLOWED_ORIGINS", "DATABASES", "DEBUG"]
+# if ENV == "prod":
+#     # from .prod import ALLOWED_HOSTS, CORS_ALLOWED_ORIGINS, DATABASES, DEBUG
+#     from .prod import *
+# else:
+#     # from .dev import ALLOWED_HOSTS, CORS_ALLOWED_ORIGINS, DATABASES, DEBUG
+#     from .dev import *
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", f"config.settings.{ENV}")
+# # __all__ = ["ALLOWED_HOSTS", "CORS_ALLOWED_ORIGINS", "DATABASES", "DEBUG"]

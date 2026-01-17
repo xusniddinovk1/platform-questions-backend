@@ -1,4 +1,5 @@
-from .base import BASE_DIR
+# from .base import BASE_DIR
+from .base import *
 
 DEBUG = True
 ALLOWED_HOSTS = ["*"]
