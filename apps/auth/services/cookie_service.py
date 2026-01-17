@@ -6,14 +6,14 @@ from apps.auth.config import (
 
 
 class CookieService:
-    COOKIE_NAME: str
+    cookie_name: str
 
     def __init__(self, cookie_name: str = "refresh_token") -> None:
-        self.COOKIE_NAME = cookie_name
+        self.cookie_name = cookie_name
 
     def set_cookie(self, response: Response, token: str) -> Response:
         response.set_cookie(
-            key=self.COOKIE_NAME,
+            key=self.cookie_name,
             value=token,
             httponly=True,
             secure=True,
@@ -23,5 +23,5 @@ class CookieService:
         return response
 
     def delete_cookie(self, response: Response) -> Response:
-        response.delete_cookie(self.COOKIE_NAME)
+        response.delete_cookie(self.cookie_name)
         return response

@@ -69,7 +69,7 @@ class RefreshView(views.APIView):
         tags=["Authentication"],
     )
     def post(self, request: Request) -> Response:
-        refresh_token = request.COOKIES.get(self.cookie_service.COOKIE_NAME)
+        refresh_token = request.COOKIES.get(self.cookie_service.cookie_name)
         if not refresh_token:
             return Response(
                 {"error": "No refresh token"}, status=status.HTTP_401_UNAUTHORIZED
@@ -100,5 +100,5 @@ class LogoutView(views.APIView):
     @swagger_auto_schema(response={200: "message: str"}, tags=["Authentication"])
     def post(self, request: Request) -> Response:
         response = Response({"message": "Logged out"})
-        response.delete_cookie(self.cookie_service.COOKIE_NAME)
+        response.delete_cookie(self.cookie_service.cookie_name)
         return response
