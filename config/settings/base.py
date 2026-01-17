@@ -19,13 +19,14 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "app.core",
-    "app.custom_auth",
     "rest_framework",
     "rest_framework_simplejwt",
     "drf_yasg",
     "django_filters",
     "corsheaders",
+    "apps.core",
+    "apps.custom_auth",
+    "apps.auth.apps.AuthConfig",
 ]
 
 MIDDLEWARE = [
@@ -38,6 +39,8 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+print("SETTINGS FILE LOADED:", __file__)
 
 ROOT_URLCONF = "config.urls"
 WSGI_APPLICATION = "config.wsgi.application"
@@ -74,7 +77,7 @@ SIMPLE_JWT = {
 }
 
 AUTHENTICATION_BACKENDS = [
-    "app.custom_auth.authentication.PhoneNumberBackend",
+    "apps.custom_auth.authentication.PhoneNumberBackend",
     "django.contrib.auth.backends.ModelBackend",
 ]
 
