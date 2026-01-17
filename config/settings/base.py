@@ -11,6 +11,7 @@ env = environ.Env()
 environ.Env.read_env(BASE_DIR / ".env")
 
 SECRET_KEY = env("SECRET_KEY")
+AUTH_USER_MODEL = "user.User"
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -25,8 +26,9 @@ INSTALLED_APPS = [
     "django_filters",
     "corsheaders",
     "apps.core",
-    "apps.custom_auth",
     "apps.auth.apps.AuthConfig",
+    "apps.user.apps.UserConfig",
+    "apps.questions.apps.QuestionsConfig",
 ]
 
 MIDDLEWARE = [
@@ -40,7 +42,6 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-print("SETTINGS FILE LOADED:", __file__)
 
 ROOT_URLCONF = "config.urls"
 WSGI_APPLICATION = "config.wsgi.application"

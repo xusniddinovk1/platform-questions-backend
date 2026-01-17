@@ -31,16 +31,22 @@ ignore = ["D100", "D101"]
 
 [tool.ruff.lint.per-file-ignores]
 "config/settings/*.py" = ["F403", "F405"]
+"apps/**/migrations/*.py" = ["RUF012"]
 
 [tool.mypy]
 plugins = ["mypy_django_plugin.main"]
 ignore_missing_imports = true
 strict = true
+follow_imports = "silent"
 
 [tool.django-stubs]
 django_settings_module = "config.settings"
 strict_settings = true
 strict_model_abstract_attrs = true
+
+[[tool.mypy.overrides]]
+module = "rest_framework.serializers"
+ignore_errors = true
 
 
 [dependency-groups]

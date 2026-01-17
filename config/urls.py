@@ -37,7 +37,7 @@ schema_view = get_schema_view(
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("v1/", include("apps.core.urls")),
-    # path('v1/users/', include('custom_auth.urls')),
+    path("v1/", include("apps.auth.urls")),
     re_path(
         r"^swagger(?P<format>\.json|\.yaml)$",
         schema_view.without_ui(cache_timeout=0),

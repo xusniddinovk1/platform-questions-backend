@@ -26,4 +26,8 @@ typecheck:
 test:
 	uv run pytest .
 
+all-migrations:
+	uv run manage.py makemigrations
+	uv run manage.py migrate
+
 ci: format lint typecheck test
