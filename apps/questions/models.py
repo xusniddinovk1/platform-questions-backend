@@ -25,6 +25,7 @@ class Answer(models.Model):
     )
     answer = models.CharField(max_length=200)
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
+    score = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
