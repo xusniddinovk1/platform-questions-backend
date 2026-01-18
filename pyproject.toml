@@ -5,6 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "dj-database-url>=3.1.0",
     "django>=6.0.1",
     "django-cors-headers>=4.9.0",
     "django-environ>=0.12.0",
@@ -13,6 +14,8 @@ dependencies = [
     "djangorestframework>=3.16.1",
     "djangorestframework-simplejwt>=5.5.1",
     "drf-yasg>=1.21.14",
+    "gunicorn>=23.0.0",
+    "psycopg2-binary>=2.9.11",
 ]
 
 
