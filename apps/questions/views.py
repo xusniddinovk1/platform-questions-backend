@@ -5,7 +5,7 @@ from rest_framework.exceptions import ValidationError
 from .models import Question, Answer
 
 
-class QuestionCreateView(generics.ListAPIView):
+class QuestionListView(generics.ListAPIView):
     queryset = Question.objects.all().order_by('-created_at')
     serializer_class = QuestionSerializer
     permissions_classes = [permissions.AllowAny]
