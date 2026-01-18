@@ -1,6 +1,8 @@
+from typing import ClassVar
 from django.utils import timezone
 from rest_framework import generics, permissions
-from .serializers import QuestionSerializer, AnswerSerializer, AnswerCreateSerializer
+from rest_framework.permissions import BasePermission
+from .serializers import QuestionSerializer, AnswerCreateSerializer
 from rest_framework.exceptions import ValidationError
 from .models import Question, Answer
 
@@ -8,21 +10,21 @@ from .models import Question, Answer
 class QuestionListView(generics.ListAPIView):
     queryset = Question.objects.all().order_by('-created_at')
     serializer_class = QuestionSerializer
-    permissions_classes = [permissions.AllowAny]
+    permission_classes: ClassVar[list[type[BasePermission]]] = [permissions.AllowAny]
 
 
 class QuestionDetailVIew(generics.RetrieveAPIView):
     queryset = Question.objects.all()
     serializer_class = QuestionSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes: ClassVar[list[type[BasePermission]]] = [permissions.AllowAny]
 
 
 class AnswerCreateView(generics.CreateAPIView):
     queryset = Answer.objects.all()
     serializer_class = AnswerCreateSerializer
-    permissions_classes = [permissions.IsAuthenticated]
+    permission_classes: ClassVar[list[type[BasePermission]]] = [permissions.IsAuthenticated]
 
-    def perform_create(self, serializer):
+    def perform_create(self, serializer) -> None:
         question = serializer.validated_data['question']
 
         if question.deadline <= timezone.now():

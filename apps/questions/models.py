@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from typing import ClassVar
 
 
 class Question(models.Model):
@@ -29,9 +30,8 @@ class Answer(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        constraints = [
+        constraints: ClassVar[list[models.UniqueConstraint]] = [
             models.UniqueConstraint(fields=['user', 'question'], name='unique_user_answer_question'),
         ]
-
     def __str__(self) -> str:
         return self.answer
