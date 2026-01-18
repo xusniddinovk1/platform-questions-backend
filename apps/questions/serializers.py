@@ -1,5 +1,8 @@
+from django.utils import timezone
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
+
 from .models import Question, Answer
 
 User = get_user_model()
@@ -16,13 +19,20 @@ class AnswerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Answer
-        fields = ['id', 'user', 'answer']
+        fields = ['id', 'user', 'answer', 'status', 'score', 'created_at']
+        read_only_fields = ['user', 'created_at']
 
 
 class AnswerCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Answer
         fields = ['id', 'question', 'answer']
+
+        def validate(self, attrs):
+            question = attrs.get['question']
+            if question.deadline <= timezone.now():
+                raise ValidationError({'detail': 'Closed'})
+            return attrs
 
 
 class QuestionSerializer(serializers.ModelSerializer):
