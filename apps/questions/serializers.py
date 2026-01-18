@@ -20,7 +20,12 @@ class AnswerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Answer
-        fields: ClassVar[list[str]] = ["id", "user", "answer", "status", "score", "created_at"]
+        fields: ClassVar[list[str]] = ["id",
+                                       "user",
+                                       "answer",
+                                       "status",
+                                       "score",
+                                       "created_at"]
         read_only_fields: ClassVar[list[str]] = ["user", "created_at"]
 
 
