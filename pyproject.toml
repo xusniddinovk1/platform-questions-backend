@@ -31,13 +31,15 @@ ignore = ["D100", "D101"]
 
 [tool.ruff.lint.per-file-ignores]
 "config/settings/*.py" = ["F403", "F405"]
-"apps/**/migrations/*.py" = ["RUF012"]
+"apps/**/migrations/*.py" = ["RUF012", "E501"]
 
 [tool.mypy]
 plugins = ["mypy_django_plugin.main"]
 ignore_missing_imports = true
 strict = true
 follow_imports = "silent"
+
+disable_error_code = ["untyped-decorator"]
 
 [tool.django-stubs]
 django_settings_module = "config.settings"
