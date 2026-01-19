@@ -33,6 +33,10 @@ ignore = ["D100", "D101"]
 "config/settings/*.py" = ["F403", "F405"]
 "apps/**/migrations/*.py" = ["RUF012", "E501"]
 
+
+
+
+
 [tool.mypy]
 plugins = ["mypy_django_plugin.main"]
 ignore_missing_imports = true
@@ -57,6 +61,5 @@ dev = [
     "django-stubs>=5.2.8",
     "djangorestframework-stubs>=3.16.7",
     "mypy>=1.19.1",
-    "pytest>=9.0.2",
     "ruff>=0.14.13",
 ]

@@ -1,6 +1,6 @@
 from typing import NotRequired, TypedDict
 
-from apps.user.models import User
+from apps.user.models.user_model import User
 
 
 class LoginInput(TypedDict):

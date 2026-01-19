@@ -7,4 +7,4 @@ class User(AbstractUser):
     phone = models.CharField(max_length=20, unique=True, null=True, blank=True)
 
     def __str__(self) -> str:
-        return self.username or self.email
+        return self.username or self.email or str(self.id)
