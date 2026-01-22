@@ -22,15 +22,12 @@ class Content(models.Model):
         max_length=20,
         choices=ContentType.choices,
     )
-
     text = models.TextField(blank=True, null=True)
-
     file = models.FileField(
         upload_to="content/",
         blank=True,
         null=True,
     )
-
     created_at = models.DateTimeField(auto_now_add=True)
 
 
@@ -48,7 +45,7 @@ class Question(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.title
 
 
@@ -58,14 +55,16 @@ class QuestionContent(models.Model):
         on_delete=models.CASCADE,
         related_name="contents",
     )
-    content = models.ForeignKey(Content, on_delete=models.CASCADE)
+    content = models.ForeignKey(
+        Content,
+        on_delete=models.CASCADE,
+    )
 
     role = models.CharField(
         max_length=20,
         choices=ContentRole.choices,
         default=ContentRole.QUESTION,
     )
-
     order = models.PositiveIntegerField(default=0)
 
     class Meta:
@@ -87,9 +86,12 @@ class Answer(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name='answers'
+        related_name="answers",
     )
-    content = models.ForeignKey(Content, on_delete=models.CASCADE)
+    content = models.ForeignKey(
+        Content,
+        on_delete=models.CASCADE,
+    )
 
     created_at = models.DateTimeField(auto_now_add=True)
 
