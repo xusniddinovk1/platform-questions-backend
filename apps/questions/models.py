@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
@@ -68,13 +70,13 @@ class QuestionContent(models.Model):
     order = models.PositiveIntegerField(default=0)
 
     class Meta:
-        constraints = [
+        constraints: ClassVar[list[models.UniqueConstraint]] = [
             models.UniqueConstraint(
                 fields=["question", "content"],
                 name="unique_question_content",
             ),
         ]
-        ordering = ["order", "id"]
+        ordering: ClassVar[list[str]] = ["order", "id"]
 
 
 class Answer(models.Model):
@@ -96,7 +98,7 @@ class Answer(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        constraints = [
+        constraints: ClassVar[list[models.UniqueConstraint]] = [
             models.UniqueConstraint(
                 fields=["question", "user"],
                 name="unique_user_answer_per_question",
