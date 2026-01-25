@@ -1,10 +1,14 @@
 from __future__ import annotations
 
-from django.db.models import Count, Prefetch
+from typing import Any, Type
+
+from django.db.models import Count, Prefetch, QuerySet
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAdminUser, IsAuthenticated, SAFE_METHODS
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.request import Request
 from rest_framework.response import Response
+from rest_framework.serializers import BaseSerializer
 
 from .models import Answer, Question, QuestionContent
 from .permissions import IsAdminOrReadOnly
@@ -19,8 +23,7 @@ from .serializers import (
 class QuestionViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminOrReadOnly,)
 
-    def get_queryset(self):
-        # contents -> content FK; role/order bo'yicha ordering Meta'da bor
+    def get_queryset(self) -> QuerySet[Question]:
         contents_qs = (
             QuestionContent.objects.select_related("content")
             .only(
@@ -43,7 +46,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
             .prefetch_related(Prefetch("contents", queryset=contents_qs))
         )
 
-    def get_serializer_class(self):
+    def get_serializer_class(self) -> Type[BaseSerializer]:
         if self.action in {"create", "update", "partial_update"}:
             return QuestionCreateUpdateSerializer
         return QuestionSerializer
@@ -55,14 +58,9 @@ class AnswerViewSet(
     mixins.RetrieveModelMixin,
     viewsets.GenericViewSet,
 ):
-    """
-    - User: javob yuboradi, o'z javoblarini ko'radi
-    - Admin: hamma javoblarni ko'radi
-    """
-
     permission_classes = (IsAuthenticated,)
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet[Answer]:
         qs = (
             Answer.objects.select_related("question", "user", "content")
             .only(
@@ -87,28 +85,21 @@ class AnswerViewSet(
             return qs
         return qs.filter(user=user)
 
-    def get_serializer_class(self):
+    def get_serializer_class(self) -> Type[BaseSerializer]:
         if self.action == "create":
             return AnswerCreateSerializer
         return AnswerSerializer
 
-    def create(self, request, *args, **kwargs):
-        """
-        AnswerCreateSerializer -> Answer obyekt qaytaradi.
-        Response'da AnswerSerializer formatida qaytaramiz.
-        """
+    def create(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         serializer = self.get_serializer(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
-        answer = serializer.save()
+        answer: Answer = serializer.save()
 
         out = AnswerSerializer(answer, context={"request": request})
         return Response(out.data, status=status.HTTP_201_CREATED)
 
     @action(detail=False, methods=["get"], url_path="mine")
-    def mine(self, request):
-        """
-        User uchun faqat o'z javoblarini olish (admin ham ko'radi).
-        """
+    def mine(self, request: Request) -> Response:
         qs = self.get_queryset().filter(user=request.user)
         page = self.paginate_queryset(qs)
         if page is not None:
