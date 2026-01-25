@@ -1,10 +1,14 @@
 from django.urls import path
-from apps.questions.views import QuestionListView, QuestionDetailVIew, AnswerCreateView
 from apps.core.views import HealthCheckView
+from rest_framework.routers import DefaultRouter
+from apps.questions.views import AnswerViewSet, QuestionViewSet
 
 urlpatterns = [
     path("health", HealthCheckView.as_view()),
-    path('questions/', QuestionListView.as_view(), name='question_list'),
-    path('questions/<int:pk>/', QuestionDetailVIew.as_view(), name='question_detail'),
-    path('answers/', AnswerCreateView.as_view(), name='answer_create'),
 ]
+
+router = DefaultRouter()
+router.register("questions", QuestionViewSet, basename="questions")
+router.register("answers", AnswerViewSet, basename="answers")
+
+urlpatterns += router.urls

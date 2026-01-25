@@ -7,24 +7,13 @@ from rest_framework.permissions import IsAdminUser, IsAuthenticated, SAFE_METHOD
 from rest_framework.response import Response
 
 from .models import Answer, Question, QuestionContent
+from .permissions import IsAdminOrReadOnly
 from .serializers import (
     AnswerCreateSerializer,
     AnswerSerializer,
     QuestionCreateUpdateSerializer,
     QuestionSerializer,
 )
-
-
-class IsAdminOrReadOnly(IsAuthenticated):
-    """
-    - GET/HEAD/OPTIONS: authenticated bo'lsa kifoya
-    - POST/PATCH/PUT/DELETE: faqat admin
-    """
-
-    def has_permission(self, request, view):
-        if request.method in SAFE_METHODS:
-            return bool(request.user and request.user.is_authenticated)
-        return bool(request.user and request.user.is_staff)
 
 
 class QuestionViewSet(viewsets.ModelViewSet):
