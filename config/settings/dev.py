@@ -1,5 +1,3 @@
-import os
-import dj_database_url
 from config.settings.base import BASE_DIR
 
 DEBUG = True
