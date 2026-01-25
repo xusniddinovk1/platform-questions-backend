@@ -3,6 +3,7 @@ from typing import ClassVar
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
+from django.db.models import JSONField
 
 
 class ContentRole(models.TextChoices):
@@ -35,12 +36,7 @@ class Content(models.Model):
 
 class Question(models.Model):
     title = models.CharField(max_length=255)
-
-    allowed_answer_types = ArrayField(
-        models.CharField(
-            max_length=20,
-            choices=ContentType.choices,
-        ),
+    allowed_answer_types = models.JSONField(
         default=list,
         blank=True,
     )
