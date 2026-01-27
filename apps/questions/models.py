@@ -1,9 +1,7 @@
 from typing import ClassVar
 
 from django.conf import settings
-from django.contrib.postgres.fields import ArrayField
 from django.db import models
-from django.db.models import JSONField
 
 
 class ContentRole(models.TextChoices):
