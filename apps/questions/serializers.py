@@ -1,8 +1,11 @@
 from __future__ import annotations
+
+from typing import Any, cast
+
 from django.db import transaction
 from rest_framework import serializers
+
 from .models import Answer, Content, ContentRole, ContentType, Question, QuestionContent
-from typing import Any, cast
 
 
 class ContentSerializer(serializers.ModelSerializer[Content]):
@@ -84,11 +87,11 @@ class QuestionCreateUpdateSerializer(serializers.ModelSerializer[Question]):
         return question
 
     def _upsert_contents(
-            self,
-            question: Question,
-            payload: list[dict[str, Any]],
-            *,
-            replace: bool,
+        self,
+        question: Question,
+        payload: list[dict[str, Any]],
+        *,
+        replace: bool,
     ) -> None:
         if replace:
             QuestionContent.objects.filter(question=question).delete()
@@ -109,11 +112,11 @@ class QuestionCreateUpdateSerializer(serializers.ModelSerializer[Question]):
 
             content_ser = ContentSerializer(data=content_data)
             content_ser.is_valid(raise_exception=True)
-            content = cast(Content, content_ser.save())
+            content_obj = cast(Content, content_ser.save())
 
             QuestionContent.objects.create(
                 question=question,
-                content=content,
+                content=content_obj,
                 role=role,
                 order=order,
             )
@@ -135,7 +138,7 @@ class AnswerCreateSerializer(serializers.Serializer[Answer]):
 
     def validate(self, attrs: dict[str, Any]) -> dict[str, Any]:
         question: Question = attrs["question"]
-        user_id: int = self.context["request"].user.id  # type: ignore[union-attr]
+        user_id = cast(int, self.context["request"].user.id)
 
         allowed = list(question.allowed_answer_types or [])
         content_type = attrs["content"]["content_type"]
@@ -147,7 +150,7 @@ class AnswerCreateSerializer(serializers.Serializer[Answer]):
             )
             raise serializers.ValidationError({"content": msg})
 
-        if Answer.objects.filter(question=question, user=user_id).exists():
+        if Answer.objects.filter(question=question, user_id=user_id).exists():
             raise serializers.ValidationError(
                 "Siz bu savolga allaqachon javob bergansiz."
             )
@@ -157,15 +160,15 @@ class AnswerCreateSerializer(serializers.Serializer[Answer]):
     @transaction.atomic
     def create(self, validated_data: dict[str, Any]) -> Answer:
         question: Question = validated_data["question"]
-        user_id: int = self.context["request"].user.id  # type: ignore[union-attr]
+        user_id = cast(int, self.context["request"].user.id)
 
         content_data = validated_data["content"]
         content_ser = ContentSerializer(data=content_data)
         content_ser.is_valid(raise_exception=True)
-        content_obj = content_ser.save()
+        content_obj = cast(Content, content_ser.save())
 
         return Answer.objects.create(
             question=question,
-            user=user,
+            user_id=user_id,
             content=content_obj,
         )
