@@ -1,11 +1,13 @@
 from __future__ import annotations
+from typing import cast
+from django.contrib.auth.models import AbstractBaseUser
 from django.db.models import Count, Prefetch, QuerySet
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
-from rest_framework.serializers import BaseSerializer, Serializer
+from rest_framework.serializers import Serializer
 from .models import Answer, Question, QuestionContent
 from .permissions import IsAdminOrReadOnly
 from .serializers import (
@@ -14,13 +16,9 @@ from .serializers import (
     QuestionCreateUpdateSerializer,
     QuestionSerializer,
 )
-from typing import Type, cast
-from django.contrib.auth import get_user_model
-
-User = get_user_model()
 
 
-class QuestionViewSet(viewsets.ModelViewSet):
+class QuestionViewSet(viewsets.ModelViewSet):  # type: ignore[type-arg]
     permission_classes = (IsAdminOrReadOnly,)
 
     def get_queryset(self) -> QuerySet[Question]:
@@ -46,7 +44,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
             .prefetch_related(Prefetch("contents", queryset=contents_qs))
         )
 
-    def get_serializer_class(self) -> type[Serializer]:
+    def get_serializer_class(self) -> type[Serializer]:  # type: ignore[type-arg]
         if self.action in {"create", "update", "partial_update"}:
             return QuestionCreateUpdateSerializer
         return QuestionSerializer
@@ -56,7 +54,7 @@ class AnswerViewSet(
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
-    viewsets.GenericViewSet,
+    viewsets.GenericViewSet,  # type: ignore[type-arg]
 ):
     permission_classes = (IsAuthenticated,)
 
@@ -84,22 +82,23 @@ class AnswerViewSet(
         if not user.is_authenticated:
             return qs.none()
 
-        db_user = cast(User, user)
+        db_user = cast(AbstractBaseUser, user)
 
         if getattr(db_user, "is_staff", False):
             return qs
-        return qs.filter(user=db_user)
 
-    def get_serializer_class(self) -> type[Serializer]:
+        return qs.filter(user_id=db_user.pk)
+
+    def get_serializer_class(self) -> type[Serializer]:  # type: ignore[type-arg]
         if self.action == "create":
             return AnswerCreateSerializer
         return AnswerSerializer
 
     def create(
-            self,
-            request: Request,
-            *args: tuple[object, ...],
-            **kwargs: dict[str, object],
+        self,
+        request: Request,
+        *args: tuple[object, ...],
+        **kwargs: dict[str, object],
     ) -> Response:
         serializer = self.get_serializer(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
@@ -113,8 +112,8 @@ class AnswerViewSet(
         if not request.user.is_authenticated:
             return Response([], status=200)
 
-        db_user = cast(User, request.user)
-        qs = self.get_queryset().filter(user=db_user)
+        db_user = cast(AbstractBaseUser, request.user)
+        qs = self.get_queryset().filter(user_id=db_user.pk)
 
         page = self.paginate_queryset(qs)
         if page is not None:
