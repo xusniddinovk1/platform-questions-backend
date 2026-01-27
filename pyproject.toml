@@ -37,17 +37,17 @@ ignore = ["D100", "D101"]
 "apps/**/migrations/*.py" = ["RUF012", "E501"]
 
 [tool.mypy]
-plugins = ["mypy_django_plugin.main"]
+plugins = ["mypy_django_plugin.main", "mypy_drf_plugin.main"]
 ignore_missing_imports = true
 strict = true
 follow_imports = "silent"
-
 disable_error_code = ["untyped-decorator"]
 
 [tool.django-stubs]
-django_settings_module = "config.settings"
+django_settings_module = "config.settings.dev"
 strict_settings = true
 strict_model_abstract_attrs = true
+
 
 [[tool.mypy.overrides]]
 module = "rest_framework.serializers"
