@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, cast
+from typing import Any, cast, ClassVar
 
 from django.db import transaction
 from rest_framework import serializers
@@ -112,7 +112,7 @@ class QuestionCreateUpdateSerializer(serializers.ModelSerializer[Question]):
 
             content_ser = ContentSerializer(data=content_data)
             content_ser.is_valid(raise_exception=True)
-            content_obj = cast(Content, content_ser.save())
+            content_obj = content_ser.save()
 
             QuestionContent.objects.create(
                 question=question,
@@ -124,7 +124,7 @@ class QuestionCreateUpdateSerializer(serializers.ModelSerializer[Question]):
 
 class AnswerSerializer(serializers.ModelSerializer[Answer]):
     content = ContentSerializer(read_only=True)
-    user = serializers.PrimaryKeyRelatedField(read_only=True)
+    user: ClassVar[object] = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = Answer
@@ -165,7 +165,7 @@ class AnswerCreateSerializer(serializers.Serializer[Answer]):
         content_data = validated_data["content"]
         content_ser = ContentSerializer(data=content_data)
         content_ser.is_valid(raise_exception=True)
-        content_obj = cast(Content, content_ser.save())
+        content_obj = content_ser.save()
 
         return Answer.objects.create(
             question=question,
