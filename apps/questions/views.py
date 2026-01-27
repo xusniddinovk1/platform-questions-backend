@@ -1,15 +1,11 @@
 from __future__ import annotations
-
-from typing import Any, Type
-
 from django.db.models import Count, Prefetch, QuerySet
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
-from rest_framework.serializers import BaseSerializer
-
+from rest_framework.serializers import BaseSerializer, Serializer
 from .models import Answer, Question, QuestionContent
 from .permissions import IsAdminOrReadOnly
 from .serializers import (
@@ -18,6 +14,10 @@ from .serializers import (
     QuestionCreateUpdateSerializer,
     QuestionSerializer,
 )
+from typing import Type, cast
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 
 class QuestionViewSet(viewsets.ModelViewSet):
@@ -46,7 +46,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
             .prefetch_related(Prefetch("contents", queryset=contents_qs))
         )
 
-    def get_serializer_class(self) -> Type[BaseSerializer]:
+    def get_serializer_class(self) -> type[Serializer]:
         if self.action in {"create", "update", "partial_update"}:
             return QuestionCreateUpdateSerializer
         return QuestionSerializer
@@ -81,11 +81,16 @@ class AnswerViewSet(
         )
 
         user = self.request.user
-        if user.is_staff:
-            return qs
-        return qs.filter(user=user)
+        if not user.is_authenticated:
+            return qs.none()
 
-    def get_serializer_class(self) -> Type[BaseSerializer]:
+        db_user = cast(User, user)
+
+        if getattr(db_user, "is_staff", False):
+            return qs
+        return qs.filter(user=db_user)
+
+    def get_serializer_class(self) -> type[Serializer]:
         if self.action == "create":
             return AnswerCreateSerializer
         return AnswerSerializer
@@ -105,7 +110,12 @@ class AnswerViewSet(
 
     @action(detail=False, methods=["get"], url_path="mine")
     def mine(self, request: Request) -> Response:
-        qs = self.get_queryset().filter(user=request.user)
+        if not request.user.is_authenticated:
+            return Response([], status=200)
+
+        db_user = cast(User, request.user)
+        qs = self.get_queryset().filter(user=db_user)
+
         page = self.paginate_queryset(qs)
         if page is not None:
             ser = AnswerSerializer(page, many=True, context={"request": request})

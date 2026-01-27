@@ -11,4 +11,4 @@ router = DefaultRouter()
 router.register("questions", QuestionViewSet, basename="questions")
 router.register("answers", AnswerViewSet, basename="answers")
 
-urlpatterns += router.urls
+urlpatterns.extend(router.urls)

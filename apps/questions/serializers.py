@@ -1,14 +1,14 @@
 from __future__ import annotations
-
-from typing import Any
-
 from django.db import transaction
 from rest_framework import serializers
-
 from .models import Answer, Content, ContentRole, ContentType, Question, QuestionContent
+from typing import Any, cast
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 
-class ContentSerializer(serializers.ModelSerializer):
+class ContentSerializer(serializers.ModelSerializer[Content]):
     class Meta:
         model = Content
         fields = ("id", "content_type", "text", "file", "created_at")
@@ -33,7 +33,7 @@ class ContentSerializer(serializers.ModelSerializer):
         return attrs
 
 
-class QuestionContentSerializer(serializers.ModelSerializer):
+class QuestionContentSerializer(serializers.ModelSerializer[Content]):
     content = ContentSerializer()
 
     class Meta:
@@ -42,7 +42,7 @@ class QuestionContentSerializer(serializers.ModelSerializer):
         read_only_fields = ("id",)
 
 
-class QuestionSerializer(serializers.ModelSerializer):
+class QuestionSerializer(serializers.ModelSerializer[Content]):
     contents = QuestionContentSerializer(many=True, read_only=True)
     answers_count = serializers.IntegerField(read_only=True)
 
@@ -59,7 +59,7 @@ class QuestionSerializer(serializers.ModelSerializer):
         read_only_fields = ("id", "created_at", "contents", "answers_count")
 
 
-class QuestionCreateUpdateSerializer(serializers.ModelSerializer):
+class QuestionCreateUpdateSerializer(serializers.ModelSerializer[Content]):
     contents_payload = serializers.ListField(
         child=serializers.DictField(),
         write_only=True,
@@ -87,11 +87,11 @@ class QuestionCreateUpdateSerializer(serializers.ModelSerializer):
         return question
 
     def _upsert_contents(
-        self,
-        question: Question,
-        payload: list[dict[str, Any]],
-        *,
-        replace: bool,
+            self,
+            question: Question,
+            payload: list[dict[str, Any]],
+            *,
+            replace: bool,
     ) -> None:
         if replace:
             QuestionContent.objects.filter(question=question).delete()
@@ -122,7 +122,7 @@ class QuestionCreateUpdateSerializer(serializers.ModelSerializer):
             )
 
 
-class AnswerSerializer(serializers.ModelSerializer):
+class AnswerSerializer(serializers.ModelSerializer[Content]):
     content = ContentSerializer(read_only=True)
     user = serializers.PrimaryKeyRelatedField(read_only=True)
 
@@ -132,13 +132,13 @@ class AnswerSerializer(serializers.ModelSerializer):
         read_only_fields = ("id", "user", "content", "created_at")
 
 
-class AnswerCreateSerializer(serializers.Serializer):
+class AnswerCreateSerializer(serializers.Serializer[Content]):
     question = serializers.PrimaryKeyRelatedField(queryset=Question.objects.all())
     content = ContentSerializer()
 
     def validate(self, attrs: dict[str, Any]) -> dict[str, Any]:
         question: Question = attrs["question"]
-        user = self.context["request"].user
+        user = cast(User, self.context["request"].user)
 
         allowed = list(question.allowed_answer_types or [])
         content_type = attrs["content"]["content_type"]

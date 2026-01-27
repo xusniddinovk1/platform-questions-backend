@@ -64,7 +64,7 @@ class QuestionContent(models.Model):
     order = models.PositiveIntegerField(default=0)
 
     class Meta:
-        constraints: ClassVar[list[models.UniqueConstraint]] = [
+        constraints: ClassVar[list[models.BaseConstraint]] = [
             models.UniqueConstraint(
                 fields=["question", "content"],
                 name="unique_question_content",
@@ -92,7 +92,7 @@ class Answer(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        constraints: ClassVar[list[models.UniqueConstraint]] = [
+        constraints: ClassVar[list[models.BaseConstraint]] = [
             models.UniqueConstraint(
                 fields=["question", "user"],
                 name="unique_user_answer_per_question",
