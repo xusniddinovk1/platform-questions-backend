@@ -90,7 +90,12 @@ class AnswerViewSet(
             return AnswerCreateSerializer
         return AnswerSerializer
 
-    def create(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+    def create(
+            self,
+            request: Request,
+            *args: tuple[object, ...],
+            **kwargs: dict[str, object],
+    ) -> Response:
         serializer = self.get_serializer(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
         answer: Answer = serializer.save()
