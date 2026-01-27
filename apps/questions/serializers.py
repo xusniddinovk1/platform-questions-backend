@@ -8,7 +8,7 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 
-class ContentSerializer(serializers.ModelSerializer[Content]):
+class ContentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Content
         fields = ("id", "content_type", "text", "file", "created_at")
@@ -33,7 +33,7 @@ class ContentSerializer(serializers.ModelSerializer[Content]):
         return attrs
 
 
-class QuestionContentSerializer(serializers.ModelSerializer[Content]):
+class QuestionContentSerializer(serializers.ModelSerializer):
     content = ContentSerializer()
 
     class Meta:
@@ -42,7 +42,7 @@ class QuestionContentSerializer(serializers.ModelSerializer[Content]):
         read_only_fields = ("id",)
 
 
-class QuestionSerializer(serializers.ModelSerializer[Content]):
+class QuestionSerializer(serializers.ModelSerializer):
     contents = QuestionContentSerializer(many=True, read_only=True)
     answers_count = serializers.IntegerField(read_only=True)
 
@@ -59,7 +59,7 @@ class QuestionSerializer(serializers.ModelSerializer[Content]):
         read_only_fields = ("id", "created_at", "contents", "answers_count")
 
 
-class QuestionCreateUpdateSerializer(serializers.ModelSerializer[Content]):
+class QuestionCreateUpdateSerializer(serializers.ModelSerializer):
     contents_payload = serializers.ListField(
         child=serializers.DictField(),
         write_only=True,
@@ -122,7 +122,7 @@ class QuestionCreateUpdateSerializer(serializers.ModelSerializer[Content]):
             )
 
 
-class AnswerSerializer(serializers.ModelSerializer[Content]):
+class AnswerSerializer(serializers.ModelSerializer):
     content = ContentSerializer(read_only=True)
     user = serializers.PrimaryKeyRelatedField(read_only=True)
 
@@ -132,7 +132,7 @@ class AnswerSerializer(serializers.ModelSerializer[Content]):
         read_only_fields = ("id", "user", "content", "created_at")
 
 
-class AnswerCreateSerializer(serializers.Serializer[Content]):
+class AnswerCreateSerializer(serializers.Serializer):
     question = serializers.PrimaryKeyRelatedField(queryset=Question.objects.all())
     content = ContentSerializer()
 
