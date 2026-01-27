@@ -3,7 +3,6 @@ from django.db import transaction
 from rest_framework import serializers
 from .models import Answer, Content, ContentRole, ContentType, Question, QuestionContent
 from typing import Any, cast
-from django.contrib.auth.models import AbstractBaseUser
 
 
 class ContentSerializer(serializers.ModelSerializer[Content]):
@@ -110,7 +109,7 @@ class QuestionCreateUpdateSerializer(serializers.ModelSerializer[Question]):
 
             content_ser = ContentSerializer(data=content_data)
             content_ser.is_valid(raise_exception=True)
-            content = content_ser.save()
+            content = cast(Content, content_ser.save())
 
             QuestionContent.objects.create(
                 question=question,
@@ -136,7 +135,7 @@ class AnswerCreateSerializer(serializers.Serializer[Answer]):
 
     def validate(self, attrs: dict[str, Any]) -> dict[str, Any]:
         question: Question = attrs["question"]
-        user: AbstractBaseUser = cast(AbstractBaseUser, self.context["request"].user)
+        user_id: int = self.context["request"].user.id  # type: ignore[union-attr]
 
         allowed = list(question.allowed_answer_types or [])
         content_type = attrs["content"]["content_type"]
@@ -148,7 +147,7 @@ class AnswerCreateSerializer(serializers.Serializer[Answer]):
             )
             raise serializers.ValidationError({"content": msg})
 
-        if Answer.objects.filter(question=question, user=user).exists():
+        if Answer.objects.filter(question=question, user=user_id).exists():
             raise serializers.ValidationError(
                 "Siz bu savolga allaqachon javob bergansiz."
             )
@@ -158,7 +157,7 @@ class AnswerCreateSerializer(serializers.Serializer[Answer]):
     @transaction.atomic
     def create(self, validated_data: dict[str, Any]) -> Answer:
         question: Question = validated_data["question"]
-        user: AbstractBaseUser = cast(AbstractBaseUser, self.context["request"].user)
+        user_id: int = self.context["request"].user.id  # type: ignore[union-attr]
 
         content_data = validated_data["content"]
         content_ser = ContentSerializer(data=content_data)
