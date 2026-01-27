@@ -9,15 +9,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
   && rm -rf /var/lib/apt/lists/*
 
+# uv
 RUN pip install --no-cache-dir uv
 
-# dependency fayllar
+# faqat dependency fayllar
 COPY pyproject.toml uv.lock* /app/
 
-# faqat prod deps (dev emas)
-RUN uv sync --no-dev || uv sync
+# pyproject -> requirements.txt va system python'ga install
+RUN uv export --format requirements-txt -o /tmp/requirements.txt \
+ && pip install --no-cache-dir -r /tmp/requirements.txt
 
-# kod
+# endi kod
 COPY . /app/
 
 EXPOSE 8000
