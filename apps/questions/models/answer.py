@@ -2,7 +2,7 @@ from typing import ClassVar
 from django.db import models
 from apps.questions.models.mics import Content
 from apps.questions.models.question import Question
-from config import settings
+from django.conf import settings
 
 
 class Answer(models.Model):
