@@ -4,7 +4,10 @@ from rest_framework import viewsets
 from rest_framework.serializers import Serializer
 from apps.auth.permissions import IsAdminOrReadOnly
 from apps.questions.models.question import Question, QuestionContent
-from apps.questions.serializers.question import QuestionCreateUpdateSerializer, QuestionSerializer
+from apps.questions.serializers.question import (
+    QuestionCreateUpdateSerializer,
+    QuestionSerializer
+)
 
 
 class QuestionViewSet(viewsets.ModelViewSet):  # type: ignore[type-arg]

@@ -2,12 +2,16 @@ from typing import cast
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.db.models import QuerySet
 from requests import Response
-from rest_framework import mixins, status
+from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
+from rest_framework.serializers import Serializer
 from apps.questions.models.answer import Answer
-from apps.questions.serializers.answer import AnswerCreateSerializer, AnswerSerializer
+from apps.questions.serializers.answer import (
+    AnswerCreateSerializer,
+    AnswerSerializer
+)
 
 
 class AnswerViewSet(
