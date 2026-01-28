@@ -24,7 +24,7 @@ typecheck:
 	uv run mypy .
 
 test:
-	uv run pytest .
+	uv run python manage.py test
 
 all-migrations:
 	uv run manage.py makemigrations

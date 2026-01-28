@@ -1,6 +1,7 @@
-from django.conf import settings
+# from django.conf import settings
+import os
 
 ACCESS_TOKEN_EXPIRE_MINUTES = 15
 REFRESH_TOKEN_EXPIRE_DAYS = 7
 JWT_ALGORITHM = "HS256"
-JWT_SECRET = settings.SECRET_KEY
+JWT_SECRET = os.environ.get("JWT_SECRET", "test-secret-key")

@@ -1,15 +1,18 @@
 from __future__ import annotations
+
 from typing import cast
+
 from django.contrib.auth.models import AbstractBaseUser
 from django.db.models import Count, Prefetch, QuerySet
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.serializers import Serializer
+
+from apps.auth.permissions import IsAdminOrReadOnly, IsAuthenticated
+
 from .models import Answer, Question, QuestionContent
-from .permissions import IsAdminOrReadOnly
 from .serializers import (
     AnswerCreateSerializer,
     AnswerSerializer,
@@ -22,20 +25,17 @@ class QuestionViewSet(viewsets.ModelViewSet):  # type: ignore[type-arg]
     permission_classes = (IsAdminOrReadOnly,)
 
     def get_queryset(self) -> QuerySet[Question]:
-        contents_qs = (
-            QuestionContent.objects.select_related("content")
-            .only(
-                "id",
-                "question_id",
-                "content_id",
-                "role",
-                "order",
-                "content__id",
-                "content__content_type",
-                "content__text",
-                "content__file",
-                "content__created_at",
-            )
+        contents_qs = QuestionContent.objects.select_related("content").only(
+            "id",
+            "question_id",
+            "content_id",
+            "role",
+            "order",
+            "content__id",
+            "content__content_type",
+            "content__text",
+            "content__file",
+            "content__created_at",
         )
 
         return (
@@ -59,23 +59,20 @@ class AnswerViewSet(
     permission_classes = (IsAuthenticated,)
 
     def get_queryset(self) -> QuerySet[Answer]:
-        qs = (
-            Answer.objects.select_related("question", "user", "content")
-            .only(
-                "id",
-                "question_id",
-                "user_id",
-                "content_id",
-                "created_at",
-                "question__id",
-                "question__title",
-                "user__id",
-                "content__id",
-                "content__content_type",
-                "content__text",
-                "content__file",
-                "content__created_at",
-            )
+        qs = Answer.objects.select_related("question", "user", "content").only(
+            "id",
+            "question_id",
+            "user_id",
+            "content_id",
+            "created_at",
+            "question__id",
+            "question__title",
+            "user__id",
+            "content__id",
+            "content__content_type",
+            "content__text",
+            "content__file",
+            "content__created_at",
         )
 
         user = self.request.user

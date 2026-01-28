@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     "apps.auth.apps.AuthConfig",
     "apps.user.apps.UserConfig",
     "apps.questions.apps.QuestionsConfig",
+    "apps.notifications.apps.NotificationsConfig",
 ]
 
 MIDDLEWARE = [

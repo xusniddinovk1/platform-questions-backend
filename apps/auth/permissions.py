@@ -10,3 +10,6 @@ class IsAdminOrReadOnly(IsAuthenticated):
             return bool(request.user and request.user.is_authenticated)
         # mypy union-attr muammosini ham yopadi:
         return bool(getattr(request.user, "is_staff", False))
+
+
+__all__ = ["IsAdminOrReadOnly", "IsAuthenticated"]

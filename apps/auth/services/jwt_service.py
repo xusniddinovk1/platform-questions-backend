@@ -8,7 +8,7 @@ from apps.auth.config import (
     JWT_SECRET,
     REFRESH_TOKEN_EXPIRE_DAYS,
 )
-from apps.user.models import User
+from apps.user.models.user_model import User
 
 
 class JWTService:

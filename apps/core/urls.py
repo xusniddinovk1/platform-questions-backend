@@ -12,4 +12,3 @@ router.register("questions", QuestionViewSet, basename="questions")
 router.register("answers", AnswerViewSet, basename="answers")
 
 urlpatterns.extend(router.urls)  # type: ignore[arg-type]
-
