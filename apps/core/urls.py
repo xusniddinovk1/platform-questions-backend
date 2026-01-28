@@ -1,7 +1,8 @@
 from django.urls import path
 from apps.core.views import HealthCheckView
 from rest_framework.routers import DefaultRouter
-from apps.questions.views import AnswerViewSet, QuestionViewSet
+from apps.questions.views.answer import AnswerViewSet
+from apps.questions.views.question import QuestionViewSet
 
 urlpatterns = [
     path("health", HealthCheckView.as_view()),

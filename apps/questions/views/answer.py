@@ -1,53 +1,17 @@
-from __future__ import annotations
-
 from typing import cast
-
-from django.contrib.auth.models import AbstractBaseUser
-from django.db.models import Count, Prefetch, QuerySet
+from django.contrib.auth.base_user import AbstractBaseUser
+from django.db.models import QuerySet
+from requests import Response
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
-from rest_framework.response import Response
 from rest_framework.serializers import Serializer
-
-from apps.auth.permissions import IsAdminOrReadOnly, IsAuthenticated
-
-from .models import Answer, Question, QuestionContent
-from .serializers import (
+from apps.questions.models.answer import Answer
+from apps.questions.serializers.answer import (
     AnswerCreateSerializer,
-    AnswerSerializer,
-    QuestionCreateUpdateSerializer,
-    QuestionSerializer,
+    AnswerSerializer
 )
-
-
-class QuestionViewSet(viewsets.ModelViewSet):  # type: ignore[type-arg]
-    permission_classes = (IsAdminOrReadOnly,)
-
-    def get_queryset(self) -> QuerySet[Question]:
-        contents_qs = QuestionContent.objects.select_related("content").only(
-            "id",
-            "question_id",
-            "content_id",
-            "role",
-            "order",
-            "content__id",
-            "content__content_type",
-            "content__text",
-            "content__file",
-            "content__created_at",
-        )
-
-        return (
-            Question.objects.all()
-            .annotate(answers_count=Count("answers"))
-            .prefetch_related(Prefetch("contents", queryset=contents_qs))
-        )
-
-    def get_serializer_class(self) -> type[Serializer]:  # type: ignore[type-arg]
-        if self.action in {"create", "update", "partial_update"}:
-            return QuestionCreateUpdateSerializer
-        return QuestionSerializer
 
 
 class AnswerViewSet(
@@ -92,10 +56,10 @@ class AnswerViewSet(
         return AnswerSerializer
 
     def create(
-        self,
-        request: Request,
-        *args: tuple[object, ...],
-        **kwargs: dict[str, object],
+            self,
+            request: Request,
+            *args: tuple[object, ...],
+            **kwargs: dict[str, object],
     ) -> Response:
         serializer = self.get_serializer(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
