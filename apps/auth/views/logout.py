@@ -4,7 +4,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from apps.auth.container import get_cookie_service
-from apps.auth.services.cookie_service import CookieService
+from apps.auth.services.cookie import CookieService
 
 
 class LogoutView(views.APIView):

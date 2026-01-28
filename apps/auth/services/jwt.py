@@ -18,17 +18,17 @@ class JWTService:
         self.jwt_secret = JWT_SECRET
         self.refresh_token_expire_days = REFRESH_TOKEN_EXPIRE_DAYS
 
-    def create_access_token(self, user: User) -> str:
+    def create_access_token(self, user_id: int) -> str:
         payload = {
-            "user_id": user.id,
+            "user_id": user_id,
             "exp": datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
             "iat": datetime.utcnow(),
         }
         return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
 
-    def create_refresh_token(self, user: User) -> str:
+    def create_refresh_token(self, user_id: int) -> str:
         payload = {
-            "user_id": user.id,
+            "user_id": user_id,
             "exp": datetime.utcnow() + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS),
             "iat": datetime.utcnow(),
         }

@@ -13,6 +13,37 @@ environ.Env.read_env(BASE_DIR / ".env")
 SECRET_KEY = env("SECRET_KEY")
 AUTH_USER_MODEL = "user.User"
 
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "colored": {
+            "()": "colorlog.ColoredFormatter",
+            "format": (
+                "%(log_color)s[%(levelname)s]%(reset)s %(asctime)s %(name)s: %(message)s"
+            ),
+            "log_colors": {
+                "DEBUG": "cyan",
+                "INFO": "green",
+                "WARNING": "yellow",
+                "ERROR": "red",
+                "CRITICAL": "bold_red",
+            },
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "colored",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "DEBUG",
+    },
+}
+
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",

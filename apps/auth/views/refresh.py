@@ -4,8 +4,8 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from apps.auth.container import get_cookie_service, get_jwt_service
-from apps.auth.services.cookie_service import CookieService
-from apps.auth.services.jwt_service import JWTService
+from apps.auth.services.cookie import CookieService
+from apps.auth.services.jwt import JWTService
 
 
 class RefreshView(views.APIView):
@@ -39,5 +39,5 @@ class RefreshView(views.APIView):
                 {"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED
             )
 
-        access_token = self.jwt_service.create_access_token(user)
+        access_token = self.jwt_service.create_access_token(user.id)
         return Response({"access_token": access_token})
