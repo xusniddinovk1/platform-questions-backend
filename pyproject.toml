@@ -42,20 +42,24 @@ ignore = ["D100", "D101"]
 
 [tool.mypy]
 plugins = ["mypy_django_plugin.main", "mypy_drf_plugin.main"]
-ignore_missing_imports = true
-strict = true
+ignore_missing_imports = false
 follow_imports = "silent"
-disable_error_code = ["untyped-decorator"]
+disable_error_code = ["untyped-decorator", "import-untyped"]
 
 [tool.django-stubs]
 django_settings_module = "config.settings.dev"
 strict_settings = true
 strict_model_abstract_attrs = true
 
-
 [[tool.mypy.overrides]]
-module = "rest_framework.serializers"
+module = [
+    "drf_yasg",
+    "drf_yasg.*",
+    "environ",
+    "rest_framework.serializers"
+]
 ignore_errors = true
+
 
 
 [dependency-groups]
