@@ -1,4 +1,3 @@
-from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status, views
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -7,7 +6,9 @@ from apps.auth.container import get_auth_service
 from apps.auth.dto import RegisterRequestDTO, RegisterResponseDTO
 from apps.auth.serializers.register import RegisterEmailSerializer
 from apps.auth.services.auth import AuthService
-from apps.auth.swagger.register import register_request_example, register_response_example
+from apps.auth.swagger.register import (
+    register_schema_swagger,
+)
 from apps.core.logger import LoggerType, factory_logger
 
 
@@ -20,11 +21,7 @@ class RegisterEmailView(views.APIView):
         self.log = factory_logger(__name__)
         self.auth_service = get_auth_service()
 
-    @swagger_auto_schema(
-        request_body=register_request_example,
-        responses={201: register_response_example},
-        tags=["Authentication"],
-    )
+    @register_schema_swagger
     def post(self, request: Request) -> Response:
         """
         Регистрация пользователя по email.

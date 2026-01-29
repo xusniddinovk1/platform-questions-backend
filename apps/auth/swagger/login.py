@@ -1,4 +1,5 @@
 from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 
 login_request_example = openapi.Schema(
     type=openapi.TYPE_OBJECT,
@@ -36,4 +37,11 @@ login_response_example = openapi.Schema(
         "refresh_token": "dGhpcy1pcy1yZWZyZXNoLXRva2Vu",
         "user": {"id": 1, "email": "user@example.com", "username": "user123"},
     },
+)
+
+
+login_schema_swagger = swagger_auto_schema(
+    request_body=login_request_example,
+    responses={200: login_response_example},
+    tags=["Authentication"],
 )

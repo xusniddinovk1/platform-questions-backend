@@ -6,6 +6,7 @@ from apps.auth.dto import (
     RegisterRequestDTO,
     RegisterResponseDTO,
 )
+from apps.auth.dto.token import RefreshTokenRequestDTO, RefreshTokenResponseDTO
 from apps.auth.exceptions.invalid_credentials import InvalidCredentials
 from apps.auth.exceptions.is_user_already_exists import IsUserAlreadyExists
 from apps.auth.services.cookie import CookieService
@@ -47,4 +48,19 @@ class AuthService:
 
         return LoginResponseDTO(
             access_token=access_token, refresh_token=refresh_token, user=user_data
+        )
+
+    def refresh_token(self, dto: RefreshTokenRequestDTO) -> RefreshTokenResponseDTO:
+        payload = self.jwt_svc.decode_token(dto["refresh_token"])
+
+        user = self.user_svc.get_user_by_id(id=payload.user_id)
+        if not user:
+            raise InvalidCredentials()
+
+        access_token = self.jwt_svc.create_access_token(user.id)
+        refresh_token = self.jwt_svc.create_refresh_token(user.id)
+
+        return RefreshTokenResponseDTO(
+            access_token=access_token,
+            refresh_token=refresh_token,
         )
