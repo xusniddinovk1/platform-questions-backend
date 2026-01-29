@@ -6,8 +6,8 @@ from .views.refresh import RefreshView
 from .views.register import RegisterEmailView
 
 urlpatterns = [
-    path("login/email/", LoginViaEmailView.as_view(), name="login-email"),
-    path("login/google/", OAuthGoogleView.as_view(), name="login-google"),
-    path("register/email/", RegisterEmailView.as_view(), name="register"),
-    path("refresh/", RefreshView.as_view(), name="refresh"),
+    path("auth/login/email/", LoginViaEmailView.as_view(), name="login-email"),
+    path("auth/login/google/", OAuthGoogleView.as_view(), name="login-google"),
+    path("auth/register/email/", RegisterEmailView.as_view(), name="register"),
+    path("auth/refresh/", RefreshView.as_view(), name="refresh"),
 ]

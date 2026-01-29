@@ -1,8 +1,13 @@
+import os
+
 from rest_framework.response import Response
 
 from apps.auth.config import (
     REFRESH_TOKEN_EXPIRE_DAYS,
 )
+
+DJANGO_ENV = os.getenv("DJANGO_ENV", "dev")
+IS_PROD = DJANGO_ENV == "prod"
 
 
 class CookieService:
@@ -16,8 +21,8 @@ class CookieService:
             key=self.cookie_name,
             value=token,
             httponly=True,
-            secure=True,
-            samesite="Strict",
+            secure=IS_PROD,
+            samesite="None" if IS_PROD else "Lax",
             max_age=REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
         )
         return response
