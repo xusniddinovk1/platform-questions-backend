@@ -14,18 +14,14 @@ register_request_example = openapi.Schema(
             type=openapi.TYPE_STRING, description="Email пользователя"
         ),
         "password": openapi.Schema(type=openapi.TYPE_STRING, description="Пароль"),
-        "phone": openapi.Schema(
-            type=openapi.TYPE_STRING, description="Телефон пользователя"
-        ),
     },
-    required=["username", "first_name", "last_name", "email", "password", "phone"],
+    required=["username", "first_name", "last_name", "email", "password"],
     example={
         "username": "user123",
         "first_name": "Иван",
         "last_name": "Иванов",
         "email": "user@example.com",
         "password": "strongpassword123",
-        "phone": "+79991234567",
     },
 )
 
@@ -47,7 +43,7 @@ register_response_example = openapi.Schema(
 )
 
 
-register_schema_swagger = swagger_auto_schema(
+register_email_schema_swagger = swagger_auto_schema(
     request_body=register_request_example,
     responses={201: register_response_example},
     tags=["Authentication"],

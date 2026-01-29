@@ -6,6 +6,7 @@ from apps.auth.dto import (
     RegisterRequestDTO,
     RegisterResponseDTO,
 )
+from apps.auth.dto.register import RegisterEmailRequestDTO
 from apps.auth.dto.token import RefreshTokenRequestDTO, RefreshTokenResponseDTO
 from apps.auth.exceptions.invalid_credentials import InvalidCredentials
 from apps.auth.exceptions.is_user_already_exists import IsUserAlreadyExists
@@ -24,13 +25,22 @@ class AuthService:
         self.cookie_svc = cookie_svc
         self.jwt_svc = jwt_svc
 
-    def register_email(self, dto: RegisterRequestDTO) -> RegisterResponseDTO:
+    def register_email(self, dto: RegisterEmailRequestDTO) -> RegisterResponseDTO:
         is_exists: bool = self.user_svc.is_user_exists(dto["email"])
 
         if is_exists:
             raise IsUserAlreadyExists()
 
-        new_user = self.user_svc.create_user(dto)
+        prepare_data: RegisterRequestDTO = RegisterRequestDTO(
+            email=dto["email"],
+            password=dto["password"],
+            username=dto["username"],
+            last_name=dto["last_name"],
+            first_name=dto["first_name"],
+            phone="",
+        )
+
+        new_user = self.user_svc.create_user(prepare_data)
         access_token = self.jwt_svc.create_access_token(new_user.id)
         refresh_token = self.jwt_svc.create_refresh_token(new_user.id)
 

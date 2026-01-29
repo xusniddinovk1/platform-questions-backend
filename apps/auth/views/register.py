@@ -3,11 +3,12 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from apps.auth.container import get_auth_service
-from apps.auth.dto import RegisterRequestDTO, RegisterResponseDTO
+from apps.auth.dto import RegisterResponseDTO
+from apps.auth.dto.register import RegisterEmailRequestDTO
 from apps.auth.serializers.register import RegisterEmailSerializer
 from apps.auth.services.auth import AuthService
 from apps.auth.swagger.register import (
-    register_schema_swagger,
+    register_email_schema_swagger,
 )
 from apps.core.logger import LoggerType, factory_logger
 
@@ -21,7 +22,7 @@ class RegisterEmailView(views.APIView):
         self.log = factory_logger(__name__)
         self.auth_service = get_auth_service()
 
-    @register_schema_swagger
+    @register_email_schema_swagger
     def post(self, request: Request) -> Response:
         """
         Регистрация пользователя по email.
@@ -31,7 +32,7 @@ class RegisterEmailView(views.APIView):
         serializer = RegisterEmailSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        user_data: RegisterRequestDTO = serializer.validated_data
+        user_data: RegisterEmailRequestDTO = serializer.validated_data
 
         register_response: RegisterResponseDTO = self.auth_service.register_email(
             dto=user_data
