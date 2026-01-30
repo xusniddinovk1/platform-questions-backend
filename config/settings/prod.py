@@ -19,7 +19,7 @@ ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["platform-questions-backend.c
 
 DATABASES = {
     "default": dj_database_url.parse(
-        os.environ.get("DATABASE_URL"),
+        os.environ["DATABASE_URL"],
         conn_max_age=600,
         ssl_require=True,
     )
