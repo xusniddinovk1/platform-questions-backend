@@ -18,7 +18,6 @@ RUN uv export --format requirements-txt -o /tmp/requirements.txt \
 
 COPY . /app/
 
-RUN python manage.py collectstatic --noinput
 
 EXPOSE 8000
 
