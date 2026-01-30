@@ -1,21 +1,46 @@
-from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status, views
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from apps.auth.serializers.register import RegisterSerializer
+from apps.auth.container import get_auth_service
+from apps.auth.dto import RegisterResponseDTO
+from apps.auth.dto.register import RegisterEmailRequestDTO
+from apps.auth.serializers.register import RegisterEmailSerializer
+from apps.auth.services.auth import AuthService
+from apps.auth.swagger.register import (
+    register_email_schema_swagger,
+)
+from apps.core.logger import LoggerType, factory_logger
 
 
-class RegisterView(views.APIView):
-    @swagger_auto_schema(
-        request_body=RegisterSerializer,
-        responses={201: "Пользователь зарегистрирован"},
-        tags=["Authentication"],
-    )
+class RegisterEmailView(views.APIView):
+    auth_service: AuthService
+    log: LoggerType
+
+    def __init__(self, **kwargs: dict[str, object]) -> None:
+        super().__init__(**kwargs)
+        self.log = factory_logger(__name__)
+        self.auth_service = get_auth_service()
+
+    @register_email_schema_swagger
     def post(self, request: Request) -> Response:
-        serializer = RegisterSerializer(data=request.data)
+        """
+        Регистрация пользователя по email.
+        Входные данные: RegisterRequestDTO
+        Выходные данные: RegisterResponseDTO c access и refresh токенами.
+        """
+        serializer = RegisterEmailSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+
+        user_data: RegisterEmailRequestDTO = serializer.validated_data
+
+        register_response: RegisterResponseDTO = self.auth_service.register_email(
+            dto=user_data
+        )
+
+        self.log.info(f"User {user_data['email']} registered")
+
         return Response(
-            {"message": "Пользователь зарегистрирован"}, status=status.HTTP_201_CREATED
+            register_response,
+            status=status.HTTP_201_CREATED,
         )

@@ -8,10 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.serializers import Serializer
 from apps.questions.models.answer import Answer
-from apps.questions.serializers.answer import (
-    AnswerCreateSerializer,
-    AnswerSerializer
-)
+from apps.questions.serializers.answer import AnswerCreateSerializer, AnswerSerializer
 
 
 class AnswerViewSet(
@@ -56,10 +53,10 @@ class AnswerViewSet(
         return AnswerSerializer
 
     def create(
-            self,
-            request: Request,
-            *args: tuple[object, ...],
-            **kwargs: dict[str, object],
+        self,
+        request: Request,
+        *args: tuple[object, ...],
+        **kwargs: dict[str, object],
     ) -> Response:
         serializer = self.get_serializer(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)

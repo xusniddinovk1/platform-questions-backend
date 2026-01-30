@@ -9,7 +9,7 @@ from apps.auth.permissions import IsAdminOrReadOnly
 from apps.questions.models.question import Question, QuestionContent
 from apps.questions.serializers.question import (
     QuestionCreateUpdateSerializer,
-    QuestionSerializer
+    QuestionSerializer,
 )
 
 

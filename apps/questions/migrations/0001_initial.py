@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -15,49 +14,146 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Content',
+            name="Content",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('content_type', models.CharField(choices=[('text', 'Text'), ('image', 'Image'), ('audio', 'Audio'), ('video', 'Video')], max_length=20)),
-                ('text', models.TextField(blank=True, null=True)),
-                ('file', models.FileField(blank=True, null=True, upload_to='content/')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "content_type",
+                    models.CharField(
+                        choices=[
+                            ("text", "Text"),
+                            ("image", "Image"),
+                            ("audio", "Audio"),
+                            ("video", "Video"),
+                        ],
+                        max_length=20,
+                    ),
+                ),
+                ("text", models.TextField(blank=True, null=True)),
+                ("file", models.FileField(blank=True, null=True, upload_to="content/")),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
             ],
         ),
         migrations.CreateModel(
-            name='Question',
+            name="Question",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=255)),
-                ('allowed_answer_types', models.JSONField(blank=True, default=list)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("title", models.CharField(max_length=255)),
+                ("allowed_answer_types", models.JSONField(blank=True, default=list)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
             ],
         ),
         migrations.CreateModel(
-            name='Answer',
+            name="Answer",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='answers', to=settings.AUTH_USER_MODEL)),
-                ('content', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='questions.content')),
-                ('question', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='answers', to='questions.question')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="answers",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "content",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="questions.content",
+                    ),
+                ),
+                (
+                    "question",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="answers",
+                        to="questions.question",
+                    ),
+                ),
             ],
             options={
-                'constraints': [models.UniqueConstraint(fields=('question', 'user'), name='unique_user_answer_per_question')],
+                "constraints": [
+                    models.UniqueConstraint(
+                        fields=("question", "user"),
+                        name="unique_user_answer_per_question",
+                    )
+                ],
             },
         ),
         migrations.CreateModel(
-            name='QuestionContent',
+            name="QuestionContent",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('role', models.CharField(choices=[('question', 'Question'), ('context', 'Context'), ('explanation', 'Explanation'), ('attachment', 'Attachment')], default='question', max_length=20)),
-                ('order', models.PositiveIntegerField(default=0)),
-                ('content', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='questions.content')),
-                ('question', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='contents', to='questions.question')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "role",
+                    models.CharField(
+                        choices=[
+                            ("question", "Question"),
+                            ("context", "Context"),
+                            ("explanation", "Explanation"),
+                            ("attachment", "Attachment"),
+                        ],
+                        default="question",
+                        max_length=20,
+                    ),
+                ),
+                ("order", models.PositiveIntegerField(default=0)),
+                (
+                    "content",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="questions.content",
+                    ),
+                ),
+                (
+                    "question",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="contents",
+                        to="questions.question",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['order', 'id'],
-                'constraints': [models.UniqueConstraint(fields=('question', 'content'), name='unique_question_content')],
+                "ordering": ["order", "id"],
+                "constraints": [
+                    models.UniqueConstraint(
+                        fields=("question", "content"), name="unique_question_content"
+                    )
+                ],
             },
         ),
     ]

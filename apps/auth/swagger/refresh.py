@@ -1,0 +1,73 @@
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
+
+refresh_token_request_example = openapi.Schema(
+    type=openapi.TYPE_OBJECT,
+    properties={
+        "refresh_token": openapi.Schema(
+            type=openapi.TYPE_STRING,
+            description=(
+                "Refresh token пользователя.\n\n"
+                "⚠️ Для WEB-приложений передаётся автоматически "
+                "через HttpOnly cookie и **не передаётся в body**.\n"
+                "📱 Для mobile-приложений может передаваться явно."
+            ),
+        )
+    },
+    required=["refresh_token"],
+    example={"refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."},
+)
+
+refresh_token_response_example = openapi.Schema(
+    type=openapi.TYPE_OBJECT,
+    properties={
+        "access_token": openapi.Schema(
+            type=openapi.TYPE_STRING,
+            description="Новый access token пользователя",
+        ),
+        "refresh_token": openapi.Schema(
+            type=openapi.TYPE_STRING,
+            description="Новый refresh token пользователя",
+        ),
+    },
+    required=["access_token", "refresh_token"],
+    example={
+        "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+        "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    },
+)
+
+
+auth_error_response_example = openapi.Schema(
+    type=openapi.TYPE_OBJECT,
+    properties={
+        "error": openapi.Schema(
+            type=openapi.TYPE_STRING,
+            description="Описание ошибки аутентификации",
+        ),
+    },
+    required=["error"],
+    example={"error": "Invalid token"},
+)
+
+
+refresh_token_swagger = swagger_auto_schema(
+    operation_summary="Refresh access token",
+    operation_description=(
+        "Обновляет access token пользователя по refresh token.\n\n"
+        "🔐 Refresh token хранится в HttpOnly cookie (WEB).\n"
+        "📱 Для mobile-клиентов refresh token может передаваться в body."
+    ),
+    request_body=refresh_token_request_example,
+    responses={
+        200: openapi.Response(
+            description="Access token успешно обновлён",
+            schema=refresh_token_response_example,
+        ),
+        401: openapi.Response(
+            description="Refresh token отсутствует или невалиден",
+            schema=auth_error_response_example,
+        ),
+    },
+    tags=["Authentication"],
+)

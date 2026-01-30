@@ -3,10 +3,7 @@ from django.db import transaction
 from rest_framework import serializers
 from apps.questions.models.mics import ContentRole
 from apps.questions.models.question import Question, QuestionContent
-from apps.questions.serializers.mics import (
-    QuestionContentSerializer,
-    ContentSerializer
-)
+from apps.questions.serializers.mics import QuestionContentSerializer, ContentSerializer
 
 
 class QuestionSerializer(serializers.ModelSerializer[Question]):
@@ -54,11 +51,11 @@ class QuestionCreateUpdateSerializer(serializers.ModelSerializer[Question]):
         return question
 
     def _upsert_contents(
-            self,
-            question: Question,
-            payload: list[dict[str, Any]],
-            *,
-            replace: bool,
+        self,
+        question: Question,
+        payload: list[dict[str, Any]],
+        *,
+        replace: bool,
     ) -> None:
         if replace:
             QuestionContent.objects.filter(question=question).delete()

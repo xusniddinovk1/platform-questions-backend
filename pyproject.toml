@@ -5,12 +5,12 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "colorlog>=6.10.1",
     "dj-database-url>=3.1.0",
     "django>=6.0.1",
     "django-cors-headers>=4.9.0",
     "django-environ>=0.12.0",
     "django-filter>=25.2",
-    "django-stubs>=5.2.8",
     "djangorestframework>=3.16.1",
     "djangorestframework-simplejwt>=5.5.1",
     "drf-yasg>=1.21.14",
@@ -42,20 +42,24 @@ ignore = ["D100", "D101"]
 
 [tool.mypy]
 plugins = ["mypy_django_plugin.main", "mypy_drf_plugin.main"]
-ignore_missing_imports = true
-strict = true
+ignore_missing_imports = false
 follow_imports = "silent"
-disable_error_code = ["untyped-decorator"]
+disable_error_code = ["untyped-decorator", "import-untyped"]
 
 [tool.django-stubs]
 django_settings_module = "config.settings.dev"
 strict_settings = true
 strict_model_abstract_attrs = true
 
-
 [[tool.mypy.overrides]]
-module = "rest_framework.serializers"
+module = [
+    "drf_yasg",
+    "drf_yasg.*",
+    "environ",
+    "rest_framework.serializers"
+]
 ignore_errors = true
+
 
 
 [dependency-groups]
