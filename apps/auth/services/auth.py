@@ -10,7 +10,6 @@ from apps.auth.dto.register import RegisterEmailRequestDTO
 from apps.auth.dto.token import RefreshTokenRequestDTO, RefreshTokenResponseDTO
 from apps.auth.exceptions.invalid_credentials import InvalidCredentials
 from apps.auth.exceptions.is_user_already_exists import IsUserAlreadyExists
-from apps.auth.services.cookie import CookieService
 from apps.auth.services.jwt import JWTService
 from apps.user.dto import UserDTO
 from apps.user.serializer import UserSerializer
@@ -18,11 +17,8 @@ from apps.user.services.user import UserService
 
 
 class AuthService:
-    def __init__(
-        self, user_svc: UserService, cookie_svc: CookieService, jwt_svc: JWTService
-    ) -> None:
+    def __init__(self, user_svc: UserService, jwt_svc: JWTService) -> None:
         self.user_svc = user_svc
-        self.cookie_svc = cookie_svc
         self.jwt_svc = jwt_svc
 
     def register_email(self, dto: RegisterEmailRequestDTO) -> RegisterResponseDTO:
