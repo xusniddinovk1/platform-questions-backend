@@ -1,4 +1,7 @@
 from __future__ import annotations
+
+from typing import cast
+
 from django.db.models import Count, Prefetch, QuerySet
 from rest_framework import viewsets
 from rest_framework.serializers import Serializer
@@ -27,10 +30,11 @@ class QuestionViewSet(viewsets.ModelViewSet):  # type: ignore[type-arg]
             "content__created_at",
         )
 
-        return (
+        return cast(
+            QuerySet[Question],
             Question.objects.all()
             .annotate(answers_count=Count("answers"))
-            .prefetch_related(Prefetch("contents", queryset=contents_qs))
+            .prefetch_related(Prefetch("contents", queryset=contents_qs)),
         )
 
     def get_serializer_class(self) -> type[Serializer]:  # type: ignore[type-arg]

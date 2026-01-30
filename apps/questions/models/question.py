@@ -1,15 +1,13 @@
+from __future__ import annotations
 from typing import ClassVar
 from django.db import models
 from apps.questions.models.mics import Content, ContentRole
 
 
 class Question(models.Model):
+    objects: ClassVar[models.Manager["Question"]]
     title = models.CharField(max_length=255)
-    allowed_answer_types = models.JSONField(
-        default=list,
-        blank=True,
-    )
-
+    allowed_answer_types = models.JSONField(default=list, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self) -> str:
@@ -17,6 +15,7 @@ class Question(models.Model):
 
 
 class QuestionContent(models.Model):
+    objects: ClassVar[models.Manager["QuestionContent"]]
     question = models.ForeignKey(
         Question,
         on_delete=models.CASCADE,
