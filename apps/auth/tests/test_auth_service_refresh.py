@@ -19,7 +19,6 @@ class AuthServiceRefreshTokenTest(TestCase):
 
         self.auth_service = AuthService(
             user_svc=self.user_service,
-            cookie_svc=Mock(),
             jwt_svc=self.jwt_service,
         )
 

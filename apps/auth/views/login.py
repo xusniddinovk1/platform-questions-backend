@@ -2,16 +2,18 @@ from rest_framework import views
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from apps.auth.container import get_auth_service
+from apps.auth.container import get_auth_service, get_cookie_service
 from apps.auth.dto import LoginEmailRequestDTO, LoginResponseDTO
 from apps.auth.serializers.login import LoginSerializer
 from apps.auth.services.auth import AuthService
+from apps.auth.services.cookie import CookieService
 from apps.auth.swagger.login import login_schema_swagger
 from apps.core.logger import LoggerType, factory_logger
 
 
 class LoginViaEmailView(views.APIView):
     auth_service: AuthService
+    cookie_service: CookieService
     log: LoggerType
 
     def __init__(self, **kwargs: dict[str, object]) -> None:
@@ -19,6 +21,7 @@ class LoginViaEmailView(views.APIView):
 
         self.log = factory_logger(__name__)
         self.auth_service = get_auth_service()
+        self.cookie_service = get_cookie_service()
 
     @login_schema_swagger
     def post(self, request: Request) -> Response:
@@ -30,7 +33,7 @@ class LoginViaEmailView(views.APIView):
 
         response = Response(login_response, status=200)
 
-        response = self.auth_service.cookie_svc.set_cookie(
+        response = self.cookie_service.set_cookie(
             response, login_response["refresh_token"]
         )
 

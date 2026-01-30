@@ -13,6 +13,7 @@ environ.Env.read_env(BASE_DIR / ".env")
 SECRET_KEY = env("SECRET_KEY")
 AUTH_USER_MODEL = "user.User"
 
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -124,6 +125,8 @@ SWAGGER_SETTINGS = {
     },
     "USE_SESSION_AUTH": False,
 }
+
+SWAGGER_URL = "/docs/"
 
 TEMPLATES = [
     {
