@@ -1,8 +1,8 @@
 from typing import cast
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.db.models import QuerySet
-from requests import Response
 from rest_framework import mixins, status, viewsets
+from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
