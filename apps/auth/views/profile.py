@@ -1,3 +1,4 @@
+
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -20,7 +21,7 @@ class ProfileView(APIView):
     profile_service: ProfileService
     cookie_service: CookieService
 
-    permission_classes = [IsAuthenticated, IsUser]
+    permission_classes = (IsAuthenticated, IsUser)
 
     def __init__(self) -> None:
         super().__init__()
