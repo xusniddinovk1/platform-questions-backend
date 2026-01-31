@@ -1,5 +1,7 @@
 from django.urls import path
 
+from apps.auth.views.profile import ProfileView
+
 from .views.login import LoginViaEmailView
 from .views.logout import LogoutView
 from .views.oauth import OAuthGoogleView
@@ -12,4 +14,5 @@ urlpatterns = [
     path("auth/register/email/", RegisterEmailView.as_view(), name="register"),
     path("auth/refresh/", RefreshView.as_view(), name="refresh"),
     path("auth/logout/", LogoutView.as_view(), name="logout"),
+    path("auth/profile/", ProfileView.as_view(), name="profile"),
 ]
