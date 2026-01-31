@@ -15,6 +15,7 @@ class ProfileRequestSerializer(serializers.Serializer):
     refresh_token = serializers.CharField(
         required=False,
         allow_blank=True,
+        help_text="Refresh token (только для mobile клиентов)",
     )
 
     def validate(self, attrs: ProfileRequestDTO) -> ProfileRequestDTO:

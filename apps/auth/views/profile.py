@@ -1,8 +1,10 @@
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.auth.container import get_cookie_service, get_profile_service
+from apps.auth.permissions.role_permissions import IsUser
 from apps.auth.serializers.profile import (
     ProfileRequestSerializer,
     ProfileResponeSerializer,
@@ -17,6 +19,8 @@ class ProfileView(APIView):
     log: LoggerType
     profile_service: ProfileService
     cookie_service: CookieService
+
+    permission_classes = [IsAuthenticated, IsUser]
 
     def __init__(self) -> None:
         super().__init__()
