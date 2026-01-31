@@ -1,3 +1,4 @@
+from rest_framework.request import Request
 from rest_framework.response import Response
 
 from apps.auth.config import (
@@ -26,6 +27,9 @@ class CookieService:
             max_age=REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
         )
         return response
+
+    def get_cookie(self, request: Request) -> str | None:
+        return request.COOKIES.get(self.cookie_name)
 
     def delete_cookie(self, response: Response) -> Response:
         response.delete_cookie(self.cookie_name)
