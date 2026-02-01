@@ -5,7 +5,7 @@ from rest_framework.request import Request
 
 class OAuthGoogleView(views.APIView):
     @swagger_auto_schema(
-        operation_description="Login via Google OAuth", tags=["OAuth", "Authentication"]
+        operation_description="Login via Google OAuth", tags=["Authentication"]
     )
     def post(self, request: Request) -> None:
         pass
