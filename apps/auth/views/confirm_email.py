@@ -1,0 +1,33 @@
+from django.conf import settings
+from django.http import HttpResponseRedirect
+from rest_framework.request import Request
+from rest_framework.views import APIView
+
+from apps.auth.container import get_confirmation_activation_service
+from apps.auth.services.email_confirmation import EmailConfirmationActivationService
+
+
+class EmailConfirmAPIView(APIView):
+    """
+    API endpoint для подтверждения email по ссылке.
+    URL: /v1/auth/confirm/<uidb64>/<token>/
+    """
+
+    activation_service: EmailConfirmationActivationService
+
+    def __init__(self, **kwargs: dict[str, object]) -> None:
+        super().__init__(**kwargs)
+
+        self.activation_service = get_confirmation_activation_service()
+
+    def get(self, request: Request, uidb64: str, token: str) -> HttpResponseRedirect:
+        success = self.activation_service.confirm(uidb64, token)
+
+        if success:
+            return HttpResponseRedirect(
+                f"{settings.FRONTEND_URL}/email-confirm?status=success"
+            )
+        else:
+            return HttpResponseRedirect(
+                f"{settings.FRONTEND_URL}/email-confirm?status=invalid"
+            )

@@ -13,6 +13,8 @@ environ.Env.read_env(BASE_DIR / ".env")
 SECRET_KEY = env("SECRET_KEY")
 AUTH_USER_MODEL = "user.User"
 
+SITE_URL = env("SITE_URL", default="http://localhost:8000")
+FRONTEND_URL = env("FRONTEND_URL", default="http://localhost:3000")
 
 LOGGING = {
     "version": 1,

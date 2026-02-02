@@ -20,6 +20,7 @@ class AuthServiceRefreshTokenTest(TestCase):
         self.auth_service = AuthService(
             user_svc=self.user_service,
             jwt_svc=self.jwt_service,
+            email_confierm_svc=Mock(),
         )
 
     def test_refresh_token_success(self) -> None:

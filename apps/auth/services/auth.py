@@ -10,6 +10,7 @@ from apps.auth.dto.register import RegisterEmailRequestDTO
 from apps.auth.dto.token import RefreshTokenRequestDTO, RefreshTokenResponseDTO
 from apps.auth.exceptions.invalid_credentials import InvalidCredentials
 from apps.auth.exceptions.is_user_already_exists import IsUserAlreadyExists
+from apps.auth.services.email_confirmation import EmailConfirmationService
 from apps.auth.services.jwt import JWTService
 from apps.user.dto import UserDTO
 from apps.user.serializer import UserSerializer
@@ -17,9 +18,15 @@ from apps.user.services.user import UserService
 
 
 class AuthService:
-    def __init__(self, user_svc: UserService, jwt_svc: JWTService) -> None:
+    def __init__(
+        self,
+        user_svc: UserService,
+        jwt_svc: JWTService,
+        email_confierm_svc: EmailConfirmationService,
+    ) -> None:
         self.user_svc = user_svc
         self.jwt_svc = jwt_svc
+        self.email_confierm_svc = email_confierm_svc
 
     def register_email(self, dto: RegisterEmailRequestDTO) -> RegisterResponseDTO:
         is_exists: bool = self.user_svc.is_user_exists(dto["email"])
@@ -37,6 +44,9 @@ class AuthService:
         )
 
         new_user = self.user_svc.create_user(prepare_data)
+
+        self.email_confierm_svc.send_confirmation(new_user)
+
         access_token = self.jwt_svc.create_access_token(new_user.id)
         refresh_token = self.jwt_svc.create_refresh_token(new_user.id)
 
@@ -49,6 +59,8 @@ class AuthService:
 
         access_token = self.jwt_svc.create_access_token(user.id)
         refresh_token = self.jwt_svc.create_refresh_token(user.id)
+
+        self.email_confierm_svc.send_confirmation(user)
 
         user_data: UserDTO = cast(UserDTO, UserSerializer(user).data)
 
