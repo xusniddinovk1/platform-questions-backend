@@ -5,6 +5,7 @@ from rest_framework.views import APIView
 
 from apps.auth.container import get_confirmation_activation_service
 from apps.auth.services.email_confirmation import EmailConfirmationActivationService
+from apps.auth.swagger.confirm_email import email_confirm_swagger
 
 
 class EmailConfirmAPIView(APIView):
@@ -20,6 +21,7 @@ class EmailConfirmAPIView(APIView):
 
         self.activation_service = get_confirmation_activation_service()
 
+    @email_confirm_swagger
     def get(self, request: Request, uidb64: str, token: str) -> HttpResponseRedirect:
         success = self.activation_service.confirm(uidb64, token)
 

@@ -60,8 +60,6 @@ class AuthService:
         access_token = self.jwt_svc.create_access_token(user.id)
         refresh_token = self.jwt_svc.create_refresh_token(user.id)
 
-        self.email_confierm_svc.send_confirmation(user)
-
         user_data: UserDTO = cast(UserDTO, UserSerializer(user).data)
 
         return LoginResponseDTO(
