@@ -12,7 +12,7 @@ from apps.auth.serializers.profile import (
 from apps.auth.services.cookie import CookieService
 from apps.auth.services.profile import ProfileService
 from apps.auth.swagger.profile import profile_swagger
-from apps.core.logger import LoggerType, factory_logger
+from apps.core.logger import LoggerType, get_logger_service
 
 
 class ProfileView(APIView):
@@ -25,7 +25,7 @@ class ProfileView(APIView):
     def __init__(self) -> None:
         super().__init__()
 
-        self.log = factory_logger(__name__)
+        self.log = get_logger_service(__name__)
         self.profile_service = get_profile_service()
         self.cookie_service = get_cookie_service()
 
