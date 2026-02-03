@@ -8,6 +8,7 @@ from apps.auth.services.email_confirmation import (
 from apps.auth.services.jwt import JWTService
 from apps.auth.services.profile import ProfileService
 from apps.auth.tokens.django import DjangoTokenGenerator
+from apps.core.container import get_config_service
 from apps.core.logger import factory_logger
 from apps.notifications.services.email import EmailSenderService
 from apps.user.container import get_user_service
@@ -38,9 +39,10 @@ def get_profile_service() -> ProfileService:
 
 
 def get_confirmation_service() -> EmailConfirmationService:
-    sender = EmailSenderService()
+    cfg = get_config_service()
+    sender = EmailSenderService(cfg)
     token_generator = DjangoTokenGenerator()
-    link_service = ConfirmationLinkService(token_generator)
+    link_service = ConfirmationLinkService(token_generator, cfg)
 
     log = factory_logger("email_confirmation_service")
 
