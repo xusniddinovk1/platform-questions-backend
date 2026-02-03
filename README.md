@@ -34,6 +34,12 @@ echo "POSTGRES_USER=" >> .env
 echo "POSTGRES_PASSWORD=" >> .env
 echo "POSTGRES_HOST=" >> .env
 echo "POSTGRES_PORT=" >> .env
+
+echo "EMAIL_HOST_USER"= >> .env
+echo "EMAIL_HOST_PASSWORD"= >> .env
+echo "DEFAULT_FROM_EMAIL"= >> .env
+
+echo "FRONTEND_URL=" >> .env
 ```
 
 -----

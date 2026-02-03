@@ -1,4 +1,3 @@
-# from django.conf import settings
 import os
 
 ACCESS_TOKEN_EXPIRE_MINUTES = 15
