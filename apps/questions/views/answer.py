@@ -8,6 +8,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.serializers import Serializer
 
+from apps.questions.common.pagination import Pagination
 from apps.questions.models.answer import Answer
 from apps.questions.serializers.answer import AnswerCreateSerializer, AnswerSerializer
 from apps.questions.services.answer import (
@@ -23,6 +24,7 @@ class AnswerViewSet(
     viewsets.GenericViewSet,  # type: ignore[type-arg]
 ):
     permission_classes = (IsAuthenticated,)
+    pagination_class = Pagination
 
     def get_queryset(self) -> QuerySet[Answer]:
         return answers_queryset_for_request(self.request)

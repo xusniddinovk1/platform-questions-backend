@@ -7,6 +7,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.serializers import Serializer
 from apps.auth.permissions import IsAdminOrReadOnly
+from apps.questions.common.pagination import Pagination
 from apps.questions.models.question import Question
 from apps.questions.serializers.question import (
     QuestionCreateUpdateSerializer,
@@ -22,6 +23,7 @@ from apps.questions.swagger.question import (
 
 class QuestionViewSet(viewsets.ModelViewSet):  # type: ignore[type-arg]
     permission_classes = (IsAdminOrReadOnly,)
+    pagination_class = Pagination
 
     def get_queryset(self) -> QuerySet[Question]:
         return build_questions_queryset()
