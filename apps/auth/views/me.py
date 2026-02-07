@@ -16,6 +16,8 @@ class MeView(APIView):
     me_service: MeService
     log: LoggerType
 
+    # permission_classes = (IsAuthenticated,)
+
     def __init__(self) -> None:
         super().__init__()
         self.me_service = get_me_service()
@@ -43,7 +45,7 @@ class MeView(APIView):
             return Response({"detail": "User not found"}, status=404)
 
         dto: MeResponseDTO = MeResponseDTO(
-            id=user.id,
+            id=user.pk,
             email=user.email,
             username=user.username,
             last_name=user.last_name,

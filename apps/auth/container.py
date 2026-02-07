@@ -20,7 +20,7 @@ def get_jwt_service() -> JWTService:
 
 
 def get_cookie_service() -> CookieService:
-    return CookieService()
+    return CookieService(config=get_config_service())
 
 
 def get_auth_service() -> AuthService:
