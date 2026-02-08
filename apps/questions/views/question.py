@@ -40,24 +40,42 @@ class QuestionListCreateAPI(
         return build_questions_queryset()
 
     def get_serializer_class(self) -> type[Serializer]:
-        return QuestionCreateUpdateSerializer if self.request.method == "POST" else QuestionSerializer
+        return (
+            QuestionCreateUpdateSerializer
+            if self.request.method == "POST"
+            else QuestionSerializer
+        )
 
     @swagger_auto_schema(
         operation_summary="Questionlar ro'yxati",
         manual_parameters=PAGINATION_PARAMS,
-        responses={200: openapi.Response(description="OK", schema=question_list_response_schema)},
+        responses={200: openapi.Response(
+            description="OK",
+            schema=question_list_response_schema
+        )},
         tags=["Questions"],
     )
-    def get(self, request: Request, *args: object, **kwargs: object) -> Response:
+    def get(self,
+            request: Request,
+            *args: object,
+            **kwargs: object
+            ) -> Response:
         return self.list(request, *args, **kwargs)
 
     @swagger_auto_schema(
         operation_summary="Question yaratish",
         request_body=question_create_update_request_schema,
-        responses={201: openapi.Response(description="Created", schema=question_response_schema)},
+        responses={201: openapi.Response(
+            description="Created",
+            schema=question_response_schema
+        )},
         tags=["Questions"],
     )
-    def post(self, request: Request, *args: object, **kwargs: object) -> Response:
+    def post(self,
+             request: Request,
+             *args: object,
+             **kwargs: object
+             ) -> Response:
         return self.create(request, *args, **kwargs)
 
 
@@ -74,30 +92,58 @@ class QuestionRetrieveUpdateAPI(
         return build_questions_queryset()
 
     def get_serializer_class(self) -> type[Serializer]:
-        return QuestionCreateUpdateSerializer if self.request.method in {"PUT", "PATCH"} else QuestionSerializer
+        return (
+            QuestionCreateUpdateSerializer
+            if self.request.method in {"PUT", "PATCH"}
+            else QuestionSerializer
+        )
 
     @swagger_auto_schema(
         operation_summary="Bitta question olish",
-        responses={200: openapi.Response(description="OK", schema=question_response_schema)},
+        responses={200: openapi.Response(
+            description="OK",
+            schema=question_response_schema
+        )},
         tags=["Questions"],
     )
-    def get(self, request: Request, pk: int, *args: object, **kwargs: object) -> Response:
+    def get(self,
+            request: Request,
+            pk: int,
+            *args: object,
+            **kwargs: object
+            ) -> Response:
         return self.retrieve(request, *args, **kwargs)
 
     @swagger_auto_schema(
         operation_summary="Question yangilash (PUT)",
         request_body=question_create_update_request_schema,
-        responses={200: openapi.Response(description="OK", schema=question_response_schema)},
+        responses={200: openapi.Response(
+            description="OK",
+            schema=question_response_schema
+        )},
         tags=["Questions"],
     )
-    def put(self, request: Request, pk: int, *args: object, **kwargs: object) -> Response:
+    def put(self,
+            request: Request,
+            pk: int,
+            *args: object,
+            **kwargs: object
+            ) -> Response:
         return self.update(request, *args, **kwargs)
 
     @swagger_auto_schema(
         operation_summary="Question qisman yangilash (PATCH)",
         request_body=question_create_update_request_schema,
-        responses={200: openapi.Response(description="OK", schema=question_response_schema)},
+        responses={200: openapi.Response(
+            description="OK",
+            schema=question_response_schema
+        )},
         tags=["Questions"],
     )
-    def patch(self, request: Request, pk: int, *args: object, **kwargs: object) -> Response:
+    def patch(self,
+              request: Request,
+              pk: int,
+              *args: object,
+              **kwargs: object
+              ) -> Response:
         return self.partial_update(request, *args, **kwargs)
