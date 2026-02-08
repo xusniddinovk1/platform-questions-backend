@@ -13,7 +13,6 @@ from apps.questions.models.answer import Answer
 from apps.questions.serializers.answer import AnswerCreateSerializer, AnswerSerializer
 from apps.questions.services.answer import answers_queryset_for_request, create_answer
 
-
 PAGINATION_PARAMS = [
     openapi.Parameter("page", openapi.IN_QUERY, type=openapi.TYPE_INTEGER),
     openapi.Parameter("page_size", openapi.IN_QUERY, type=openapi.TYPE_INTEGER),
@@ -31,7 +30,11 @@ class AnswerListCreateAPI(
         return answers_queryset_for_request(self.request)
 
     def get_serializer_class(self) -> type[Serializer]:
-        return AnswerCreateSerializer if self.request.method == "POST" else AnswerSerializer
+        return (
+            AnswerCreateSerializer
+            if self.request.method == "POST"
+            else AnswerSerializer
+        )
 
     @swagger_auto_schema(
         operation_summary="Answerlar ro'yxati",
@@ -39,7 +42,11 @@ class AnswerListCreateAPI(
         responses={200: AnswerSerializer(many=True)},
         tags=["Answers"],
     )
-    def get(self, request: Request, *args: object, **kwargs: object) -> Response:
+    def get(self,
+            request: Request,
+            *args: object,
+            **kwargs: object
+            ) -> Response:
         return self.list(request, *args, **kwargs)
 
     @swagger_auto_schema(
@@ -48,7 +55,11 @@ class AnswerListCreateAPI(
         responses={201: AnswerSerializer()},
         tags=["Answers"],
     )
-    def post(self, request: Request, *args: object, **kwargs: object) -> Response:
+    def post(self,
+             request: Request,
+             *args: object,
+             **kwargs: object
+             ) -> Response:
         answer = create_answer(request)
         out = AnswerSerializer(answer, context={"request": request})
         return Response(out.data, status=status.HTTP_201_CREATED)
@@ -71,7 +82,12 @@ class AnswerRetrieveAPI(
         responses={200: AnswerSerializer()},
         tags=["Answers"],
     )
-    def get(self, request: Request, pk: int, *args: object, **kwargs: object) -> Response:
+    def get(self,
+            request: Request,
+            pk: int,
+            *args: object,
+            **kwargs: object
+            ) -> Response:
         return self.retrieve(request, *args, **kwargs)
 
 
@@ -92,5 +108,9 @@ class MyAnswersAPI(
         responses={200: AnswerSerializer(many=True)},
         tags=["Answers"],
     )
-    def get(self, request: Request, *args: object, **kwargs: object) -> Response:
+    def get(self,
+            request: Request,
+            *args: object,
+            **kwargs: object
+            ) -> Response:
         return self.list(request, *args, **kwargs)
