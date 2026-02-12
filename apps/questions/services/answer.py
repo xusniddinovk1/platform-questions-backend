@@ -48,18 +48,10 @@ class AnswerService:
             raise serializers.ValidationError({"question": "Question topilmadi."})
         return question
 
-    def list_by_question(self, question_id: int) -> Iterable[Answer]:
-        question = self._get_question_or_404(question_id)
-        return self.answer_repo.list_by_question(question)
-
     def ensure_answer_type_allowed(self, question: Question, content_type: str) -> None:
         allowed = list(question.allowed_answer_types or [])
         if allowed and content_type not in allowed:
             raise AnswerTypeNotAllowed(allowed=allowed, sent=content_type)
-
-    def ensure_not_answered_yet(self, question: Question, user_id: int) -> None:
-        if self.answer_repo.exists_for_user(question, user_id):
-            raise AnswerAlreadyExists("User already answered this question.")
 
     @transaction.atomic
     def create_answer(self, cmd: CreateAnswerCommand) -> Answer:
