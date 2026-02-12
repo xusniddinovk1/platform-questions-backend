@@ -1,116 +1,50 @@
-from __future__ import annotations
-from django.db.models import QuerySet
-from drf_yasg import openapi
-from drf_yasg.utils import swagger_auto_schema
-from rest_framework import mixins, status
-from rest_framework.generics import GenericAPIView
-from rest_framework.permissions import BasePermission, IsAuthenticated
-from rest_framework.request import Request
+from rest_framework.exceptions import ValidationError
+from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.serializers import Serializer
-from apps.questions.common.pagination import Pagination
-from apps.questions.models.answer import Answer
-from apps.questions.serializers.answer import AnswerCreateSerializer, AnswerSerializer
-from apps.questions.services.answer import answers_queryset_for_request, create_answer
+from rest_framework import status, permissions, serializers
+from apps.questions.repositories.answer import AnswerRepository
+from apps.questions.repositories.question import QuestionRepository
+from apps.questions.serializers.answer import AnswerSerializer
+from apps.questions.services.answer import (
+    AnswerService,
+    CreateAnswerCommand,
+    AnswerAlreadyExists,
+    AnswerTypeNotAllowed,
+)
 
-PAGINATION_PARAMS = [
-    openapi.Parameter("page", openapi.IN_QUERY, type=openapi.TYPE_INTEGER),
-    openapi.Parameter("page_size", openapi.IN_QUERY, type=openapi.TYPE_INTEGER),
-]
+answer_service = AnswerService(
+    question_repo=QuestionRepository(),
+    answer_repo=AnswerRepository(),
+)
 
 
-class AnswerListCreateAPI(
-    mixins.ListModelMixin,
-    GenericAPIView,
-):
-    permission_classes: tuple[type[BasePermission], ...] = (IsAuthenticated,)
-    pagination_class = Pagination
+class AnswerListByQuestionAPIView(APIView):
+    permission_classes = [permissions.AllowAny]
 
-    def get_queryset(self) -> QuerySet[Answer]:
-        return answers_queryset_for_request(self.request)
+    def get(self, request, question_id: int):
+        answers = answer_service.list_by_question(question_id)
+        return Response(AnswerSerializer(answers, many=True).data, status=status.HTTP_200_OK)
 
-    def get_serializer_class(self) -> type[Serializer]:
-        return (
-            AnswerCreateSerializer
-            if self.request.method == "POST"
-            else AnswerSerializer
+
+class AnswerCreateAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        cmd = CreateAnswerCommand(
+            question_id=int(request.data.get("question")),
+            user_id=int(request.user.id),
+            content=request.data.get("content") or {},
         )
 
-    @swagger_auto_schema(
-        operation_summary="Answerlar ro'yxati",
-        manual_parameters=PAGINATION_PARAMS,
-        responses={200: AnswerSerializer(many=True)},
-        tags=["Answers"],
-    )
-    def get(self,
-            request: Request,
-            *args: object,
-            **kwargs: object
-            ) -> Response:
-        return self.list(request, *args, **kwargs)
+        try:
+            answer = answer_service.create_answer(cmd)
+        except AnswerAlreadyExists:
+            raise ValidationError("Siz bu savolga allaqachon javob bergansiz.")
+        except AnswerTypeNotAllowed as e:
+            raise ValidationError(
+                {"content": f"Ruxsat etilgan turlar: {e.allowed}. Siz yubordingiz: {e.sent}"}
+            )
+        except serializers.ValidationError as e:
+            raise ValidationError(e.detail)
 
-    @swagger_auto_schema(
-        operation_summary="Answer yaratish",
-        request_body=AnswerCreateSerializer,
-        responses={201: AnswerSerializer()},
-        tags=["Answers"],
-    )
-    def post(self,
-             request: Request,
-             *args: object,
-             **kwargs: object
-             ) -> Response:
-        answer = create_answer(request)
-        out = AnswerSerializer(answer, context={"request": request})
-        return Response(out.data, status=status.HTTP_201_CREATED)
-
-
-class AnswerRetrieveAPI(
-    mixins.RetrieveModelMixin,
-    GenericAPIView,
-):
-    permission_classes: tuple[type[BasePermission], ...] = (IsAuthenticated,)
-    pagination_class = None
-    serializer_class = AnswerSerializer
-    lookup_url_kwarg = "pk"
-
-    def get_queryset(self) -> QuerySet[Answer]:
-        return answers_queryset_for_request(self.request)
-
-    @swagger_auto_schema(
-        operation_summary="Bitta answer olish",
-        responses={200: AnswerSerializer()},
-        tags=["Answers"],
-    )
-    def get(self,
-            request: Request,
-            pk: int,
-            *args: object,
-            **kwargs: object
-            ) -> Response:
-        return self.retrieve(request, *args, **kwargs)
-
-
-class MyAnswersAPI(
-    mixins.ListModelMixin,
-    GenericAPIView,
-):
-    permission_classes: tuple[type[BasePermission], ...] = (IsAuthenticated,)
-    pagination_class = Pagination
-    serializer_class = AnswerSerializer
-
-    def get_queryset(self) -> QuerySet[Answer]:
-        return answers_queryset_for_request(self.request)
-
-    @swagger_auto_schema(
-        operation_summary="Mening answerlarim",
-        manual_parameters=PAGINATION_PARAMS,
-        responses={200: AnswerSerializer(many=True)},
-        tags=["Answers"],
-    )
-    def get(self,
-            request: Request,
-            *args: object,
-            **kwargs: object
-            ) -> Response:
-        return self.list(request, *args, **kwargs)
+        return Response(AnswerSerializer(answer).data, status=status.HTTP_201_CREATED)
