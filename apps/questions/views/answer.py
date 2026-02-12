@@ -33,10 +33,10 @@ class AnswerViewSet(
         return AnswerSerializer
 
     def create(
-            self,
-            request: Request,
-            *args: object,
-            **kwargs: object,
+        self,
+        request: Request,
+        *args: object,
+        **kwargs: object,
     ) -> Response:
         answer = create_answer(request)
         out = AnswerSerializer(answer, context={"request": request})
