@@ -10,7 +10,7 @@ from apps.auth.services.auth import AuthService
 from apps.auth.swagger.register import (
     register_email_schema_swagger,
 )
-from apps.core.logger import LoggerType, factory_logger
+from apps.core.logger import LoggerType, get_logger_service
 
 
 class RegisterEmailView(views.APIView):
@@ -19,7 +19,7 @@ class RegisterEmailView(views.APIView):
 
     def __init__(self, **kwargs: dict[str, object]) -> None:
         super().__init__(**kwargs)
-        self.log = factory_logger(__name__)
+        self.log = get_logger_service(__name__)
         self.auth_service = get_auth_service()
 
     @register_email_schema_swagger

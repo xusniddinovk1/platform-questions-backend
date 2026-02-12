@@ -8,7 +8,7 @@ from apps.auth.exceptions.invalid_token import InvalidToken
 from apps.auth.services.auth import AuthService
 from apps.auth.services.cookie import CookieService
 from apps.auth.swagger.refresh import refresh_token_swagger
-from apps.core.logger import LoggerType, factory_logger
+from apps.core.logger import LoggerType, get_logger_service
 
 
 class RefreshView(views.APIView):
@@ -21,7 +21,7 @@ class RefreshView(views.APIView):
 
         self.auth_service = get_auth_service()
         self.cookie_service = get_cookie_service()
-        self.log = factory_logger(__name__)
+        self.log = get_logger_service(__name__)
 
     @refresh_token_swagger
     def post(self, request: Request) -> Response:
