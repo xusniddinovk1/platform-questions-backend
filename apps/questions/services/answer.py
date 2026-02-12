@@ -62,7 +62,6 @@ class AnswerService:
             raise serializers.ValidationError({"content": {"content_type": "Majburiy."}})
 
         self.ensure_answer_type_allowed(question, content_type)
-        self.ensure_not_answered_yet(question, cmd.user_id)
 
         # Content create (serializer orqali)
         content_ser = ContentSerializer(data=cmd.content)
