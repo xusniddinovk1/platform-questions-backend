@@ -3,7 +3,6 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
 from apps.questions.repositories.answer import AnswerRepository
 from apps.questions.repositories.question import QuestionRepository
 from apps.questions.serializers.answer import AnswerSerializer
@@ -18,15 +17,6 @@ answer_service = AnswerService(
     question_repo=QuestionRepository(),
     answer_repo=AnswerRepository(),
 )
-
-
-class AnswerListByQuestionAPIView(APIView):
-    permission_classes = (permissions.AllowAny,)
-
-    def get(self, request: Request, question_id: int) -> Response:
-        answers = answer_service.list_by_question(question_id)
-        data = AnswerSerializer(answers, many=True).data
-        return Response(data, status=status.HTTP_200_OK)
 
 
 class AnswerCreateAPIView(APIView):
