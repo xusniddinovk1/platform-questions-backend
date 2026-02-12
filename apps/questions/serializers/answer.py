@@ -30,11 +30,14 @@ class AnswerCreateSerializer(serializers.Serializer):
 
         if allowed and content_type not in allowed:
             raise serializers.ValidationError(
-                {"content": f"Ruxsat etilgan turlar: {allowed}. Siz yubordingiz: {content_type}"}
+                {"content": f"Ruxsat etilgan turlar: "
+                            f"{allowed}. Siz yubordingiz: {content_type}"}
             )
 
         if Answer.objects.filter(question=question, user_id=user_id).exists():
-            raise serializers.ValidationError("Siz bu savolga allaqachon javob bergansiz.")
+            raise serializers.ValidationError(
+                "Siz bu savolga allaqachon javob bergansiz."
+            )
 
         return attrs
 
@@ -54,4 +57,6 @@ class AnswerCreateSerializer(serializers.Serializer):
                 content=content_obj,
             )
         except IntegrityError:
-            raise serializers.ValidationError("Siz bu savolga allaqachon javob bergansiz.")
+            raise serializers.ValidationError(
+                "Siz bu savolga allaqachon javob bergansiz."
+            )

@@ -1,15 +1,17 @@
+from rest_framework import permissions, serializers, status
 from rest_framework.exceptions import ValidationError
-from rest_framework.views import APIView
+from rest_framework.request import Request
 from rest_framework.response import Response
-from rest_framework import status, permissions, serializers
+from rest_framework.views import APIView
+
 from apps.questions.repositories.answer import AnswerRepository
 from apps.questions.repositories.question import QuestionRepository
 from apps.questions.serializers.answer import AnswerSerializer
 from apps.questions.services.answer import (
-    AnswerService,
-    CreateAnswerCommand,
     AnswerAlreadyExists,
+    AnswerService,
     AnswerTypeNotAllowed,
+    CreateAnswerCommand,
 )
 
 answer_service = AnswerService(
@@ -19,20 +21,29 @@ answer_service = AnswerService(
 
 
 class AnswerListByQuestionAPIView(APIView):
-    permission_classes = [permissions.AllowAny]
+    permission_classes = (permissions.AllowAny,)
 
-    def get(self, request, question_id: int):
+    def get(self, request: Request, question_id: int) -> Response:
         answers = answer_service.list_by_question(question_id)
-        return Response(AnswerSerializer(answers, many=True).data, status=status.HTTP_200_OK)
+        data = AnswerSerializer(answers, many=True).data
+        return Response(data, status=status.HTTP_200_OK)
 
 
 class AnswerCreateAPIView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = (permissions.IsAuthenticated,)
 
-    def post(self, request):
+    def post(self, request: Request) -> Response:
+        question_raw = request.data.get("question")
+        if question_raw is None:
+            raise ValidationError({"question": "Majburiy."})
+
+        user_id = request.user.id
+        if user_id is None:
+            raise ValidationError({"user": "User topilmadi."})
+
         cmd = CreateAnswerCommand(
-            question_id=int(request.data.get("question")),
-            user_id=int(request.user.id),
+            question_id=int(question_raw),
+            user_id=int(user_id),
             content=request.data.get("content") or {},
         )
 
@@ -41,10 +52,15 @@ class AnswerCreateAPIView(APIView):
         except AnswerAlreadyExists:
             raise ValidationError("Siz bu savolga allaqachon javob bergansiz.")
         except AnswerTypeNotAllowed as e:
-            raise ValidationError(
-                {"content": f"Ruxsat etilgan turlar: {e.allowed}. Siz yubordingiz: {e.sent}"}
+            msg = (
+                f"Ruxsat etilgan turlar: {e.allowed}. "
+                f"Siz yubordingiz: {e.sent}"
             )
+            raise ValidationError({"content": msg})
         except serializers.ValidationError as e:
-            raise ValidationError(e.detail)
+            raise ValidationError(e.detail) from e
 
-        return Response(AnswerSerializer(answer).data, status=status.HTTP_201_CREATED)
+        return Response(
+            AnswerSerializer(answer).data,
+            status=status.HTTP_201_CREATED,
+        )
