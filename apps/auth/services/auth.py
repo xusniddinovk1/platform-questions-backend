@@ -13,6 +13,7 @@ from apps.auth.exceptions.is_user_already_exists import IsUserAlreadyExists
 from apps.auth.services.email_confirmation import EmailConfirmationService
 from apps.auth.services.jwt import JWTService
 from apps.user.dto import UserDTO
+from apps.user.models import User
 from apps.user.serializer import UserSerializer
 from apps.user.services.user import UserService
 
@@ -80,3 +81,16 @@ class AuthService:
             access_token=access_token,
             refresh_token=refresh_token,
         )
+
+    def authenticate_token(self, token: str) -> User | None:
+        """Проверяем токен и возвращаем пользователя"""
+        try:
+            payload = self.jwt_svc.decode_token(token)
+        except Exception as e:
+            raise ValueError(str(e))
+
+        user = self.user_svc.get_user_by_id(payload.user_id)
+        if not user:
+            raise ValueError("User not found")
+
+        return user

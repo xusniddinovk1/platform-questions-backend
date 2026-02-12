@@ -3,7 +3,7 @@ import logging
 LoggerType = logging.Logger
 
 
-def factory_logger(path: str = __name__) -> LoggerType:
+def get_logger_service(path: str = __name__) -> LoggerType:
     """
     Функция для создания логгера.
 

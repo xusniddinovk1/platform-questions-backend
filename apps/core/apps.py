@@ -1,9 +1,9 @@
 from django.apps import AppConfig
 
 from apps.core.container import get_config_service
-from apps.core.logger import factory_logger
+from apps.core.logger import get_logger_service
 
-log = factory_logger(__name__)
+log = get_logger_service(__name__)
 config_service = get_config_service()
 
 

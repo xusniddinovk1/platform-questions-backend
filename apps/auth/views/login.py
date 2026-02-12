@@ -8,7 +8,7 @@ from apps.auth.serializers.login import LoginSerializer
 from apps.auth.services.auth import AuthService
 from apps.auth.services.cookie import CookieService
 from apps.auth.swagger.login import login_schema_swagger
-from apps.core.logger import LoggerType, factory_logger
+from apps.core.logger import LoggerType, get_logger_service
 
 
 class LoginViaEmailView(views.APIView):
@@ -19,7 +19,7 @@ class LoginViaEmailView(views.APIView):
     def __init__(self, **kwargs: dict[str, object]) -> None:
         super().__init__(**kwargs)
 
-        self.log = factory_logger(__name__)
+        self.log = get_logger_service(__name__)
         self.auth_service = get_auth_service()
         self.cookie_service = get_cookie_service()
 

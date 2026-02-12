@@ -7,7 +7,7 @@ from apps.auth.serializers.logout import LogoutSerializer
 from apps.auth.services.auth import AuthService
 from apps.auth.services.cookie import CookieService
 from apps.auth.swagger.logout import logout_swagger
-from apps.core.logger import LoggerType, factory_logger
+from apps.core.logger import LoggerType, get_logger_service
 
 
 class LogoutView(APIView):
@@ -24,7 +24,7 @@ class LogoutView(APIView):
         super().__init__(**kwargs)
         self.auth_service = get_auth_service()
         self.cookie_service = get_cookie_service()
-        self.log = factory_logger(__name__)
+        self.log = get_logger_service(__name__)
 
     @logout_swagger
     def post(self, request: Request) -> Response:
