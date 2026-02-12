@@ -62,7 +62,7 @@ class QuestionViewSet(viewsets.ModelViewSet):  # type: ignore[type-arg]
         tags=["Questions"],
     )
     def partial_update(
-            self, request: Request, *args: object, **kwargs: object
+        self, request: Request, *args: object, **kwargs: object
     ) -> Response:
         return super().partial_update(request, *args, **kwargs)
 

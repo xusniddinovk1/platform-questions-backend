@@ -2,6 +2,7 @@ from .base import *
 from .base import env
 import os
 import dj_database_url
+
 DEBUG = False
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["platform-questions-backend.com"])
 

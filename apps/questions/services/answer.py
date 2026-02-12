@@ -25,9 +25,8 @@ ANSWER_ONLY_FIELDS: Final[tuple[str, ...]] = (
 
 
 def base_answers_queryset() -> QuerySet[Answer]:
-    return (
-        Answer.objects.select_related("question", "user", "content")
-        .only(*ANSWER_ONLY_FIELDS)
+    return Answer.objects.select_related("question", "user", "content").only(
+        *ANSWER_ONLY_FIELDS
     )
 
 

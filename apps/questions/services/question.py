@@ -18,9 +18,8 @@ QUESTION_CONTENT_ONLY_FIELDS: Final[tuple[str, ...]] = (
 
 
 def _contents_queryset() -> QuerySet[QuestionContent]:
-    return (
-        QuestionContent.objects.select_related("content")
-        .only(*QUESTION_CONTENT_ONLY_FIELDS)
+    return QuestionContent.objects.select_related("content").only(
+        *QUESTION_CONTENT_ONLY_FIELDS
     )
 
 
