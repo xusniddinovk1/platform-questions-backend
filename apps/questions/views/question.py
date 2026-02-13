@@ -6,7 +6,7 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from apps.questions.swagger.question import (
     question_response_schema,
-    question_list_response_schema,
+    question_list_response_schema, question_create_update_request_schema,
 )
 from apps.questions.repositories.question import QuestionRepository
 from apps.questions.serializers.question import QuestionSerializer
