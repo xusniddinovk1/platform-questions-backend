@@ -10,42 +10,62 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('questions', '0001_initial'),
+        ("questions", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='answer',
-            name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='answers', to=settings.AUTH_USER_MODEL),
+            model_name="answer",
+            name="user",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="answers",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AddField(
-            model_name='answer',
-            name='content',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='questions.content'),
+            model_name="answer",
+            name="content",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="questions.content"
+            ),
         ),
         migrations.AddField(
-            model_name='answer',
-            name='question',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='answers', to='questions.question'),
+            model_name="answer",
+            name="question",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="answers",
+                to="questions.question",
+            ),
         ),
         migrations.AddField(
-            model_name='questioncontent',
-            name='content',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='questions.content'),
+            model_name="questioncontent",
+            name="content",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="questions.content"
+            ),
         ),
         migrations.AddField(
-            model_name='questioncontent',
-            name='question',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='contents', to='questions.question'),
+            model_name="questioncontent",
+            name="question",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="contents",
+                to="questions.question",
+            ),
         ),
         migrations.AddConstraint(
-            model_name='answer',
-            constraint=models.UniqueConstraint(fields=('question', 'user'), name='unique_user_answer_per_question'),
+            model_name="answer",
+            constraint=models.UniqueConstraint(
+                fields=("question", "user"), name="unique_user_answer_per_question"
+            ),
         ),
         migrations.AddConstraint(
-            model_name='questioncontent',
-            constraint=models.UniqueConstraint(fields=('question', 'content'), name='unique_question_content'),
+            model_name="questioncontent",
+            constraint=models.UniqueConstraint(
+                fields=("question", "content"), name="unique_question_content"
+            ),
         ),
     ]

@@ -54,3 +54,40 @@ class AnswerCreateAPIView(APIView):
             AnswerSerializer(answer).data,
             status=status.HTTP_201_CREATED,
         )
+class AnswerViewSet(
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    viewsets.GenericViewSet,  # type: ignore[type-arg]
+):
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self) -> QuerySet[Answer]:
+        return answers_queryset_for_request(self.request)
+
+    def get_serializer_class(self) -> type[Serializer]:  # type: ignore[type-arg]
+        if self.action == "create":
+            return AnswerCreateSerializer
+        return AnswerSerializer
+
+    def create(
+        self,
+        request: Request,
+        *args: object,
+        **kwargs: object,
+    ) -> Response:
+        answer = create_answer(request)
+        out = AnswerSerializer(answer, context={"request": request})
+        return Response(out.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=False, methods=["get"], url_path="mine")
+    def mine(self, request: Request) -> Response:
+        qs = self.get_queryset()
+
+        page = self.paginate_queryset(qs)
+        if page is not None:
+            ser = AnswerSerializer(page, many=True, context={"request": request})
+            return self.get_paginated_response(ser.data)
+
+        ser = AnswerSerializer(qs, many=True, context={"request": request})
+        return Response(ser.data)

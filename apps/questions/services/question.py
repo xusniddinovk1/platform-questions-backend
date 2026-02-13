@@ -12,6 +12,11 @@ class QuestionService:
     def list_questions(self) -> Iterable[Question]:
         return self.repo.list()
 
+def _contents_queryset() -> QuerySet[QuestionContent]:
+    return QuestionContent.objects.select_related("content").only(
+        *QUESTION_CONTENT_ONLY_FIELDS
+    )
+
     def get_question(self, question_id: int) -> Question:
         question = self.repo.get(question_id)
         if not question:

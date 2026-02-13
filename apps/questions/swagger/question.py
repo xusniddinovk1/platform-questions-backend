@@ -3,18 +3,12 @@ from drf_yasg import openapi
 content_schema = openapi.Schema(
     type=openapi.TYPE_OBJECT,
     properties={
-        "content_type": openapi.Schema(
-            type=openapi.TYPE_STRING, example="text"
-        ),
+        "content_type": openapi.Schema(type=openapi.TYPE_STRING, example="text"),
         "text": openapi.Schema(
             type=openapi.TYPE_STRING, example="Savol matni shu yerda..."
         ),
-        "file": openapi.Schema(
-            type=openapi.TYPE_STRING, format="uri", example=None
-        ),
-        "created_at": openapi.Schema(
-            type=openapi.TYPE_STRING, format="date-time"
-        ),
+        "file": openapi.Schema(type=openapi.TYPE_STRING, format="uri", example=None),
+        "created_at": openapi.Schema(type=openapi.TYPE_STRING, format="date-time"),
     },
     required=["content_type"],
 )
@@ -23,22 +17,14 @@ content_schema = openapi.Schema(
 question_content_response_schema = openapi.Schema(
     type=openapi.TYPE_OBJECT,
     properties={
-        "id": openapi.Schema(
-            type=openapi.TYPE_INTEGER, example=1
-        ),
-        "role": openapi.Schema(
-            type=openapi.TYPE_STRING, example="question"
-        ),
+        "id": openapi.Schema(type=openapi.TYPE_INTEGER, example=1),
+        "role": openapi.Schema(type=openapi.TYPE_STRING, example="question"),
         "order": openapi.Schema(type=openapi.TYPE_INTEGER, example=0),
         "content": openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={
-                "id": openapi.Schema(
-                    type=openapi.TYPE_INTEGER, example=10
-                ),
-                "content_type": openapi.Schema(
-                    type=openapi.TYPE_STRING, example="text"
-                ),
+                "id": openapi.Schema(type=openapi.TYPE_INTEGER, example=10),
+                "content_type": openapi.Schema(type=openapi.TYPE_STRING, example="text"),
                 "text": openapi.Schema(
                     type=openapi.TYPE_STRING, example="Savol matni..."
                 ),
@@ -58,9 +44,7 @@ question_create_update_request_schema = openapi.Schema(
     type=openapi.TYPE_OBJECT,
     required=["title"],
     properties={
-        "title": openapi.Schema(
-            type=openapi.TYPE_STRING, example="2+2 nechchi?"
-        ),
+        "title": openapi.Schema(type=openapi.TYPE_STRING, example="2+2 nechchi?"),
         "allowed_answer_types": openapi.Schema(
             type=openapi.TYPE_ARRAY,
             items=openapi.Items(type=openapi.TYPE_STRING),
@@ -72,12 +56,8 @@ question_create_update_request_schema = openapi.Schema(
             items=openapi.Schema(
                 type=openapi.TYPE_OBJECT,
                 properties={
-                    "role": openapi.Schema(
-                        type=openapi.TYPE_STRING, example="question"
-                    ),
-                    "order": openapi.Schema(
-                        type=openapi.TYPE_INTEGER, example=0)
-                    ,
+                    "role": openapi.Schema(type=openapi.TYPE_STRING, example="question"),
+                    "order": openapi.Schema(type=openapi.TYPE_INTEGER, example=0),
                     "content": content_schema,
                 },
                 required=["content"],
@@ -97,23 +77,15 @@ question_create_update_request_schema = openapi.Schema(
 question_response_schema = openapi.Schema(
     type=openapi.TYPE_OBJECT,
     properties={
-        "id": openapi.Schema(
-            type=openapi.TYPE_INTEGER, example=5
-        ),
-        "title": openapi.Schema(
-            type=openapi.TYPE_STRING, example="2+2 nechchi?"
-        ),
+        "id": openapi.Schema(type=openapi.TYPE_INTEGER, example=5),
+        "title": openapi.Schema(type=openapi.TYPE_STRING, example="2+2 nechchi?"),
         "allowed_answer_types": openapi.Schema(
             type=openapi.TYPE_ARRAY,
             items=openapi.Items(type=openapi.TYPE_STRING),
             example=["text", "number"],
         ),
-        "created_at": openapi.Schema(
-            type=openapi.TYPE_STRING, format="date-time"
-        ),
-        "answers_count": openapi.Schema(
-            type=openapi.TYPE_INTEGER, example=0
-        ),
+        "created_at": openapi.Schema(type=openapi.TYPE_STRING, format="date-time"),
+        "answers_count": openapi.Schema(type=openapi.TYPE_INTEGER, example=0),
         "contents": openapi.Schema(
             type=openapi.TYPE_ARRAY,
             items=question_content_response_schema,

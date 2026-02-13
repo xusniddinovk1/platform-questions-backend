@@ -34,6 +34,18 @@ class QuestionListAPIView(APIView):
         data = QuestionSerializer(qs, many=True).data
         return Response(data, status=status.HTTP_200_OK)
 
+    @swagger_auto_schema(
+        operation_summary="Question qisman yangilash (PATCH)",
+        request_body=question_create_update_request_schema,
+        responses={
+            200: openapi.Response(description="OK", schema=question_response_schema),
+        },
+        tags=["Questions"],
+    )
+    def partial_update(
+        self, request: Request, *args: object, **kwargs: object
+    ) -> Response:
+        return super().partial_update(request, *args, **kwargs)
 
 class QuestionDetailAPIView(APIView):
     permission_classes = (permissions.AllowAny,)
