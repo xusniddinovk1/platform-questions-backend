@@ -1,37 +1,34 @@
 from __future__ import annotations
-from typing import Final, cast
-from django.db.models import Count, Prefetch, QuerySet
+from typing import Iterable, Any
+from rest_framework import serializers
 from apps.questions.models.question import Question, QuestionContent
-
-QUESTION_CONTENT_ONLY_FIELDS: Final[tuple[str, ...]] = (
-    "id",
-    "question_id",
-    "content_id",
-    "role",
-    "order",
-    "content__id",
-    "content__content_type",
-    "content__text",
-    "content__file",
-    "content__created_at",
-)
+from apps.questions.repositories.question import QuestionRepository
 
 
-def _contents_queryset() -> QuerySet[QuestionContent]:
-    return QuestionContent.objects.select_related("content").only(
-        *QUESTION_CONTENT_ONLY_FIELDS
-    )
+class QuestionService:
+    def __init__(self, repo: QuestionRepository) -> None:
+        self.repo = repo
+
+    def list_questions(self) -> Iterable[Question]:
+        return self.repo.list()
+
+    def get_question(self, question_id: int) -> Question:
+        question = self.repo.get(question_id)
+        if not question:
+            raise serializers.ValidationError({"question": "Question topilmadi."})
+        return question
 
 
-def build_questions_queryset() -> QuerySet[Question]:
-    """
-    List/Retrieve uchun optimal queryset:
-    - answers_count annotate
-    - contents -> content ni prefetch qilib, keraksiz fieldlarni kesadi
-    """
-    qs = (
-        Question.objects.all()
-        .annotate(answers_count=Count("answers"))
-        .prefetch_related(Prefetch("contents", queryset=_contents_queryset()))
-    )
-    return cast(QuerySet[Question], qs)
+    def partial_update_question(self, pk: int, data: dict[str, Any]) -> Question:
+        question = self.get_question(pk)
+
+        allowed_fields = {"title", "description", "allowed_answer_types", "is_active"}
+        payload = {k: v for k, v in data.items() if k in allowed_fields}
+
+        if not payload:
+            raise serializers.ValidationError({"detail": "Yangilash uchun field yuborilmadi."})
+
+        for key, value in payload.items():
+            setattr(question, key, value)
+
+        return self.repo.update(question)

@@ -5,7 +5,7 @@ from .swagger import schema_view
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("v1/", include("apps.core.urls")),
+    path("api/v1/", include("apps.core.urls")),
     path("api/v1/", include("apps.auth.urls")),
     re_path(
         r"^swagger(?P<format>\.json|\.yaml)$",
@@ -13,7 +13,9 @@ urlpatterns = [
         name="schema-json",
     ),
     path(
-        "docs/", schema_view.with_ui("swagger", cache_timeout=0), name="schema-swagger-ui"
+        "docs/",
+        schema_view.with_ui("swagger", cache_timeout=0),
+        name="schema-swagger-ui",
     ),
     path("redoc/", schema_view.with_ui("redoc", cache_timeout=0), name="schema-redoc"),
 ]
