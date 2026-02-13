@@ -1,4 +1,3 @@
-from django.db.models import QuerySet
 from apps.questions.models.answer import Answer
 from apps.questions.models.question import Question
 from apps.questions.models.mics import Content
