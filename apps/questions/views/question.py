@@ -7,7 +7,6 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from apps.questions.swagger.question import (
     question_response_schema,
-    question_list_response_schema, question_create_update_request_schema,
 )
 from apps.questions.repositories.question import QuestionRepository
 from apps.questions.serializers.question import QuestionSerializer
@@ -58,7 +57,7 @@ class QuestionDetailAPIView(APIView):
 
     def patch(self, request: Request, pk: int) -> Response:
         if not isinstance(request.data, dict):
-            raise ValidationError({"detail": "Body JSON object bo‘lishi kerak."})
+            raise ValidationError({"detail": "Body JSON object bo'lishi kerak."})
 
         updated = question_service.partial_update_question(pk, request.data)
         return Response(QuestionSerializer(updated).data, status=status.HTTP_200_OK)

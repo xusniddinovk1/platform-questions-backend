@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Iterable, Any
 from rest_framework import serializers
-from apps.questions.models.question import Question, QuestionContent
+from apps.questions.models.question import Question
 from apps.questions.repositories.question import QuestionRepository
 
 
@@ -26,7 +26,9 @@ class QuestionService:
         payload = {k: v for k, v in data.items() if k in allowed_fields}
 
         if not payload:
-            raise serializers.ValidationError({"detail": "Yangilash uchun field yuborilmadi."})
+            raise serializers.ValidationError({
+                "detail": "Yangilash uchun field yuborilmadi."
+            })
 
         for key, value in payload.items():
             setattr(question, key, value)

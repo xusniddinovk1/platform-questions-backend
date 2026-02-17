@@ -1,6 +1,6 @@
 from __future__ import annotations
 from dataclasses import dataclass
-from typing import Any, Final
+from typing import Any
 from django.db import IntegrityError, transaction
 from rest_framework import serializers
 from apps.questions.models.answer import Answer
