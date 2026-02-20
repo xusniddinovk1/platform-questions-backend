@@ -42,8 +42,6 @@ class CreateAnswerCommand:
     content_type: str
     payload: dict[str, Any]
 
-
-
 class AnswerService:
 
     def __init__(
@@ -73,15 +71,12 @@ class AnswerService:
         if not cmd.content_type:
             raise InvalidContentType("content_type is required")
 
-        if self.answer_repo.exists(cmd.question_id, cmd.user_id):
-            raise AnswerAlreadyExists("User already answered this question.")
-
         self.ensure_answer_type_allowed(question, cmd.content_type)
 
-        content_obj = Content.objects.create(
+        content_obj: Content = Content.objects.create(
             content_type=cmd.content_type,
             **cmd.payload
-        )
+        )  # type: ignore
 
         try:
             return self.answer_repo.create(

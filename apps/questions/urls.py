@@ -1,5 +1,4 @@
 from django.urls import path
-from apps.core.views import HealthCheckView
 from apps.questions.views.answer import AnswerCreateAPIView
 from apps.questions.views.question import QuestionListAPIView, QuestionDetailAPIView
 
