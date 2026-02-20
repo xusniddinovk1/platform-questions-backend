@@ -1,18 +1,27 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
+
 from django.db import IntegrityError, transaction
-from rest_framework import serializers
+
 from apps.questions.models.answer import Answer
 from apps.questions.models.question import Question
 from apps.questions.models.mics import Content
-from apps.questions.serializers.mics import ContentSerializer
 from apps.questions.repositories.answer import AnswerRepository
 from apps.questions.repositories.question import QuestionRepository
 
 
 class DomainError(Exception):
     """Service layer uchun umumiy xatolik."""
+    pass
+
+
+class QuestionNotFound(DomainError):
+    pass
+
+
+class InvalidContentType(DomainError):
+    pass
 
 
 class AnswerAlreadyExists(DomainError):
@@ -30,10 +39,13 @@ class AnswerTypeNotAllowed(DomainError):
 class CreateAnswerCommand:
     question_id: int
     user_id: int
-    content: dict[str, Any]
+    content_type: str
+    payload: dict[str, Any]
+
 
 
 class AnswerService:
+
     def __init__(
             self,
             question_repo: QuestionRepository,
@@ -42,10 +54,10 @@ class AnswerService:
         self.question_repo = question_repo
         self.answer_repo = answer_repo
 
-    def _get_question_or_404(self, question_id: int) -> Question:
+    def _get_question(self, question_id: int) -> Question:
         question = self.question_repo.get(question_id)
         if not question:
-            raise serializers.ValidationError({"question": "Question topilmadi."})
+            raise QuestionNotFound()
         return question
 
     def ensure_answer_type_allowed(self, question: Question, content_type: str) -> None:
@@ -55,18 +67,21 @@ class AnswerService:
 
     @transaction.atomic
     def create_answer(self, cmd: CreateAnswerCommand) -> Answer:
-        question = self._get_question_or_404(cmd.question_id)
 
-        content_type = cmd.content.get("content_type")
-        if not content_type:
-            raise serializers.ValidationError({"content": {"content_type": "Majburiy."}})
+        question = self._get_question(cmd.question_id)
 
-        self.ensure_answer_type_allowed(question, content_type)
+        if not cmd.content_type:
+            raise InvalidContentType("content_type is required")
 
-        # Content create (serializer orqali)
-        content_ser = ContentSerializer(data=cmd.content)
-        content_ser.is_valid(raise_exception=True)
-        content_obj: Content = content_ser.save()
+        if self.answer_repo.exists(cmd.question_id, cmd.user_id):
+            raise AnswerAlreadyExists("User already answered this question.")
+
+        self.ensure_answer_type_allowed(question, cmd.content_type)
+
+        content_obj = Content.objects.create(
+            content_type=cmd.content_type,
+            **cmd.payload
+        )
 
         try:
             return self.answer_repo.create(
