@@ -11,22 +11,10 @@ class AnswerRepository:
             content=content,
         )
 
-    # def list_by_question(self, question: Question) -> QuerySet[Answer]:
-    #     return (
-    #         Answer.objects
-    #         .filter(question=question)
-    #         .select_related("content", "user", "question")
-    #         .order_by("-id")
-    #     )
-    #
-    # def exists_for_user(self, question: Question, user_id: int) -> bool:
-    #     return Answer.objects.filter(question=question, user_id=user_id).exists()
-
-    def get(self, id: int) -> Answer | None:
-        try:
-            return Answer.objects.select_related("content", "user", "question").get(id=id)
-        except Answer.DoesNotExist:
-            return None
+    def get(self, id: int) -> Answer:
+        return Answer.objects.select_related(
+            "content", "user", "question"
+        ).get(id=id)
 
     def delete(self, answer: Answer) -> None:
         answer.delete()

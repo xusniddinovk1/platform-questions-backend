@@ -10,7 +10,7 @@ from apps.questions.swagger.question import (
 )
 from apps.questions.repositories.question import QuestionRepository
 from apps.questions.serializers.question import QuestionSerializer
-from apps.questions.services.question import QuestionService
+from apps.questions.services.question import QuestionService, QuestionNotFound, InvalidUpdatePayload
 
 question_service = QuestionService(repo=QuestionRepository())
 
@@ -49,15 +49,39 @@ class QuestionDetailAPIView(APIView):
         tags=["Questions"],
     )
     def get(self, request: Request, pk: int) -> Response:
-        question = question_service.get_question(pk)
-        return Response(
-            QuestionSerializer(question).data,
-            status=status.HTTP_200_OK,
-        )
+        try:
+            question = question_service.get_question(pk)
+            return Response(
+                QuestionSerializer(question).data,
+                status=status.HTTP_200_OK,
+            )
+
+        except QuestionNotFound:
+            return Response(
+                {"detail": "Question topilmadi."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
 
     def patch(self, request: Request, pk: int) -> Response:
         if not isinstance(request.data, dict):
             raise ValidationError({"detail": "Body JSON object bo'lishi kerak."})
 
-        updated = question_service.partial_update_question(pk, request.data)
-        return Response(QuestionSerializer(updated).data, status=status.HTTP_200_OK)
+        try:
+            updated = question_service.partial_update_question(pk, request.data)
+
+            return Response(
+                QuestionSerializer(updated).data,
+                status=status.HTTP_200_OK,
+            )
+
+        except QuestionNotFound:
+            return Response(
+                {"detail": "Question topilmadi."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        except InvalidUpdatePayload:
+            return Response(
+                {"detail": "Yangilash uchun ma’lumot yuborilmadi."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )

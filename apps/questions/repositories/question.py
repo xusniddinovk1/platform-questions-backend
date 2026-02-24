@@ -3,9 +3,8 @@ from apps.questions.models.question import Question
 
 
 class QuestionRepository:
-    def create(self, question: Question) -> Question:
-        question.save()
-        return question
+    def create(self, **data) -> Question:
+        return Question.objects.create(**data)
 
     def list(self) -> QuerySet[Question]:
         return (
@@ -15,11 +14,10 @@ class QuestionRepository:
             .order_by("-id")
         )
 
-    def get(self, id: int) -> Question | None:
-        try:
-            return Question.objects.prefetch_related("contents__content").get(id=id)
-        except Question.DoesNotExist:
-            return None
+    def get(self, id: int) -> Question:
+        return Question.objects.prefetch_related(
+            "contents__content"
+        ).get(id=id)
 
     def update(self, question: Question) -> Question:
         question.save()

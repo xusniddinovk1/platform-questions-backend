@@ -1,7 +1,8 @@
 from __future__ import annotations
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, TypedDict, NotRequired
 
+from django.core.files.uploadedfile import UploadedFile
 from django.db import IntegrityError, transaction
 
 from apps.questions.models.answer import Answer
@@ -35,12 +36,17 @@ class AnswerTypeNotAllowed(DomainError):
         super().__init__(f"Allowed: {allowed}. Sent: {sent}")
 
 
+class ContentPayload(TypedDict):
+    text: NotRequired[str]
+    file: NotRequired[UploadedFile]
+
+
 @dataclass(frozen=True)
 class CreateAnswerCommand:
     question_id: int
     user_id: int
     content_type: str
-    payload: dict[str, Any]
+    payload: ContentPayload
 
 class AnswerService:
 
@@ -73,10 +79,10 @@ class AnswerService:
 
         self.ensure_answer_type_allowed(question, cmd.content_type)
 
-        content_obj: Content = Content.objects.create(
+        content_obj = self.content_repo.create(
             content_type=cmd.content_type,
-            **cmd.payload
-        )  # type: ignore
+            payload=cmd.payload
+        )
 
         try:
             return self.answer_repo.create(
