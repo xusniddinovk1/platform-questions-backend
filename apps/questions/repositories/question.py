@@ -3,7 +3,7 @@ from apps.questions.models.question import Question
 
 
 class QuestionRepository:
-    def create(self, **data) -> Question:
+    def create(self, **data: object)     -> Question:
         return Question.objects.create(**data)
 
     def list(self) -> QuerySet[Question]:

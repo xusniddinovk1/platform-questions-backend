@@ -46,7 +46,7 @@ class RegisterEmailView(views.APIView):
                 status=status.HTTP_409_CONFLICT,
             )
         except Exception as e:
-            self.log.error(f"Error registering user {user_data['email']}: {str(e)}")
+            self.log.error(f"Error registering user {user_data['email']}: {e!s}")
             return Response(
                 {"detail": "Internal server error"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,

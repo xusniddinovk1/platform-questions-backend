@@ -1,18 +1,7 @@
 from typing import Iterable, Any
 from apps.questions.models.question import Question
 from apps.questions.repositories.question import QuestionRepository
-
-
-class DomainError(Exception):
-    pass
-
-
-class QuestionNotFound(DomainError):
-    pass
-
-
-class InvalidUpdatePayload(DomainError):
-    pass
+from apps.questions.exception.domainError import QuestionNotFound, InvalidUpdatePayload
 
 
 class QuestionService:

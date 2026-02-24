@@ -4,24 +4,38 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from drf_yasg.utils import swagger_auto_schema
-from drf_yasg import openapi
+
+from apps.questions.container import get_question_service
 from apps.questions.swagger.question import (
     question_response_schema,
+    question_list_response_schema,
 )
-from apps.questions.repositories.question import QuestionRepository
 from apps.questions.serializers.question import QuestionSerializer
-from apps.questions.services.question import QuestionService, QuestionNotFound, InvalidUpdatePayload
-
-question_service = QuestionService(repo=QuestionRepository())
+from apps.questions.services.question import (
+    QuestionNotFound,
+    InvalidUpdatePayload,
+)
 
 
 class QuestionListAPIView(APIView):
     permission_classes = (permissions.AllowAny,)
 
+    @swagger_auto_schema(
+        operation_summary="Questions list",
+        operation_description="Barcha savollar ro'yxatini qaytaradi",
+        responses={
+            200: question_list_response_schema,
+        },
+        tags=["Questions"],
+    )
     def get(self, request: Request) -> Response:
-        qs = question_service.list_questions()
-        data = QuestionSerializer(qs, many=True).data
-        return Response(data, status=status.HTTP_200_OK)
+        service = get_question_service()
+        qs = service.list_questions()
+
+        return Response(
+            QuestionSerializer(qs, many=True).data,
+            status=status.HTTP_200_OK,
+        )
 
 
 class QuestionDetailAPIView(APIView):
@@ -30,27 +44,17 @@ class QuestionDetailAPIView(APIView):
     @swagger_auto_schema(
         operation_summary="Get question by id",
         operation_description="Bitta questionni pk orqali qaytaradi",
-        manual_parameters=[
-            openapi.Parameter(
-                name="pk",
-                in_=openapi.IN_PATH,
-                description="Question ID",
-                type=openapi.TYPE_INTEGER,
-                required=True,
-            )
-        ],
         responses={
-            200: openapi.Response(
-                description="Question detail",
-                schema=question_response_schema,
-            ),
-            404: openapi.Response(description="Question not found"),
+            200: question_response_schema,
+            404: "Question not found",
         },
         tags=["Questions"],
     )
     def get(self, request: Request, pk: int) -> Response:
+        service = get_question_service()
+
         try:
-            question = question_service.get_question(pk)
+            question = service.get_question(pk)
             return Response(
                 QuestionSerializer(question).data,
                 status=status.HTTP_200_OK,
@@ -62,12 +66,25 @@ class QuestionDetailAPIView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
+    @swagger_auto_schema(
+        operation_summary="Update question partially",
+        operation_description="Savolni qisman yangilash",
+        request_body=QuestionSerializer,
+        responses={
+            200: question_response_schema,
+            400: "Invalid data",
+            404: "Question not found",
+        },
+        tags=["Questions"],
+    )
     def patch(self, request: Request, pk: int) -> Response:
         if not isinstance(request.data, dict):
             raise ValidationError({"detail": "Body JSON object bo'lishi kerak."})
 
+        service = get_question_service()
+
         try:
-            updated = question_service.partial_update_question(pk, request.data)
+            updated = service.partial_update_question(pk, request.data)
 
             return Response(
                 QuestionSerializer(updated).data,
@@ -82,6 +99,6 @@ class QuestionDetailAPIView(APIView):
 
         except InvalidUpdatePayload:
             return Response(
-                {"detail": "Yangilash uchun ma’lumot yuborilmadi."},
+                {"detail": "Yangilash uchun ma'lumot yuborilmadi."},
                 status=status.HTTP_400_BAD_REQUEST,
             )

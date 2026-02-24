@@ -1,32 +1,19 @@
 from __future__ import annotations
 from dataclasses import dataclass
-from typing import Any, TypedDict, NotRequired
-
+from typing import TypedDict, NotRequired
 from django.core.files.uploadedfile import UploadedFile
 from django.db import IntegrityError, transaction
-
 from apps.questions.models.answer import Answer
 from apps.questions.models.question import Question
-from apps.questions.models.mics import Content
 from apps.questions.repositories.answer import AnswerRepository
+from apps.questions.repositories.content import ContentRepository
 from apps.questions.repositories.question import QuestionRepository
-
-
-class DomainError(Exception):
-    """Service layer uchun umumiy xatolik."""
-    pass
-
-
-class QuestionNotFound(DomainError):
-    pass
-
-
-class InvalidContentType(DomainError):
-    pass
-
-
-class AnswerAlreadyExists(DomainError):
-    pass
+from apps.questions.exception.domainError import (
+    DomainError,
+    QuestionNotFound,
+    InvalidContentType,
+    AnswerAlreadyExists
+)
 
 
 class AnswerTypeNotAllowed(DomainError):
@@ -48,15 +35,18 @@ class CreateAnswerCommand:
     content_type: str
     payload: ContentPayload
 
+
 class AnswerService:
 
     def __init__(
             self,
             question_repo: QuestionRepository,
             answer_repo: AnswerRepository,
+            content_repo: ContentRepository,
     ) -> None:
         self.question_repo = question_repo
         self.answer_repo = answer_repo
+        self.content_repo = content_repo
 
     def _get_question(self, question_id: int) -> Question:
         question = self.question_repo.get(question_id)
