@@ -19,7 +19,7 @@ def get_question_service() -> QuestionService:
     )
 
 
-def get_answer_service():
+def get_answer_service() -> AnswerService:
     return AnswerService(
         question_repo=QuestionRepository(),
         answer_repo=AnswerRepository(),
