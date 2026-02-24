@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from apps.auth.container import get_auth_service
 from apps.auth.dto import RegisterResponseDTO
 from apps.auth.dto.register import RegisterEmailRequestDTO
+from apps.auth.exceptions.is_user_already_exists import IsUserAlreadyExists
 from apps.auth.serializers.register import RegisterEmailSerializer
 from apps.auth.services.auth import AuthService
 from apps.auth.swagger.register import (
@@ -34,9 +35,22 @@ class RegisterEmailView(views.APIView):
 
         user_data: RegisterEmailRequestDTO = serializer.validated_data
 
-        register_response: RegisterResponseDTO = self.auth_service.register_email(
-            dto=user_data
-        )
+        try:
+            register_response: RegisterResponseDTO = self.auth_service.register_email(
+                dto=user_data
+            )
+        except IsUserAlreadyExists as e:
+            self.log.error(f"User {user_data['email']} already exists")
+            return Response(
+                {"detail": str(e)},
+                status=status.HTTP_409_CONFLICT,
+            )
+        except Exception as e:
+            self.log.error(f"Error registering user {user_data['email']}: {str(e)}")
+            return Response(
+                {"detail": "Internal server error"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
         self.log.info(f"User {user_data['email']} registered")
 

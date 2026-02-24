@@ -1,7 +1,7 @@
 
 
 dev:
-	uv run manage.py runserver
+	uv run manage.py runserver 0.0.0.0:8000
 
 docker:
 	docker rm platform-questions-backend || true
