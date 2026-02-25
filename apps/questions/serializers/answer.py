@@ -18,45 +18,8 @@ class AnswerSerializer(serializers.ModelSerializer):
 
 
 class AnswerCreateSerializer(serializers.Serializer):
-    question = serializers.PrimaryKeyRelatedField(queryset=Question.objects.all())
-    content = ContentSerializer()
+    question_id = serializers.IntegerField()
+    content = serializers.JSONField()
 
-    def validate(self, attrs: dict[str, Any]) -> dict[str, Any]:
-        question: Question = attrs["question"]
-        user_id = cast(int, self.context["request"].user.id)
-
-        allowed = list(question.allowed_answer_types or [])
-        content_type = attrs["content"]["content_type"]
-
-        if allowed and content_type not in allowed:
-            raise serializers.ValidationError(
-                {"content": f"Ruxsat etilgan turlar: "
-                            f"{allowed}. Siz yubordingiz: {content_type}"}
-            )
-
-        if Answer.objects.filter(question=question, user_id=user_id).exists():
-            raise serializers.ValidationError(
-                "Siz bu savolga allaqachon javob bergansiz."
-            )
-
+    def validate(self, attrs):
         return attrs
-
-    @transaction.atomic
-    def create(self, validated_data: dict[str, Any]) -> Answer:
-        question: Question = validated_data["question"]
-        user = self.context["request"].user
-
-        content_ser = ContentSerializer(data=validated_data["content"])
-        content_ser.is_valid(raise_exception=True)
-        content_obj = content_ser.save()
-
-        try:
-            return Answer.objects.create(
-                question=question,
-                user=user,
-                content=content_obj,
-            )
-        except IntegrityError:
-            raise serializers.ValidationError(
-                "Siz bu savolga allaqachon javob bergansiz."
-            )
