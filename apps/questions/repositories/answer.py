@@ -11,7 +11,7 @@ class AnswerRepository(ReadRepository[Answer], WriteRepository[Answer]):
             "content", "user", "question"
         ).filter(id=entity_id).first()
 
-    def get_all(self):
+    def get_all(self) -> list[Answer]:
         return list(
             Answer.objects.select_related(
                 "content", "user", "question"

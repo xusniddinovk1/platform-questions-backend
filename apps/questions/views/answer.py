@@ -3,7 +3,6 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from drf_yasg.utils import swagger_auto_schema
 
 from apps.questions.container import get_answer_service
 from apps.questions.serializers.answer import AnswerSerializer, AnswerCreateSerializer

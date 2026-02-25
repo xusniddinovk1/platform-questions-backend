@@ -9,10 +9,10 @@ class QuestionService:
         self.repo = repo
 
     def list_questions(self) -> Iterable[Question]:
-        return self.repo.list()
+        return self.repo.get_all()
 
     def get_question(self, question_id: int) -> Question:
-        question = self.repo.get(question_id)
+        question = self.repo.get_by_id(question_id)
         if not question:
             raise QuestionNotFound()
         return question
@@ -35,4 +35,5 @@ class QuestionService:
         for key, value in payload.items():
             setattr(question, key, value)
 
-        return self.repo.update(question)
+        self.repo.update(question)
+        return question

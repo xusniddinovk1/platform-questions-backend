@@ -1,19 +1,19 @@
 from __future__ import annotations
 from dataclasses import dataclass
-from typing import TypedDict, NotRequired
-from django.core.files.uploadedfile import UploadedFile
-from django.db import IntegrityError, transaction
-from apps.questions.models.answer import Answer
-from apps.questions.models.question import Question
-from apps.questions.repositories.answer import AnswerRepository
-from apps.questions.repositories.content import ContentRepository
-from apps.questions.repositories.question import QuestionRepository
+from django.db import transaction
+
 from apps.questions.exception.domainError import (
     DomainError,
     QuestionNotFound,
     InvalidContentType,
-    AnswerAlreadyExists
+    AnswerAlreadyExists,
 )
+from apps.questions.models.answer import Answer
+from apps.questions.models.question import Question
+from apps.questions.models.content import Content
+from apps.questions.repositories.answer import AnswerRepository
+from apps.questions.repositories.content import ContentRepository
+from apps.questions.repositories.question import QuestionRepository
 
 
 class AnswerTypeNotAllowed(DomainError):
@@ -23,33 +23,28 @@ class AnswerTypeNotAllowed(DomainError):
         super().__init__(f"Allowed: {allowed}. Sent: {sent}")
 
 
-class ContentPayload(TypedDict):
-    text: NotRequired[str]
-    file: NotRequired[UploadedFile]
-
-
 @dataclass(frozen=True)
 class CreateAnswerCommand:
     question_id: int
     user_id: int
     content_type: str
-    payload: ContentPayload
+    payload: dict
 
 
 class AnswerService:
 
     def __init__(
-            self,
-            question_repo: QuestionRepository,
-            answer_repo: AnswerRepository,
-            content_repo: ContentRepository,
+        self,
+        question_repo: QuestionRepository,
+        answer_repo: AnswerRepository,
+        content_repo: ContentRepository,
     ) -> None:
         self.question_repo = question_repo
         self.answer_repo = answer_repo
         self.content_repo = content_repo
 
     def _get_question(self, question_id: int) -> Question:
-        question = self.question_repo.get(question_id)
+        question = self.question_repo.get_by_id(question_id)
         if not question:
             raise QuestionNotFound()
         return question
@@ -61,7 +56,6 @@ class AnswerService:
 
     @transaction.atomic
     def create_answer(self, cmd: CreateAnswerCommand) -> Answer:
-
         question = self._get_question(cmd.question_id)
 
         if not cmd.content_type:
@@ -69,16 +63,21 @@ class AnswerService:
 
         self.ensure_answer_type_allowed(question, cmd.content_type)
 
-        content_obj = self.content_repo.create(
-            content_type=cmd.content_type,
-            payload=cmd.payload
+        # content yaratish
+        content_obj = Content(
+            type=cmd.content_type,
+            payload=cmd.payload,
         )
+        self.content_repo.add(content_obj)
 
         try:
-            return self.answer_repo.create(
+            answer = Answer(
                 question=question,
                 user_id=cmd.user_id,
                 content=content_obj,
             )
-        except IntegrityError:
+            self.answer_repo.add(answer)
+            return answer
+
+        except Exception:
             raise AnswerAlreadyExists("User already answered this question.")

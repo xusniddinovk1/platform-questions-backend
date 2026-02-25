@@ -15,3 +15,6 @@ class AnswerAlreadyExists(DomainError):
 
 class InvalidUpdatePayload(DomainError):
     pass
+
+class ContentNotFound(DomainError):
+    pass

@@ -9,9 +9,11 @@ from apps.questions.services.question import (
     QuestionNotFound,
     InvalidUpdatePayload,
 )
-from apps.questions.swagger.question import questions_list_schema, get_question_by_id_schema, \
-    update_question_partial_schema
-
+from apps.questions.swagger.question import (
+    questions_list_schema,
+    get_question_by_id_schema,
+    update_question_partial_schema,
+)
 
 class QuestionListAPIView(APIView):
     permission_classes = (permissions.AllowAny,)

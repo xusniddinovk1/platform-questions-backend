@@ -1,9 +1,7 @@
-from typing import ClassVar, Any, cast
+from typing import ClassVar, Any
 
-from django.db import transaction, IntegrityError
 from rest_framework import serializers
 from apps.questions.models.answer import Answer
-from apps.questions.models.question import Question
 from apps.questions.serializers.content import ContentSerializer
 
 
@@ -21,5 +19,5 @@ class AnswerCreateSerializer(serializers.Serializer):
     question_id = serializers.IntegerField()
     content = serializers.JSONField()
 
-    def validate(self, attrs):
+    def validate(self, attrs: dict[str, Any]) -> dict[str, Any]:
         return attrs
