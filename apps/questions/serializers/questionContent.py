@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from apps.questions.models.question import QuestionContent
-from apps.questions.serializers.mics import ContentSerializer
+from apps.questions.serializers.content import ContentSerializer
 
 
 class QuestionContentSerializer(serializers.ModelSerializer):

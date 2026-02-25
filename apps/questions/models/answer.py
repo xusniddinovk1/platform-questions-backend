@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import ClassVar
 from django.conf import settings
 from django.db import models
-from apps.questions.models.mics import Content
+from apps.questions.models.content import Content
 
 
 class Answer(models.Model):

@@ -1,20 +1,28 @@
+from typing import Optional
+
+from apps.core.abstructs.repository import ReadRepository, WriteRepository
 from apps.questions.models.answer import Answer
-from apps.questions.models.question import Question
-from apps.questions.models.mics import Content
 
 
-class AnswerRepository:
-    def create(self, question: Question, user_id: int, content: Content) -> Answer:
-        return Answer.objects.create(
-            question=question,
-            user_id=user_id,
-            content=content,
-        )
+class AnswerRepository(ReadRepository[Answer], WriteRepository[Answer]):
 
-    def get(self, id: int) -> Answer:
+    def get_by_id(self, entity_id: int) -> Optional[Answer]:
         return Answer.objects.select_related(
             "content", "user", "question"
-        ).get(id=id)
+        ).filter(id=entity_id).first()
 
-    def delete(self, answer: Answer) -> None:
-        answer.delete()
+    def get_all(self):
+        return list(
+            Answer.objects.select_related(
+                "content", "user", "question"
+            ).all()
+        )
+
+    def add(self, entity: Answer) -> None:
+        entity.save()
+
+    def update(self, entity: Answer) -> None:
+        entity.save()
+
+    def delete(self, entity_id: int) -> None:
+        Answer.objects.filter(id=entity_id).delete()

@@ -1,7 +1,7 @@
 from typing import Any
 
 from rest_framework import serializers
-from apps.questions.models.mics import Content, ContentType
+from apps.questions.models.content import Content, ContentType
 
 
 class ContentSerializer(serializers.ModelSerializer):

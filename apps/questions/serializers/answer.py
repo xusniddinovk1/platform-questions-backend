@@ -4,7 +4,7 @@ from django.db import transaction, IntegrityError
 from rest_framework import serializers
 from apps.questions.models.answer import Answer
 from apps.questions.models.question import Question
-from apps.questions.serializers.mics import ContentSerializer
+from apps.questions.serializers.content import ContentSerializer
 
 
 class AnswerSerializer(serializers.ModelSerializer):

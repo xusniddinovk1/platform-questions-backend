@@ -12,21 +12,13 @@ from apps.questions.services.answer import (
     AnswerTypeNotAllowed,
     CreateAnswerCommand,
 )
+from apps.questions.swagger.answer import create_answer_schema
 
 
 class AnswerCreateAPIView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
-    @swagger_auto_schema(
-        operation_summary="Create answer",
-        operation_description="Savolga javob yaratadi",
-        request_body=AnswerCreateSerializer,
-        responses={
-            201: AnswerSerializer,
-            400: "Validation error",
-        },
-        tags=["Answers"],
-    )
+    @create_answer_schema
     def post(self, request: Request) -> Response:
         serializer = AnswerCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)

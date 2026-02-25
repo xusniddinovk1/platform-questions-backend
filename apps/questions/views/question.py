@@ -3,31 +3,20 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from drf_yasg.utils import swagger_auto_schema
-
 from apps.questions.container import get_question_service
-from apps.questions.swagger.question import (
-    question_response_schema,
-    question_list_response_schema,
-)
 from apps.questions.serializers.question import QuestionSerializer
 from apps.questions.services.question import (
     QuestionNotFound,
     InvalidUpdatePayload,
 )
+from apps.questions.swagger.question import questions_list_schema, get_question_by_id_schema, \
+    update_question_partial_schema
 
 
 class QuestionListAPIView(APIView):
     permission_classes = (permissions.AllowAny,)
 
-    @swagger_auto_schema(
-        operation_summary="Questions list",
-        operation_description="Barcha savollar ro'yxatini qaytaradi",
-        responses={
-            200: question_list_response_schema,
-        },
-        tags=["Questions"],
-    )
+    @questions_list_schema
     def get(self, request: Request) -> Response:
         service = get_question_service()
         qs = service.list_questions()
@@ -41,15 +30,7 @@ class QuestionListAPIView(APIView):
 class QuestionDetailAPIView(APIView):
     permission_classes = (permissions.AllowAny,)
 
-    @swagger_auto_schema(
-        operation_summary="Get question by id",
-        operation_description="Bitta questionni pk orqali qaytaradi",
-        responses={
-            200: question_response_schema,
-            404: "Question not found",
-        },
-        tags=["Questions"],
-    )
+    @get_question_by_id_schema
     def get(self, request: Request, pk: int) -> Response:
         service = get_question_service()
 
@@ -66,17 +47,7 @@ class QuestionDetailAPIView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-    @swagger_auto_schema(
-        operation_summary="Update question partially",
-        operation_description="Savolni qisman yangilash",
-        request_body=QuestionSerializer,
-        responses={
-            200: question_response_schema,
-            400: "Invalid data",
-            404: "Question not found",
-        },
-        tags=["Questions"],
-    )
+    @update_question_partial_schema
     def patch(self, request: Request, pk: int) -> Response:
         if not isinstance(request.data, dict):
             raise ValidationError({"detail": "Body JSON object bo'lishi kerak."})

@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import ClassVar
 from django.db import models
-from apps.questions.models.mics import Content, ContentRole
+from apps.questions.models.content import Content, ContentRole
 
 
 class Question(models.Model):

@@ -1,27 +1,32 @@
-from django.db.models import QuerySet
+from typing import Optional, List
+from apps.core.abstructs.repository.read import ReadRepository
+from apps.core.abstructs.repository.write import WriteRepository
 from apps.questions.models.question import Question
 
 
-class QuestionRepository:
-    def create(self, **data: object)     -> Question:
-        return Question.objects.create(**data)
+class QuestionRepository(ReadRepository[Question], WriteRepository[Question]):
 
-    def list(self) -> QuerySet[Question]:
+    def get_by_id(self, entity_id: int) -> Optional[Question]:
         return (
+            Question.objects
+            .prefetch_related("contents__content")
+            .filter(id=entity_id)
+            .first()
+        )
+
+    def get_all(self) -> List[Question]:
+        return list(
             Question.objects
             .all()
             .prefetch_related("contents__content")
             .order_by("-id")
         )
 
-    def get(self, id: int) -> Question:
-        return Question.objects.prefetch_related(
-            "contents__content"
-        ).get(id=id)
+    def add(self, entity: Question) -> None:
+        entity.save()
 
-    def update(self, question: Question) -> Question:
-        question.save()
-        return question
+    def update(self, entity: Question) -> None:
+        entity.save()
 
-    def delete(self, question: Question) -> None:
-        question.delete()
+    def delete(self, entity_id: int) -> None:
+        Question.objects.filter(id=entity_id).delete()

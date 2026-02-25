@@ -1,4 +1,7 @@
 from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
+
+from apps.questions.serializers.question import QuestionSerializer
 
 content_schema = openapi.Schema(
     type=openapi.TYPE_OBJECT,
@@ -138,4 +141,34 @@ question_response_schema = openapi.Schema(
 question_list_response_schema = openapi.Schema(
     type=openapi.TYPE_ARRAY,
     items=question_response_schema,
+)
+questions_list_schema = swagger_auto_schema(
+    operation_summary="Questions list",
+    operation_description="Barcha savollar ro'yxatini qaytaradi",
+    responses={
+        200: question_list_response_schema,
+    },
+    tags=["Questions"],
+)
+
+get_question_by_id_schema = swagger_auto_schema(
+    operation_summary="Get question by id",
+    operation_description="Bitta questionni pk orqali qaytaradi",
+    responses={
+        200: question_response_schema,
+        404: "Question not found",
+    },
+    tags=["Questions"],
+)
+
+update_question_partial_schema = swagger_auto_schema(
+    operation_summary="Update question partially",
+    operation_description="Savolni qisman yangilash",
+    request_body=QuestionSerializer,
+    responses={
+        200: question_response_schema,
+        400: "Invalid data",
+        404: "Question not found",
+    },
+    tags=["Questions"],
 )
