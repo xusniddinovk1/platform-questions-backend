@@ -5,6 +5,10 @@ from apps.questions.models.content import Content, ContentType
 
 
 class ContentSerializer(serializers.ModelSerializer):
+    """
+    Serializer for Content model.
+    Validates required fields depending on content type.
+    """
     class Meta:
         model = Content
         fields = ("id", "content_type", "text", "file", "created_at")
