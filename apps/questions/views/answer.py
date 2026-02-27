@@ -1,55 +1,55 @@
-from __future__ import annotations
-
-from django.db.models import QuerySet
-from rest_framework import mixins, status, viewsets
-from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework import permissions, status
+from rest_framework.exceptions import ValidationError
 from rest_framework.request import Request
 from rest_framework.response import Response
-from rest_framework.serializers import Serializer
+from rest_framework.views import APIView
 
-from apps.questions.models.answer import Answer
-from apps.questions.serializers.answer import AnswerCreateSerializer, AnswerSerializer
+from apps.questions.container import get_answer_service
+from apps.questions.serializers.answer import AnswerSerializer, AnswerCreateSerializer
 from apps.questions.services.answer import (
-    answers_queryset_for_request,
-    create_answer,
+    AnswerAlreadyExists,
+    AnswerTypeNotAllowed,
+    CreateAnswerCommand,
 )
+from apps.questions.swagger.answer import create_answer_schema
 
 
-class AnswerViewSet(
-    mixins.CreateModelMixin,
-    mixins.ListModelMixin,
-    mixins.RetrieveModelMixin,
-    viewsets.GenericViewSet,  # type: ignore[type-arg]
-):
-    permission_classes = (IsAuthenticated,)
+class AnswerCreateAPIView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
 
-    def get_queryset(self) -> QuerySet[Answer]:
-        return answers_queryset_for_request(self.request)
+    @create_answer_schema
+    def post(self, request: Request) -> Response:
+        serializer = AnswerCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
 
-    def get_serializer_class(self) -> type[Serializer]:  # type: ignore[type-arg]
-        if self.action == "create":
-            return AnswerCreateSerializer
-        return AnswerSerializer
+        user_id = request.user.id
 
-    def create(
-        self,
-        request: Request,
-        *args: object,
-        **kwargs: object,
-    ) -> Response:
-        answer = create_answer(request)
-        out = AnswerSerializer(answer, context={"request": request})
-        return Response(out.data, status=status.HTTP_201_CREATED)
+        if user_id is None:
+            raise ValidationError({"detail": "User not found"})
 
-    @action(detail=False, methods=["get"], url_path="mine")
-    def mine(self, request: Request) -> Response:
-        qs = self.get_queryset()
+        cmd = CreateAnswerCommand(
+            question_id=serializer.validated_data["question_id"],
+            user_id=user_id,
+            content_type=serializer.validated_data["content"]["content_type"],
+            payload=serializer.validated_data["content"],
+        )
+        try:
+            answer = get_answer_service().create_answer(cmd)
 
-        page = self.paginate_queryset(qs)
-        if page is not None:
-            ser = AnswerSerializer(page, many=True, context={"request": request})
-            return self.get_paginated_response(ser.data)
+            return Response(
+                AnswerSerializer(answer).data,
+                status=status.HTTP_201_CREATED,
+            )
 
-        ser = AnswerSerializer(qs, many=True, context={"request": request})
-        return Response(ser.data)
+        except AnswerAlreadyExists:
+            raise ValidationError({"detail": "Siz allaqachon javob bergansiz."})
+
+        except AnswerTypeNotAllowed as e:
+            raise ValidationError(
+                {
+                    "detail": (
+                        f"Ruxsat etilgan turlar: {e.allowed}. "
+                        f"Siz yubordingiz: {e.sent}"
+                    )
+                }
+            )

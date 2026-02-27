@@ -1,15 +1,7 @@
-from django.urls import path
+from django.urls import path, include
 from apps.core.views import HealthCheckView
-from rest_framework.routers import DefaultRouter
-from apps.questions.views.answer import AnswerViewSet
-from apps.questions.views.question import QuestionViewSet
 
 urlpatterns = [
-    path("health", HealthCheckView.as_view()),
+    path("", include("apps.questions.urls")),
+    path("health/", HealthCheckView.as_view(), name="health"),
 ]
-
-router = DefaultRouter()
-router.register("questions", QuestionViewSet, basename="questions")
-router.register("answers", AnswerViewSet, basename="answers")
-
-urlpatterns.extend(router.urls)  # type: ignore[arg-type]

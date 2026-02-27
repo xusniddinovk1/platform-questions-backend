@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from django.db import models
 
 
@@ -16,6 +18,8 @@ class ContentType(models.TextChoices):
 
 
 class Content(models.Model):
+    objects: ClassVar[models.Manager["Content"]]
+
     content_type = models.CharField(
         max_length=20,
         choices=ContentType.choices,
