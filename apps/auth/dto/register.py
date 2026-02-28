@@ -1,5 +1,7 @@
 from typing import TypedDict
 
+from apps.user.dto import UserDTO
+
 
 class RegisterEmailRequestDTO(TypedDict):
     username: str
@@ -21,3 +23,4 @@ class RegisterRequestDTO(TypedDict):
 class RegisterResponseDTO(TypedDict):
     access_token: str
     refresh_token: str
+    user: UserDTO

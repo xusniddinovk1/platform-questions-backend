@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import AuthenticationFailed, ValidationError
 from rest_framework.response import Response
 from rest_framework.views import exception_handler
 
-from apps.core.responses import ErrorItem, build_errors_response
+from apps.core.responses import ErrorItem, build_error_response, build_errors_response
 
 
 def _build_error_items_from_data(
@@ -80,6 +80,14 @@ def custom_exception_handler(
             status_code=status_code,
             errors=errors,
             meta={},
+        )
+
+    if isinstance(exc, AuthenticationFailed):
+        return build_error_response(
+            status_code=401,
+            code="ACCESS_TOKEN_REQUIRED",
+            title="Access token is required",
+            detail="Access token must be provided in the Authorization header",
         )
 
     # Для остальных стандартных ошибок DRF (AuthenticationFailed, NotFound и т.п.)

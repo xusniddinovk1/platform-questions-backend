@@ -48,18 +48,28 @@ class AuthService:
 
         self.email_confierm_svc.send_confirmation(new_user)
 
-        access_token = self.jwt_svc.create_access_token(new_user.id)
-        refresh_token = self.jwt_svc.create_refresh_token(new_user.id)
+        access_token = self.jwt_svc.create_access_token(new_user.pk)
+        refresh_token = self.jwt_svc.create_refresh_token(new_user.pk)
 
-        return RegisterResponseDTO(access_token=access_token, refresh_token=refresh_token)
+        return RegisterResponseDTO(
+            access_token=access_token,
+            refresh_token=refresh_token,
+            user=UserDTO(
+                id=new_user.pk,
+                email=new_user.email,
+                username=new_user.username,
+                first_name=new_user.first_name,
+                last_name=new_user.last_name,
+            ),
+        )
 
     def login_email(self, dto: LoginEmailRequestDTO) -> LoginResponseDTO:
         user = self.user_svc.get_user_by_email(dto["email"])
         if not user or not user.check_password(dto["password"]):
             raise InvalidCredentials()
 
-        access_token = self.jwt_svc.create_access_token(user.id)
-        refresh_token = self.jwt_svc.create_refresh_token(user.id)
+        access_token = self.jwt_svc.create_access_token(user.pk)
+        refresh_token = self.jwt_svc.create_refresh_token(user.pk)
 
         user_data: UserDTO = cast(UserDTO, UserSerializer(user).data)
 
@@ -74,8 +84,8 @@ class AuthService:
         if not user:
             raise InvalidCredentials()
 
-        access_token = self.jwt_svc.create_access_token(user.id)
-        refresh_token = self.jwt_svc.create_refresh_token(user.id)
+        access_token = self.jwt_svc.create_access_token(user.pk)
+        refresh_token = self.jwt_svc.create_refresh_token(user.pk)
 
         return RefreshTokenResponseDTO(
             access_token=access_token,
