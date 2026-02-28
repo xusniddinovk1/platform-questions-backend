@@ -10,6 +10,7 @@ from apps.auth.services.me import MeService
 from apps.auth.swagger.me import me_swagger
 from apps.core.logger import LoggerType, get_logger_service
 from apps.user.models import User
+from apps.core.responses import build_error_response, build_success_response
 
 
 class MeView(APIView):
@@ -29,20 +30,40 @@ class MeView(APIView):
 
         if not accest_token:
             self.log.warning("Access token is missing in the request headers")
-            return Response({"detail": "Access token is required"}, status=401)
+            return build_error_response(
+                status_code=401,
+                code="ACCESS_TOKEN_REQUIRED",
+                title="Access token is required",
+                detail="Access token must be provided in the Authorization header",
+            )
 
         try:
             user: User | None = self.me_service.get_me(accest_token)
         except InvalidToken:
             self.log.warning("Invalid access token")
-            return Response({"detail": "Invalid access token"}, status=401)
+            return build_error_response(
+                status_code=401,
+                code="INVALID_ACCESS_TOKEN",
+                title="Invalid access token",
+                detail="Access token is invalid",
+            )
         except TokenExpired:
             self.log.warning("Access token has expired")
-            return Response({"detail": "Access token has expired"}, status=401)
+            return build_error_response(
+                status_code=401,
+                code="ACCESS_TOKEN_EXPIRED",
+                title="Access token has expired",
+                detail="Access token has expired",
+            )
 
         if not user:
             self.log.warning("User not found for the provided access token")
-            return Response({"detail": "User not found"}, status=404)
+            return build_error_response(
+                status_code=404,
+                code="USER_NOT_FOUND",
+                title="User not found",
+                detail="User not found for the provided access token",
+            )
 
         dto: MeResponseDTO = MeResponseDTO(
             id=user.pk,
@@ -54,4 +75,4 @@ class MeView(APIView):
             role=user.role,
         )
 
-        return Response(dto, status=200)
+        return build_success_response(dto)

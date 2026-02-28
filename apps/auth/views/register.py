@@ -11,6 +11,7 @@ from apps.auth.services.auth import AuthService
 from apps.auth.swagger.register import (
     register_email_schema_swagger,
 )
+from apps.core.responses import build_error_response, build_success_response
 from apps.core.logger import LoggerType, get_logger_service
 
 
@@ -41,20 +42,24 @@ class RegisterEmailView(views.APIView):
             )
         except IsUserAlreadyExists as e:
             self.log.error(f"User {user_data['email']} already exists")
-            return Response(
-                {"detail": str(e)},
-                status=status.HTTP_409_CONFLICT,
+            return build_error_response(
+                status_code=status.HTTP_409_CONFLICT,
+                code="USER_ALREADY_EXISTS",
+                title="User already exists",
+                detail=str(e),
             )
         except Exception as e:
             self.log.error(f"Error registering user {user_data['email']}: {e!s}")
-            return Response(
-                {"detail": "Internal server error"},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            return build_error_response(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                code="INTERNAL_SERVER_ERROR",
+                title="Internal server error",
+                detail="Internal server error",
             )
 
         self.log.info(f"User {user_data['email']} registered")
 
-        return Response(
-            register_response,
-            status=status.HTTP_201_CREATED,
+        return build_success_response(
+            data=register_response,
+            status_code=status.HTTP_201_CREATED,
         )

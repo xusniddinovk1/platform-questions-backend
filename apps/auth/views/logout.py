@@ -1,3 +1,4 @@
+from rest_framework import status
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -8,6 +9,7 @@ from apps.auth.services.auth import AuthService
 from apps.auth.services.cookie import CookieService
 from apps.auth.swagger.logout import logout_swagger
 from apps.core.logger import LoggerType, get_logger_service
+from apps.core.responses import build_success_response
 
 
 class LogoutView(APIView):
@@ -28,12 +30,15 @@ class LogoutView(APIView):
 
     @logout_swagger
     def post(self, request: Request) -> Response:
-        response = Response(status=204)
-
         serializer = LogoutSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         serializer.validated_data.get("refresh_token")
+
+        response = build_success_response(
+            data=None,
+            status_code=status.HTTP_200_OK,
+        )
 
         self.cookie_service.delete_cookie(response)
 
