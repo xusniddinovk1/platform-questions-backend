@@ -14,9 +14,7 @@ def get_answer_repository() -> AnswerRepository:
 
 
 def get_question_service() -> QuestionService:
-    return QuestionService(
-        repo=get_question_repository()
-    )
+    return QuestionService(repo=get_question_repository())
 
 
 def get_answer_service() -> AnswerService:

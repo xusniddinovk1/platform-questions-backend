@@ -9,6 +9,7 @@ class ContentSerializer(serializers.ModelSerializer):
     Serializer for Content model.
     Validates required fields depending on content type.
     """
+
     class Meta:
         model = Content
         fields = ("id", "content_type", "text", "file", "created_at")
@@ -21,9 +22,7 @@ class ContentSerializer(serializers.ModelSerializer):
 
         if ct == ContentType.TEXT:
             if not text:
-                raise serializers.ValidationError(
-                    {"text": "TEXT uchun `text` majburiy."}
-                )
+                raise serializers.ValidationError({"text": "TEXT uchun `text` majburiy."})
         else:
             if not file:
                 raise serializers.ValidationError(

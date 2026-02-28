@@ -78,4 +78,3 @@ def envelope_schema(data_schema: openapi.Schema | None = None) -> openapi.Schema
         },
         required=["data", "meta", "errors"],
     )
-

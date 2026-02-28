@@ -15,6 +15,7 @@ from apps.questions.swagger.question import (
     update_question_partial_schema,
 )
 
+
 class QuestionListAPIView(APIView):
     permission_classes = (permissions.AllowAny,)
 
