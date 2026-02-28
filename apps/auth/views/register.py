@@ -11,8 +11,8 @@ from apps.auth.services.auth import AuthService
 from apps.auth.swagger.register import (
     register_email_schema_swagger,
 )
-from apps.core.responses import build_error_response, build_success_response
 from apps.core.logger import LoggerType, get_logger_service
+from apps.core.responses import build_error_response, build_success_response
 
 
 class RegisterEmailView(views.APIView):

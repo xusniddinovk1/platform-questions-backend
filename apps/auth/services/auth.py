@@ -33,7 +33,7 @@ class AuthService:
         is_exists: bool = self.user_svc.is_user_exists(dto["email"])
 
         if is_exists:
-            raise IsUserAlreadyExists()
+            raise IsUserAlreadyExists(dto["email"])
 
         prepare_data: RegisterRequestDTO = RegisterRequestDTO(
             email=dto["email"],
@@ -42,6 +42,8 @@ class AuthService:
             last_name=dto["last_name"],
             first_name=dto["first_name"],
             phone="",
+            birthday=dto["birthday"],
+            university=dto["university"],
         )
 
         new_user = self.user_svc.create_user(prepare_data)

@@ -9,6 +9,8 @@ class RegisterEmailRequestDTO(TypedDict):
     first_name: str
     password: str
     email: str
+    birthday: str
+    university: str
 
 
 class RegisterRequestDTO(TypedDict):
@@ -18,6 +20,8 @@ class RegisterRequestDTO(TypedDict):
     password: str
     email: str
     phone: str
+    birthday: str
+    university: str
 
 
 class RegisterResponseDTO(TypedDict):
