@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Mapping, Sequence, TypedDict
+from typing import Sequence, TypedDict
 
 from rest_framework import status as drf_status
 from rest_framework.response import Response
@@ -70,18 +70,16 @@ class ErrorResponse(TypedDict):
     errors: list[ErrorItem]
 
 
-MetaMapping = Mapping[str, object]
-
-
 def build_success_response(
     data: object | None,
     *,
-    meta: MetaMapping | None = None,
+    meta: Meta | None = None,
     status_code: int = drf_status.HTTP_200_OK,
 ) -> Response:
+    meta_value: Meta = {} if meta is None else meta
     body: SuccessResponse = {
         "data": data,
-        "meta": dict(meta or {}),
+        "meta": meta_value,
         "errors": None,
     }
     return Response(body, status=status_code)
@@ -93,7 +91,7 @@ def build_error_response(
     code: str,
     title: str,
     detail: str,
-    meta: MetaMapping | None = None,
+    meta: Meta | None = None,
 ) -> Response:
     error_item: ErrorItem = {
         "status": status_code,
@@ -102,9 +100,11 @@ def build_error_response(
         "detail": detail,
     }
 
+    meta_value: Meta = {} if meta is None else meta
+
     body: ErrorResponse = {
         "data": None,
-        "meta": dict(meta or {}),
+        "meta": meta_value,
         "errors": [error_item],
     }
     return Response(body, status=status_code)
@@ -114,12 +114,13 @@ def build_errors_response(
     *,
     status_code: int,
     errors: Sequence[ErrorItem],
-    meta: MetaMapping | None = None,
+    meta: Meta | None = None,
 ) -> Response:
+    meta_value: Meta = {} if meta is None else meta
+
     body: ErrorResponse = {
         "data": None,
-        "meta": dict(meta or {}),
+        "meta": meta_value,
         "errors": list(errors),
     }
     return Response(body, status=status_code)
-

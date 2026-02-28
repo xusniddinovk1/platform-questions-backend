@@ -1,8 +1,5 @@
 from __future__ import annotations
 
-from typing import Any
-
-from rest_framework import status as drf_status
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import exception_handler
@@ -11,7 +8,7 @@ from apps.core.responses import ErrorItem, build_errors_response
 
 
 def _build_error_items_from_data(
-    data: Any,
+    data: object,
     *,
     status_code: int,
     default_code: str,
@@ -19,7 +16,7 @@ def _build_error_items_from_data(
 ) -> list[ErrorItem]:
     errors: list[ErrorItem] = []
 
-    def _flatten(prefix: str, value: Any) -> None:
+    def _flatten(prefix: str, value: object) -> None:
         if isinstance(value, list):
             message = "; ".join(str(item) for item in value)
             detail = f"{prefix}: {message}" if prefix else message
@@ -49,18 +46,18 @@ def _build_error_items_from_data(
     return errors
 
 
-def custom_exception_handler(exc: Exception, context: dict[str, object]) -> Response | None:
+def custom_exception_handler(
+    exc: Exception, context: dict[str, object]
+) -> Response | None:
     """
     Глобальный обработчик исключений, который приводит ответы к общей
     схеме {data, meta, errors} для DRF-ошибок.
     """
     response = exception_handler(exc, context)
 
-    # Если DRF не знает, как обработать исключение — оставляем как есть.
     if response is None:
         return None
 
-    # Если ответ уже в нужной обёртке, не трогаем его.
     if isinstance(response.data, dict) and {
         "data",
         "meta",
@@ -99,4 +96,3 @@ def custom_exception_handler(exc: Exception, context: dict[str, object]) -> Resp
         errors=errors,
         meta={},
     )
-

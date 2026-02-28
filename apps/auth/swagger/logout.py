@@ -42,7 +42,7 @@ logout_swagger = swagger_auto_schema(
         "📱 **MOBILE**:\n"
         "- Refresh token передаётся в body\n"
         "- Клиент удаляет token локально\n\n"
-        "✅ Возвращает `200 OK` с общей схемой ответа"
+        "✅ Возвращает `200 OK` с общей схемой ответа"  # noqa: RUF001
     ),
     request_body=logout_request_example,
     manual_parameters=[refresh_token_cookie_param],
@@ -52,7 +52,7 @@ logout_swagger = swagger_auto_schema(
             schema=envelope_schema(
                 openapi.Schema(
                     type=openapi.TYPE_OBJECT,
-                    description="В поле data ничего нет при успешном логауте",
+                    description="В поле data ничего нет при успешном логауте",  # noqa: RUF001
                 )
             ),
             examples={
