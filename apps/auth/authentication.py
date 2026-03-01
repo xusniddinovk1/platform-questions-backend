@@ -1,6 +1,7 @@
 from typing import Optional, Tuple
 
 from rest_framework.authentication import BaseAuthentication
+from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.request import Request
 
 from apps.auth.container import get_auth_service
@@ -16,7 +17,10 @@ class CustomJWTAuthentication(BaseAuthentication):
             return None
 
         token = auth_header.split(" ")[1]
-        user = auth_service.authenticate_token(token)
+        try:
+            user = auth_service.authenticate_token(token)
+        except ValueError:
+            raise AuthenticationFailed("Invalid or expired token")
 
         if user is None:
             return None

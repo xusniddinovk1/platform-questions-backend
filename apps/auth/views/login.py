@@ -1,4 +1,4 @@
-from rest_framework import views
+from rest_framework import views, status
 from rest_framework.request import Request
 from rest_framework.response import Response
 
@@ -8,6 +8,7 @@ from apps.auth.serializers.login import LoginSerializer
 from apps.auth.services.auth import AuthService
 from apps.auth.services.cookie import CookieService
 from apps.auth.swagger.login import login_schema_swagger
+from apps.core.responses import build_success_response
 from apps.core.logger import LoggerType, get_logger_service
 
 
@@ -31,7 +32,10 @@ class LoginViaEmailView(views.APIView):
         dto: LoginEmailRequestDTO = serializer.validated_data
         login_response: LoginResponseDTO = self.auth_service.login_email(dto)
 
-        response = Response(login_response, status=200)
+        response = build_success_response(
+            data=login_response,
+            status_code=status.HTTP_200_OK,
+        )
 
         response = self.cookie_service.set_cookie(
             response, login_response["refresh_token"]

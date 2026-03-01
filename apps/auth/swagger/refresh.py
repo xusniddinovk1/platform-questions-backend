@@ -1,6 +1,8 @@
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 
+from apps.core.swagger.common import envelope_schema
+
 refresh_token_request_example = openapi.Schema(
     type=openapi.TYPE_OBJECT,
     properties={
@@ -18,7 +20,7 @@ refresh_token_request_example = openapi.Schema(
     example={"refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."},
 )
 
-refresh_token_response_example = openapi.Schema(
+refresh_token_data_schema = openapi.Schema(
     type=openapi.TYPE_OBJECT,
     properties={
         "access_token": openapi.Schema(
@@ -31,11 +33,9 @@ refresh_token_response_example = openapi.Schema(
         ),
     },
     required=["access_token", "refresh_token"],
-    example={
-        "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-        "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    },
 )
+
+refresh_token_success_response_schema = envelope_schema(refresh_token_data_schema)
 
 
 auth_error_response_example = openapi.Schema(
@@ -62,11 +62,42 @@ refresh_token_swagger = swagger_auto_schema(
     responses={
         200: openapi.Response(
             description="Access token успешно обновлён",
-            schema=refresh_token_response_example,
+            schema=refresh_token_success_response_schema,
+            examples={
+                "application/json": {
+                    "data": {
+                        "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                        "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                    },
+                    "meta": {
+                        "pagination": {
+                            "page": 1,
+                            "limit": 10,
+                            "total": 1,
+                            "totalPages": 1,
+                        }
+                    },
+                    "errors": None,
+                }
+            },
         ),
         401: openapi.Response(
             description="Refresh token отсутствует или невалиден",
-            schema=auth_error_response_example,
+            schema=envelope_schema(auth_error_response_example),
+            examples={
+                "application/json": {
+                    "data": None,
+                    "meta": {},
+                    "errors": [
+                        {
+                            "status": 401,
+                            "code": "INVALID_REFRESH_TOKEN",
+                            "title": "Invalid refresh token",
+                            "detail": "Refresh token is invalid",
+                        }
+                    ],
+                }
+            },
         ),
     },
     tags=["Authentication"],

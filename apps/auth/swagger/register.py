@@ -1,6 +1,8 @@
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 
+from apps.core.swagger.common import envelope_schema
+
 register_request_example = openapi.Schema(
     type=openapi.TYPE_OBJECT,
     properties={
@@ -14,19 +16,31 @@ register_request_example = openapi.Schema(
             type=openapi.TYPE_STRING, description="Email пользователя"
         ),
         "password": openapi.Schema(type=openapi.TYPE_STRING, description="Пароль"),
+        "birthday": openapi.Schema(type=openapi.TYPE_STRING, description="Дата рождения"),
+        "university": openapi.Schema(type=openapi.TYPE_STRING, description="Университет"),
     },
-    required=["username", "first_name", "last_name", "email", "password"],
+    required=[
+        "username",
+        "first_name",
+        "last_name",
+        "email",
+        "password",
+        "birthday",
+        "university",
+    ],
     example={
         "username": "user123",
         "first_name": "Иван",
         "last_name": "Иванов",
         "email": "user@example.com",
         "password": "strongpassword123",
+        "birthday": "1990-01-01",
+        "university": "МГУ",
     },
 )
 
 
-register_response_example = openapi.Schema(
+register_data_schema = openapi.Schema(
     type=openapi.TYPE_OBJECT,
     properties={
         "access_token": openapi.Schema(
@@ -36,15 +50,33 @@ register_response_example = openapi.Schema(
             type=openapi.TYPE_STRING, description="JWT refresh token"
         ),
     },
-    example={
-        "access_token": "eyJhbGciOiJIUzI1...",
-        "refresh_token": "dGhpcy1pcy1yZWZyZXNoLXRva2Vu",
-    },
 )
+
+register_success_response_schema = envelope_schema(register_data_schema)
 
 
 register_email_schema_swagger = swagger_auto_schema(
     request_body=register_request_example,
-    responses={201: register_response_example},
+    responses={
+        201: openapi.Response(
+            description="Пользователь успешно зарегистрирован",
+            schema=register_success_response_schema,
+            examples={
+                "application/json": {
+                    "data": {
+                        "access_token": "eyJhbGciOiJIUzI1...",
+                        "refresh_token": "dGhpcy1pcy1yZWZyZXNoLXRva2Vu",
+                        "user": {
+                            "id": 1,
+                            "email": "user@example.com",
+                            "username": "user123",
+                        },
+                    },
+                    "meta": {},
+                    "errors": None,
+                }
+            },
+        )
+    },
     tags=["Authentication"],
 )

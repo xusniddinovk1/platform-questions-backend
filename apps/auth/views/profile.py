@@ -12,6 +12,7 @@ from apps.auth.serializers.profile import (
 from apps.auth.services.cookie import CookieService
 from apps.auth.services.profile import ProfileService
 from apps.auth.swagger.profile import profile_swagger
+from apps.core.responses import build_error_response, build_success_response
 from apps.core.logger import LoggerType, get_logger_service
 
 
@@ -43,9 +44,16 @@ class ProfileView(APIView):
 
         if not refresh_token:
             self.log.warning("No refresh token found")
-            return Response(status=401)
+            return build_error_response(
+                status_code=401,
+                code="NO_REFRESH_TOKEN",
+                title="No refresh token",
+                detail="Refresh token is required",
+            )
 
         profile_info = self.profile_service.get_user_profile(refresh_token)
 
         response_serializer = ProfileResponeSerializer(profile_info)
-        return Response(response_serializer.data, status=200)
+        return build_success_response(
+            data=response_serializer.data,
+        )

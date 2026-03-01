@@ -9,6 +9,7 @@ from apps.auth.services.auth import AuthService
 from apps.auth.services.cookie import CookieService
 from apps.auth.swagger.refresh import refresh_token_swagger
 from apps.core.logger import LoggerType, get_logger_service
+from apps.core.responses import build_error_response, build_success_response
 
 
 class RefreshView(views.APIView):
@@ -29,9 +30,11 @@ class RefreshView(views.APIView):
 
         if not refresh_token:
             self.log.error("No refresh token")
-            return Response(
-                {"error": "No refresh token"},
-                status=status.HTTP_401_UNAUTHORIZED,
+            return build_error_response(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                code="NO_REFRESH_TOKEN",
+                title="No refresh token",
+                detail="Refresh token is missing",
             )
 
         dto: RefreshTokenRequestDTO = {
@@ -42,13 +45,23 @@ class RefreshView(views.APIView):
             result = self.auth_service.refresh_token(dto)
         except InvalidToken:
             self.log.error("Invalid token")
-            return Response(
-                {"error": "Invalid token"},
-                status=status.HTTP_401_UNAUTHORIZED,
+            return build_error_response(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                code="INVALID_REFRESH_TOKEN",
+                title="Invalid refresh token",
+                detail="Refresh token is invalid",
             )
 
-        response = Response({"access_token": result["access_token"]})
-        self.cookie_service.set_cookie(response, result["refresh_token"])
+        payload = {
+            "access_token": result["access_token"],
+            "refresh_token": result["refresh_token"],
+        }
+
+        response = build_success_response(
+            data=payload,
+            status_code=status.HTTP_200_OK,
+        )
+        response = self.cookie_service.set_cookie(response, result["refresh_token"])
 
         self.log.info("Token refreshed")
         return response

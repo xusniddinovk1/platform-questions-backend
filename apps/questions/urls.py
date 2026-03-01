@@ -5,7 +5,6 @@ from apps.questions.views.question import QuestionListAPIView, QuestionDetailAPI
 urlpatterns = [
     path("questions/", QuestionListAPIView.as_view(), name="question-list"),
     path("questions/<int:pk>/", QuestionDetailAPIView.as_view(), name="question-detail"),
-
     # path("questions/<int:question_id>/answers/",
     # AnswerListByQuestionAPIView.as_view(), name="answer-list"),
     path("answers/", AnswerCreateAPIView.as_view(), name="answer-create"),

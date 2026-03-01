@@ -1,6 +1,8 @@
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 
+from apps.core.swagger.common import envelope_schema
+
 login_request_example = openapi.Schema(
     type=openapi.TYPE_OBJECT,
     properties={
@@ -14,7 +16,7 @@ login_request_example = openapi.Schema(
 )
 
 
-login_response_example = openapi.Schema(
+login_data_schema = openapi.Schema(
     type=openapi.TYPE_OBJECT,
     properties={
         "access_token": openapi.Schema(
@@ -32,16 +34,33 @@ login_response_example = openapi.Schema(
             },
         ),
     },
-    example={
-        "access_token": "eyJhbGciOiJIUzI1...",
-        "refresh_token": "dGhpcy1pcy1yZWZyZXNoLXRva2Vu",
-        "user": {"id": 1, "email": "user@example.com", "username": "user123"},
-    },
 )
+
+login_success_response_schema = envelope_schema(login_data_schema)
 
 
 login_schema_swagger = swagger_auto_schema(
     request_body=login_request_example,
-    responses={200: login_response_example},
+    responses={
+        200: openapi.Response(
+            description="Успешный логин",
+            schema=login_success_response_schema,
+            examples={
+                "application/json": {
+                    "data": {
+                        "access_token": "eyJhbGciOiJIUzI1...",
+                        "refresh_token": "dGhpcy1pcy1yZWZyZXNoLXRva2Vu",
+                        "user": {
+                            "id": 1,
+                            "email": "user@example.com",
+                            "username": "user123",
+                        },
+                    },
+                    "meta": {},
+                    "errors": None,
+                }
+            },
+        )
+    },
     tags=["Authentication"],
 )

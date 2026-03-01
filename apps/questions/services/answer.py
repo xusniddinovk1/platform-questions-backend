@@ -31,6 +31,7 @@ class CreateAnswerCommand:
     """
     Command object for creating an answer.
     """
+
     question_id: int
     user_id: int
     content_type: str
@@ -42,11 +43,12 @@ class AnswerService:
     Application service responsible for answer creation logic.
     Handles validation, content creation and answer persistence.
     """
+
     def __init__(
-            self,
-            question_repo: QuestionRepository,
-            answer_repo: AnswerRepository,
-            content_repo: ContentRepository,
+        self,
+        question_repo: QuestionRepository,
+        answer_repo: AnswerRepository,
+        content_repo: ContentRepository,
     ) -> None:
         self.question_repo = question_repo
         self.answer_repo = answer_repo

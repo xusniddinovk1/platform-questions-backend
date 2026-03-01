@@ -1,9 +1,34 @@
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 
-from apps.auth.serializers.profile import (
-    ProfileRequestSerializer,
-    ProfileResponeSerializer,
+from apps.auth.serializers.profile import ProfileRequestSerializer
+from apps.core.swagger.common import envelope_schema
+
+profile_data_schema = openapi.Schema(
+    type=openapi.TYPE_OBJECT,
+    properties={
+        "id": openapi.Schema(
+            type=openapi.TYPE_STRING,
+            format="uuid",
+            description="ID пользователя",
+        ),
+        "username": openapi.Schema(
+            type=openapi.TYPE_STRING,
+            description="Username пользователя",
+        ),
+        "email": openapi.Schema(
+            type=openapi.TYPE_STRING,
+            description="Email пользователя",
+        ),
+        "first_name": openapi.Schema(
+            type=openapi.TYPE_STRING,
+            description="Имя пользователя",
+        ),
+        "last_name": openapi.Schema(
+            type=openapi.TYPE_STRING,
+            description="Фамилия пользователя",
+        ),
+    },
 )
 
 profile_swagger = swagger_auto_schema(
@@ -18,18 +43,20 @@ profile_swagger = swagger_auto_schema(
     responses={
         200: openapi.Response(
             description="Профиль пользователя",
-            schema=ProfileResponeSerializer,
+            schema=envelope_schema(profile_data_schema),
         ),
         401: openapi.Response(
             description="Refresh token отсутствует или невалиден",
-            schema=openapi.Schema(
-                type=openapi.TYPE_OBJECT,
-                properties={
-                    "detail": openapi.Schema(
-                        type=openapi.TYPE_STRING,
-                        example="Unauthorized",
-                    )
-                },
+            schema=envelope_schema(
+                openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        "detail": openapi.Schema(
+                            type=openapi.TYPE_STRING,
+                            example="Unauthorized",
+                        )
+                    },
+                )
             ),
         ),
     },

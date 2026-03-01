@@ -13,8 +13,10 @@ class InvalidContentType(DomainError):
 class AnswerAlreadyExists(DomainError):
     pass
 
+
 class InvalidUpdatePayload(DomainError):
     pass
+
 
 class ContentNotFound(DomainError):
     pass

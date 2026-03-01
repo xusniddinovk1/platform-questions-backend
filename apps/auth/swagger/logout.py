@@ -1,6 +1,8 @@
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 
+from apps.core.swagger.common import envelope_schema
+
 logout_request_example = openapi.Schema(
     type=openapi.TYPE_OBJECT,
     properties={
@@ -40,12 +42,27 @@ logout_swagger = swagger_auto_schema(
         "📱 **MOBILE**:\n"
         "- Refresh token передаётся в body\n"
         "- Клиент удаляет token локально\n\n"
-        "✅ Возвращает `204 No Content`"
+        "✅ Возвращает `200 OK` с общей схемой ответа"  # noqa: RUF001
     ),
     request_body=logout_request_example,
     manual_parameters=[refresh_token_cookie_param],
     responses={
-        204: openapi.Response(description="User logged out successfully"),
+        200: openapi.Response(
+            description="User logged out successfully",
+            schema=envelope_schema(
+                openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    description="В поле data ничего нет при успешном логауте",  # noqa: RUF001
+                )
+            ),
+            examples={
+                "application/json": {
+                    "data": None,
+                    "meta": {},
+                    "errors": None,
+                }
+            },
+        ),
     },
     tags=["Authentication"],
 )

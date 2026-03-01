@@ -1,7 +1,9 @@
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 
-me_response_example = openapi.Schema(
+from apps.core.swagger.common import envelope_schema
+
+me_data_schema = openapi.Schema(
     type=openapi.TYPE_OBJECT,
     properties={
         "id": openapi.Schema(
@@ -65,30 +67,34 @@ me_swagger = swagger_auto_schema(
     responses={
         200: openapi.Response(
             description="Данные текущего пользователя",
-            schema=me_response_example,
+            schema=envelope_schema(me_data_schema),
         ),
         401: openapi.Response(
             description="Access token не передан или невалиден",
-            schema=openapi.Schema(
-                type=openapi.TYPE_OBJECT,
-                properties={
-                    "detail": openapi.Schema(
-                        type=openapi.TYPE_STRING,
-                        example="Access token is required",
-                    ),
-                },
+            schema=envelope_schema(
+                openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        "detail": openapi.Schema(
+                            type=openapi.TYPE_STRING,
+                            example="Access token is required",
+                        ),
+                    },
+                )
             ),
         ),
         404: openapi.Response(
             description="Пользователь не найден",
-            schema=openapi.Schema(
-                type=openapi.TYPE_OBJECT,
-                properties={
-                    "detail": openapi.Schema(
-                        type=openapi.TYPE_STRING,
-                        example="User not found",
-                    ),
-                },
+            schema=envelope_schema(
+                openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        "detail": openapi.Schema(
+                            type=openapi.TYPE_STRING,
+                            example="User not found",
+                        ),
+                    },
+                )
             ),
         ),
     },
