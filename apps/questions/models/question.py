@@ -4,10 +4,28 @@ from django.db import models
 from apps.questions.models.content import Content, ContentRole
 
 
+class QuestionType(models.TextChoices):
+    TEXT = "text", "Text"
+    OPTIONS = "options", "Options"
+
+
 class Question(models.Model):
     objects: ClassVar[models.Manager["Question"]]
+
     title = models.CharField(max_length=255)
+
+    type = models.CharField(
+        max_length=20,
+        choices=QuestionType.choices,
+    )
+
+    correct_text_answer = models.TextField(
+        blank=True,
+        null=True,
+    )
+
     allowed_answer_types = models.JSONField(default=list, blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self) -> str:
