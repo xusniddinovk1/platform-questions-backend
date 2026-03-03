@@ -32,4 +32,4 @@ class QuestionOption(models.Model):
         ]
 
     def __str__(self) -> str:
-        return f"Option for {self.question_id}"
+        return f"Option for {self.question.pk}"

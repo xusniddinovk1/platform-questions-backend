@@ -47,4 +47,4 @@ class Answer(models.Model):
         ]
 
     def __str__(self) -> str:
-        return f"Answer by {self.user_id} for {self.question_id}"
+        return f"Answer by {self.user.pk} for {self.question.pk}"
