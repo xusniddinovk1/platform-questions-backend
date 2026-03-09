@@ -3,11 +3,13 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from apps.questions.container import get_answer_service
-from apps.questions.serializers.answer import AnswerCreateSerializer, AnswerSerializer
+from apps.questions.serializers.answer import (
+    AnswerCreateSerializer,
+    AnswerSerializer,
+)
 from apps.questions.services.answer import (
     CreateAnswerCommand,
     AnswerAlreadyExists,
-    AnswerTypeNotAllowed,
 )
 from apps.questions.swagger.answer import create_answer_schema
 from apps.core.responses import build_success_response, build_error_response
@@ -22,19 +24,12 @@ class AnswerCreateAPIView(APIView):
         serializer.is_valid(raise_exception=True)
 
         user_id = request.user.id
-        if not user_id:
-            return build_error_response(
-                status_code=status.HTTP_404_NOT_FOUND,
-                code="USER_NOT_FOUND",
-                title="User not found",
-                detail="Current user not found"
-            )
-
+        if user_id is None:
+            raise ValueError("User ID cannot be None")
         cmd = CreateAnswerCommand(
             question_id=serializer.validated_data["question_id"],
             user_id=user_id,
-            content_type=serializer.validated_data["content"]["content_type"],
-            payload=serializer.validated_data["content"],
+            selected_option_ids=serializer.validated_data["selected_option_ids"],
         )
 
         service = get_answer_service()
@@ -53,12 +48,4 @@ class AnswerCreateAPIView(APIView):
                 code="ANSWER_ALREADY_EXISTS",
                 title="Answer already exists",
                 detail="Siz allaqachon javob bergansiz."
-            )
-
-        except AnswerTypeNotAllowed as e:
-            return build_error_response(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                code="ANSWER_TYPE_NOT_ALLOWED",
-                title="Answer type not allowed",
-                detail=f"Ruxsat etilgan turlar: {e.allowed}. Siz yubordingiz: {e.sent}"
             )

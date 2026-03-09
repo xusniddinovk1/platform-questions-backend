@@ -8,7 +8,7 @@ from django.conf import settings
 
 class Answer(models.Model):
     objects: ClassVar[models.Manager["Answer"]]
-
+    id: int
     question = models.ForeignKey(
         Question,
         on_delete=models.CASCADE,
@@ -20,10 +20,7 @@ class Answer(models.Model):
         on_delete=models.CASCADE
     )
 
-    content = models.ForeignKey(
-        Content,
-        on_delete=models.CASCADE
-    )
+    selected_options = models.ManyToManyField(Content, blank=True)
 
     is_correct = models.BooleanField(
         default=False

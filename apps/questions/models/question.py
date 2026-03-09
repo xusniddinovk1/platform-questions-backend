@@ -3,29 +3,18 @@ from typing import ClassVar
 from django.db import models
 from typing import TYPE_CHECKING
 from apps.questions.models.content import Content, ContentRole
+from .category import Category
 
 if TYPE_CHECKING:
     from .answer import Answer
     from django.db.models.manager import Manager as RelatedManager
 
 
-
-class Category(models.Model):
-    objects: ClassVar[models.Manager["Category"]]
-
-    title = models.CharField(max_length=255)
-
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self) -> str:
-        return self.title
-
-
 class Question(models.Model):
     objects: ClassVar[models.Manager["Question"]]
     if TYPE_CHECKING:
         answers: 'RelatedManager["Answer"]'
-
+        id: int
     title = models.CharField(max_length=255)
 
     category = models.ForeignKey(
@@ -51,8 +40,11 @@ class Question(models.Model):
     def __str__(self) -> str:
         return self.title
 
+
 class QuestionContent(models.Model):
     objects: ClassVar[models.Manager["QuestionContent"]]
+
+    id: int
 
     question = models.ForeignKey(
         Question,
