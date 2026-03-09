@@ -21,7 +21,6 @@ class QuestionService:
         question = self.get_question(pk)
         allowed_fields = {
             "title",
-            "allowed_answer_types",
             "start_deadline",
             "end_deadline"
         }

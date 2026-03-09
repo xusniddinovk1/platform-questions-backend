@@ -51,14 +51,6 @@ class AnswerService:
             raise QuestionNotFound()
         return question
 
-    def ensure_answer_type_allowed(
-            self,
-            question: Question,
-            content_type: str
-    ) -> None:
-        allowed = list(question.allowed_answer_types or [])
-        if allowed and content_type not in allowed:
-            raise AnswerTypeNotAllowed(allowed=allowed, sent=content_type)
 
     @transaction.atomic
     def create_answer(self, cmd: CreateAnswerCommand) -> Answer:
@@ -76,7 +68,6 @@ class AnswerService:
         if not cmd.content_type:
             raise InvalidContentType("content_type is required")
 
-        self.ensure_answer_type_allowed(question, cmd.content_type)
 
         # Create content
         content_obj = Content(
