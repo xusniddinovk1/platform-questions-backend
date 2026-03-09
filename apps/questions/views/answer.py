@@ -13,6 +13,9 @@ from apps.questions.services.answer import (
 )
 from apps.questions.swagger.answer import create_answer_schema
 from apps.core.responses import build_success_response, build_error_response
+from apps.core.logger import get_logger_service
+
+logger = get_logger_service(__name__)
 
 
 class AnswerCreateAPIView(APIView):
@@ -25,7 +28,9 @@ class AnswerCreateAPIView(APIView):
 
         user_id = request.user.id
         if user_id is None:
+            logger.error("User ID is None when trying to create an answer")
             raise ValueError("User ID cannot be None")
+
         cmd = CreateAnswerCommand(
             question_id=serializer.validated_data["question_id"],
             user_id=user_id,
@@ -36,13 +41,14 @@ class AnswerCreateAPIView(APIView):
 
         try:
             answer = service.create_answer(cmd)
-
+            logger.info(f"Answer created successfully for user_id={user_id}")
             return build_success_response(
                 data=AnswerSerializer(answer).data,
                 status_code=status.HTTP_201_CREATED
             )
 
         except AnswerAlreadyExists:
+            logger.warning(f"User {user_id} attempted to create a duplicate answer")
             return build_error_response(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 code="ANSWER_ALREADY_EXISTS",

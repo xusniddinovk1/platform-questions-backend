@@ -1,10 +1,10 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from django.db import transaction
+
 from apps.core.logger import get_logger_service
 from apps.questions.exception.domainError import (
-    QuestionNotFound,
-    AnswerAlreadyExists,
+    QuestionNotFound, AnswerAlreadyExists,
 )
 from apps.questions.models.answer import Answer
 from apps.questions.models.question import Question
@@ -37,60 +37,37 @@ class AnswerService:
 
     def _get_question(self, question_id: int) -> Question:
         question = self.question_repo.get_by_id(question_id)
-
-        if not question:
-            logger.warning(
-                "Question not found",
-                extra={"question_id": question_id},
+        if question is None:
+            raise QuestionNotFound(
+                f'Question with id {question_id} not found'
             )
-            raise QuestionNotFound()
-
         return question
 
     @transaction.atomic
     def create_answer(self, cmd: CreateAnswerCommand) -> Answer:
+        question = self._get_question(cmd.question_id)
 
-        try:
-            question = self._get_question(cmd.question_id)
-
-            existing = Answer.objects.filter(
-                question=question,
-                user_id=cmd.user_id
-            ).exists()
-
-            if existing:
-                logger.warning(
-                    "User already answered this question",
-                    extra={
-                        "question_id": cmd.question_id,
-                        "user_id": cmd.user_id,
-                    },
-                )
-                raise AnswerAlreadyExists("User already answered this question")
-
-            selected_options = Content.objects.filter(
-                id__in=cmd.selected_option_ids,
-                question=question
+        if Answer.objects.filter(question=question, user_id=cmd.user_id).exists():
+            logger.warning(
+                f"User {cmd.user_id} tried to answer question {cmd.question_id} again"
             )
+            raise AnswerAlreadyExists()
 
-            answer = Answer(
-                question=question,
-                user_id=cmd.user_id
-            )
+        selected_options = Content.objects.filter(
+            id__in=cmd.selected_option_ids,
+            question=question
+        )
 
-            self.answer_repo.add(answer)
+        answer = Answer(
+            question=question,
+            user_id=cmd.user_id
+        )
 
-            answer.selected_options.set(selected_options)
+        self.answer_repo.add(answer)
+        answer.selected_options.set(selected_options)
 
-            return answer
+        logger.info(
+            f"Answer created for user {cmd.user_id} on question {cmd.question_id}"
+        )
 
-        except Exception as e:
-            logger.error(
-                "Error while creating answer",
-                extra={
-                    "question_id": cmd.question_id,
-                    "user_id": cmd.user_id,
-                    "error": str(e),
-                },
-            )
-            raise
+        return answer
