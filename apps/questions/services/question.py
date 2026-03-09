@@ -19,16 +19,14 @@ class QuestionService:
 
     def partial_update_question(self, pk: int, data: dict[str, Any]) -> Question:
         question = self.get_question(pk)
-
         allowed_fields = {
             "title",
-            "description",
             "allowed_answer_types",
-            "is_active",
+            "start_deadline",
+            "end_deadline"
         }
 
         payload = {k: v for k, v in data.items() if k in allowed_fields}
-
         if not payload:
             raise InvalidUpdatePayload()
 

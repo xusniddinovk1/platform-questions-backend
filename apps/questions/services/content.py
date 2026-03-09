@@ -17,18 +17,16 @@ class ContentService:
             raise ContentNotFound()
         return content
 
-    def create_content(self, content: Content) -> None:
+    def create_content(self, content: Content) -> Content:
         self.repo.add(content)
+        return content
 
     def update_content(self, content_id: int, data: dict) -> Content:
         content = self.get_content(content_id)
-
         if not data:
             raise InvalidUpdatePayload()
-
         for key, value in data.items():
             setattr(content, key, value)
-
         self.repo.update(content)
         return content
 

@@ -1,7 +1,6 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from django.db import transaction
-
 from apps.questions.exception.domainError import (
     DomainError,
     QuestionNotFound,
@@ -19,6 +18,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+# Custom error for type not allowed
 class AnswerTypeNotAllowed(DomainError):
     def __init__(self, allowed: list[str], sent: str) -> None:
         self.allowed = allowed
@@ -28,10 +28,6 @@ class AnswerTypeNotAllowed(DomainError):
 
 @dataclass(frozen=True)
 class CreateAnswerCommand:
-    """
-    Command object for creating an answer.
-    """
-
     question_id: int
     user_id: int
     content_type: str
@@ -39,16 +35,11 @@ class CreateAnswerCommand:
 
 
 class AnswerService:
-    """
-    Application service responsible for answer creation logic.
-    Handles validation, content creation and answer persistence.
-    """
-
     def __init__(
-        self,
-        question_repo: QuestionRepository,
-        answer_repo: AnswerRepository,
-        content_repo: ContentRepository,
+            self,
+            question_repo: QuestionRepository,
+            answer_repo: AnswerRepository,
+            content_repo: ContentRepository,
     ) -> None:
         self.question_repo = question_repo
         self.answer_repo = answer_repo
@@ -60,11 +51,11 @@ class AnswerService:
             raise QuestionNotFound()
         return question
 
-    def ensure_answer_type_allowed(self, question: Question, content_type: str) -> None:
-        """
-        Ensures that provided content_type is allowed for the given question.
-        Raises AnswerTypeNotAllowed if not permitted.
-        """
+    def ensure_answer_type_allowed(
+            self,
+            question: Question,
+            content_type: str
+    ) -> None:
         allowed = list(question.allowed_answer_types or [])
         if allowed and content_type not in allowed:
             raise AnswerTypeNotAllowed(allowed=allowed, sent=content_type)
@@ -76,41 +67,34 @@ class AnswerService:
             extra={
                 "question_id": cmd.question_id,
                 "user_id": cmd.user_id,
-                "content_type": cmd.content_type,
+                "content_type": cmd.content_type
             },
         )
 
         question = self._get_question(cmd.question_id)
 
         if not cmd.content_type:
-            logger.warning("Invalid content type: empty")
             raise InvalidContentType("content_type is required")
 
         self.ensure_answer_type_allowed(question, cmd.content_type)
 
+        # Create content
         content_obj = Content(
-            type=cmd.content_type,
-            payload=cmd.payload,
+            content_type=cmd.content_type,
+            text=cmd.payload.get("text"),
+            file=cmd.payload.get("file"),
         )
         self.content_repo.add(content_obj)
 
-        try:
-            answer = Answer(
-                question=question,
-                user_id=cmd.user_id,
-                content=content_obj,
-            )
-            self.answer_repo.add(answer)
-
-            logger.info(
-                "Answer successfully created",
-                extra={"answer_id": answer.pk},
-            )
-            return answer
-
-        except Exception:
-            logger.error(
-                "Failed to create answer",
-                exc_info=True,
-            )
+        # Check if user already answered
+        existing = Answer.objects.filter(question=question, user_id=cmd.user_id).first()
+        if existing:
             raise AnswerAlreadyExists("User already answered this question.")
+
+        answer = Answer(
+            question=question,
+            user_id=cmd.user_id,
+            content=content_obj
+        )
+        self.answer_repo.add(answer)
+        return answer

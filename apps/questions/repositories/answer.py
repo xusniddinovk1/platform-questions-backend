@@ -1,5 +1,4 @@
-from typing import Optional
-
+from typing import Optional, List
 from apps.core.abstructs.repository import ReadRepository, WriteRepository
 from apps.questions.models.answer import Answer
 
@@ -13,8 +12,10 @@ class AnswerRepository(ReadRepository[Answer], WriteRepository[Answer]):
             .first()
         )
 
-    def get_all(self) -> list[Answer]:
-        return list(Answer.objects.select_related("content", "user", "question").all())
+    def get_all(self) -> List[Answer]:
+        return list(Answer.objects.select_related(
+            "content", "user", "question"
+        ).all())
 
     def add(self, entity: Answer) -> None:
         entity.save()
