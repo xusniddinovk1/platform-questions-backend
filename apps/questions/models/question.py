@@ -34,11 +34,6 @@ class Question(models.Model):
         related_name="questions"
     )
 
-    allowed_answer_types = models.JSONField(
-        default=list,
-        blank=True
-    )
-
     start_deadline = models.TimeField(
         blank=True,
         null=True
