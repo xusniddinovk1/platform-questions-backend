@@ -1,17 +1,21 @@
 from rest_framework import permissions, status
-from rest_framework.exceptions import ValidationError
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
 from apps.questions.container import get_answer_service
-from apps.questions.serializers.answer import AnswerSerializer, AnswerCreateSerializer
+from apps.questions.serializers.answer import (
+    AnswerCreateSerializer,
+    AnswerSerializer,
+)
 from apps.questions.services.answer import (
-    AnswerAlreadyExists,
-    AnswerTypeNotAllowed,
     CreateAnswerCommand,
+    AnswerAlreadyExists,
 )
 from apps.questions.swagger.answer import create_answer_schema
+from apps.core.responses import build_success_response, build_error_response
+from apps.core.logger import get_logger_service
+
+logger = get_logger_service(__name__)
 
 
 class AnswerCreateAPIView(APIView):
@@ -23,33 +27,31 @@ class AnswerCreateAPIView(APIView):
         serializer.is_valid(raise_exception=True)
 
         user_id = request.user.id
-
         if user_id is None:
-            raise ValidationError({"detail": "User not found"})
+            logger.error("User ID is None when trying to create an answer")
+            raise ValueError("User ID cannot be None")
 
         cmd = CreateAnswerCommand(
             question_id=serializer.validated_data["question_id"],
             user_id=user_id,
-            content_type=serializer.validated_data["content"]["content_type"],
-            payload=serializer.validated_data["content"],
+            selected_option_ids=serializer.validated_data["selected_option_ids"],
         )
-        try:
-            answer = get_answer_service().create_answer(cmd)
 
-            return Response(
-                AnswerSerializer(answer).data,
-                status=status.HTTP_201_CREATED,
+        service = get_answer_service()
+
+        try:
+            answer = service.create_answer(cmd)
+            logger.info(f"Answer created successfully for user_id={user_id}")
+            return build_success_response(
+                data=AnswerSerializer(answer).data,
+                status_code=status.HTTP_201_CREATED
             )
 
         except AnswerAlreadyExists:
-            raise ValidationError({"detail": "Siz allaqachon javob bergansiz."})
-
-        except AnswerTypeNotAllowed as e:
-            raise ValidationError(
-                {
-                    "detail": (
-                        f"Ruxsat etilgan turlar: {e.allowed}. "
-                        f"Siz yubordingiz: {e.sent}"
-                    )
-                }
+            logger.warning(f"User {user_id} attempted to create a duplicate answer")
+            return build_error_response(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                code="ANSWER_ALREADY_EXISTS",
+                title="Answer already exists",
+                detail="Siz allaqachon javob bergansiz."
             )

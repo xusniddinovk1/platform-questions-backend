@@ -22,18 +22,17 @@ class QuestionService:
 
         allowed_fields = {
             "title",
-            "description",
-            "allowed_answer_types",
-            "is_active",
+            "start_deadline",
+            "end_deadline"
         }
 
         payload = {k: v for k, v in data.items() if k in allowed_fields}
-
         if not payload:
             raise InvalidUpdatePayload()
 
         for key, value in payload.items():
             setattr(question, key, value)
 
-        self.repo.update(question)
+            self.repo.update(question)
+
         return question

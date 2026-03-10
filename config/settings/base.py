@@ -5,7 +5,6 @@ import environ
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent  # на уровень выше
 
-
 # env
 env = environ.Env()
 environ.Env.read_env(BASE_DIR / ".env")
@@ -46,7 +45,6 @@ LOGGING = {
     },
 }
 
-
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -54,6 +52,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    'django.contrib.postgres',
     "rest_framework",
     "rest_framework_simplejwt",
     "drf_yasg",
@@ -77,7 +76,6 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
-
 
 ROOT_URLCONF = "config.urls"
 WSGI_APPLICATION = "config.wsgi.application"
