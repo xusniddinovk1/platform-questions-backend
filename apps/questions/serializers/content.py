@@ -1,4 +1,3 @@
-
 from rest_framework import serializers
 from apps.questions.models.content import Content, ContentType
 
@@ -15,9 +14,7 @@ class ContentSerializer(serializers.ModelSerializer):
         file = attrs.get("file")
 
         if ct == ContentType.TEXT and not text:
-            raise serializers.ValidationError(
-                {"text": "TEXT uchun text majburiy"}
-            )
+            raise serializers.ValidationError({"text": "TEXT uchun text majburiy"})
 
         if ct != ContentType.TEXT and not file:
             raise serializers.ValidationError({"file": "File majburiy"})

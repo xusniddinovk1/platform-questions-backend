@@ -2,7 +2,6 @@ from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from apps.core.swagger.common import envelope_schema
 
-
 content_schema = openapi.Schema(
     type=openapi.TYPE_OBJECT,
     properties={
@@ -47,9 +46,7 @@ question_response_schema = openapi.Schema(
             type=openapi.TYPE_ARRAY,
             items=openapi.Items(type=openapi.TYPE_STRING),
         ),
-        "created_at": openapi.Schema(
-            type=openapi.TYPE_STRING, format="date-time"
-        ),
+        "created_at": openapi.Schema(type=openapi.TYPE_STRING, format="date-time"),
         "answersCount": openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={
@@ -65,12 +62,8 @@ question_response_schema = openapi.Schema(
             },
         ),
         "isNew": openapi.Schema(type=openapi.TYPE_BOOLEAN),
-        "startDeadline": openapi.Schema(
-            type=openapi.TYPE_STRING, format="time"
-        ),
-        "endDeadline": openapi.Schema(
-            type=openapi.TYPE_STRING, format="time"
-        ),
+        "startDeadline": openapi.Schema(type=openapi.TYPE_STRING, format="time"),
+        "endDeadline": openapi.Schema(type=openapi.TYPE_STRING, format="time"),
         "contents": openapi.Schema(
             type=openapi.TYPE_ARRAY,
             items=question_content_response_schema,
@@ -79,14 +72,11 @@ question_response_schema = openapi.Schema(
 )
 
 
-
 question_create_update_request_schema = openapi.Schema(
     type=openapi.TYPE_OBJECT,
     required=["title"],
     properties={
-        "title": openapi.Schema(
-            type=openapi.TYPE_STRING, example="2+2 nechchi?"
-        ),
+        "title": openapi.Schema(type=openapi.TYPE_STRING, example="2+2 nechchi?"),
         "allowed_answer_types": openapi.Schema(
             type=openapi.TYPE_ARRAY,
             items=openapi.Items(type=openapi.TYPE_STRING),
