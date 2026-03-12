@@ -23,8 +23,8 @@ me_data_schema = openapi.Schema(
         ),
         "first_name": openapi.Schema(
             type=openapi.TYPE_STRING,
-            example="John Doe",
-            description="Полное имя пользователя",
+            example="John",
+            description="Имя пользователя",
         ),
         "last_name": openapi.Schema(
             type=openapi.TYPE_STRING,
@@ -38,11 +38,13 @@ me_data_schema = openapi.Schema(
         ),
         "role": openapi.Schema(
             type=openapi.TYPE_STRING,
-            example="user",
+            example="USER",
             description="Роль пользователя",
         ),
     },
 )
+
+me_success_response_schema = envelope_schema(me_data_schema)
 
 me_swagger = swagger_auto_schema(
     operation_summary="Получение текущего пользователя",
@@ -58,7 +60,22 @@ me_swagger = swagger_auto_schema(
     responses={
         200: openapi.Response(
             description="Данные текущего пользователя",
-            schema=envelope_schema(me_data_schema),
+            schema=me_success_response_schema,
+            examples={
+                "application/json": {
+                    "data": {
+                        "id": 1,
+                        "username": "john_doe",
+                        "email": "john@example.com",
+                        "first_name": "John",
+                        "last_name": "Doe",
+                        "is_active": True,
+                        "role": "USER",
+                    },
+                    "meta": {},
+                    "errors": None,
+                }
+            },
         ),
         401: openapi.Response(
             description="Access token не передан или невалиден",
@@ -68,11 +85,25 @@ me_swagger = swagger_auto_schema(
                     properties={
                         "detail": openapi.Schema(
                             type=openapi.TYPE_STRING,
-                            example="Access token is required",
+                            example="Access token is invalid",
                         ),
                     },
                 )
             ),
+            examples={
+                "application/json": {
+                    "data": None,
+                    "meta": {},
+                    "errors": [
+                        {
+                            "status": 401,
+                            "code": "INVALID_ACCESS_TOKEN",
+                            "title": "Invalid access token",
+                            "detail": "Access token is invalid",
+                        }
+                    ],
+                }
+            },
         ),
         404: openapi.Response(
             description="Пользователь не найден",
@@ -87,6 +118,20 @@ me_swagger = swagger_auto_schema(
                     },
                 )
             ),
+            examples={
+                "application/json": {
+                    "data": None,
+                    "meta": {},
+                    "errors": [
+                        {
+                            "status": 404,
+                            "code": "USER_NOT_FOUND",
+                            "title": "User not found",
+                            "detail": "User not found for the provided access token",
+                        }
+                    ],
+                }
+            },
         ),
     },
     tags=["Authentication"],
