@@ -1,64 +1,63 @@
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 
+from apps.auth.swagger.me import me_data_schema
 from apps.core.swagger.common import envelope_schema
 
-me_data_schema = openapi.Schema(
+me_update_request_schema = openapi.Schema(
     type=openapi.TYPE_OBJECT,
     properties={
-        "id": openapi.Schema(
-            type=openapi.TYPE_INTEGER,
-            example=1,
-            description="ID пользователя",
-        ),
         "username": openapi.Schema(
             type=openapi.TYPE_STRING,
-            example="john_doe",
-            description="Username пользователя",
+            description="Новый username пользователя",
+            example="new_username",
         ),
         "email": openapi.Schema(
             type=openapi.TYPE_STRING,
-            example="john@example.com",
-            description="Email пользователя",
+            description="Новый email пользователя",
+            example="new_email@example.com",
         ),
         "first_name": openapi.Schema(
             type=openapi.TYPE_STRING,
-            example="John Doe",
-            description="Полное имя пользователя",
+            description="Новое имя пользователя",
+            example="Иван",
         ),
         "last_name": openapi.Schema(
             type=openapi.TYPE_STRING,
-            example="Doe",
-            description="Фамилия пользователя",
-        ),
-        "is_active": openapi.Schema(
-            type=openapi.TYPE_BOOLEAN,
-            example=True,
-            description="Активен ли пользователь",
-        ),
-        "role": openapi.Schema(
-            type=openapi.TYPE_STRING,
-            example="user",
-            description="Роль пользователя",
+            description="Новая фамилия пользователя",
+            example="Иванов",
         ),
     },
 )
 
-me_swagger = swagger_auto_schema(
-    operation_summary="Получение текущего пользователя",
+
+me_update_swagger = swagger_auto_schema(
+    operation_summary="Частичное обновление текущего пользователя",
     operation_description=(
-        "Возвращает информацию o текущем авторизованном пользователе.\n\n"
+        "Позволяет частично обновить данные текущего авторизованного пользователя.\n\n"
         "🔐 **Авторизация**:\n"
         "- Access token передаётся через заголовок `Authorization: Bearer <token>`\n\n"
-        "🌐 **WEB**:\n"
-        "- Access token берётся из `Authorization` header\n\n"
-        "📱 **Mobile**:\n"
-        "- Access token также передаётся в `Authorization` header"
+        "Тело запроса может содержать один или несколько полей для обновления."
     ),
+    request_body=me_update_request_schema,
     responses={
         200: openapi.Response(
-            description="Данные текущего пользователя",
+            description="Данные пользователя успешно обновлены",
             schema=envelope_schema(me_data_schema),
+        ),
+        400: openapi.Response(
+            description="Ошибка валидации входных данных",
+            schema=envelope_schema(
+                openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        "detail": openapi.Schema(
+                            type=openapi.TYPE_STRING,
+                            example="{'email': ['Enter a valid email address.']}",
+                        ),
+                    },
+                )
+            ),
         ),
         401: openapi.Response(
             description="Access token не передан или невалиден",
@@ -68,7 +67,7 @@ me_swagger = swagger_auto_schema(
                     properties={
                         "detail": openapi.Schema(
                             type=openapi.TYPE_STRING,
-                            example="Access token is required",
+                            example="Access token is invalid",
                         ),
                     },
                 )
