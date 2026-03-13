@@ -4,7 +4,8 @@ import os
 import dj_database_url
 
 DEBUG = False
-ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["platform-questions-backend-fdjk.onrender.com"])
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS",
+                         default=["platform-questions-backend-fdjk.onrender.com"])
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
