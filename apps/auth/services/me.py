@@ -1,5 +1,8 @@
+from django.db.utils import IntegrityError
+
 from apps.auth.dto.me import MeUpdateRequestDTO
 from apps.auth.exceptions.invalid_token import InvalidToken
+from apps.auth.exceptions.is_user_already_exists import IsUserAlreadyExists
 from apps.auth.services.jwt import JWTService
 from apps.user.exceptions.user_not_found import UserNotFoundException
 from apps.user.models import User
@@ -50,6 +53,10 @@ class MeService:
         if "last_name" in dto:
             user.last_name = dto["last_name"]
 
-        updated_user = self.user_service.update_user(user)
+        try:
+            updated_user = self.user_service.update_user(user)
+        except IntegrityError:
+            identifier = dto.get("email") or dto.get("username") or str(user_id)
+            raise IsUserAlreadyExists(identifier=identifier)
 
         return updated_user

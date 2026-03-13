@@ -6,6 +6,7 @@ from rest_framework.views import APIView
 from apps.auth.container import get_me_service
 from apps.auth.dto.me import MeResponseDTO, MeUpdateRequestDTO
 from apps.auth.exceptions.invalid_token import InvalidToken
+from apps.auth.exceptions.is_user_already_exists import IsUserAlreadyExists
 from apps.auth.exceptions.token_expired import TokenExpired
 from apps.auth.serializers.me import MeUpdateSerializer
 from apps.auth.services.me import MeService
@@ -137,6 +138,14 @@ class MeView(APIView):
                 code="USER_NOT_FOUND",
                 title="User not found",
                 detail="User not found for the provided access token",
+            )
+        except IsUserAlreadyExists as exc:
+            self.log.warning("User with given identifier already exists: %s", exc)
+            return build_error_response(
+                status_code=status.HTTP_409_CONFLICT,
+                code="USER_ALREADY_EXISTS",
+                title="User already exists",
+                detail=str(exc),
             )
 
         response_dto: MeResponseDTO = MeResponseDTO(
