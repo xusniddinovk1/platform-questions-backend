@@ -18,24 +18,14 @@ class Question(models.Model):
     title = models.CharField(max_length=255)
 
     category = models.ForeignKey(
-        Category,
-        on_delete=models.CASCADE,
-        related_name="questions"
+        Category, on_delete=models.CASCADE, related_name="questions"
     )
 
-    start_deadline = models.TimeField(
-        blank=True,
-        null=True
-    )
+    start_deadline = models.TimeField(blank=True, null=True)
 
-    end_deadline = models.TimeField(
-        blank=True,
-        null=True
-    )
+    end_deadline = models.TimeField(blank=True, null=True)
 
-    created_at = models.DateTimeField(
-        auto_now_add=True
-    )
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self) -> str:
         return self.title
@@ -47,29 +37,18 @@ class QuestionContent(models.Model):
     id: int
 
     question = models.ForeignKey(
-        Question,
-        on_delete=models.CASCADE,
-        related_name="contents"
+        Question, on_delete=models.CASCADE, related_name="contents"
     )
 
-    content = models.ForeignKey(
-        Content,
-        on_delete=models.CASCADE
-    )
+    content = models.ForeignKey(Content, on_delete=models.CASCADE)
 
     role = models.CharField(
-        max_length=20,
-        choices=ContentRole.choices,
-        default=ContentRole.QUESTION
+        max_length=20, choices=ContentRole.choices, default=ContentRole.QUESTION
     )
 
-    order = models.PositiveIntegerField(
-        default=0
-    )
+    order = models.PositiveIntegerField(default=0)
 
-    is_correct = models.BooleanField(
-        default=False
-    )
+    is_correct = models.BooleanField(default=False)
 
     class Meta:
         ordering: ClassVar[list[str]] = ["order"]

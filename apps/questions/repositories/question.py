@@ -7,22 +7,14 @@ from apps.questions.models.question import Question
 class QuestionRepository(ReadRepository[Question], WriteRepository[Question]):
 
     def get_by_id(self, entity_id: int) -> Optional[Question]:
-        queryset = (
-            Question.objects
-            .select_related("category")
-            .prefetch_related(
-                "contents__content",
-                "answers"
-            )
+        queryset = Question.objects.select_related("category").prefetch_related(
+            "contents__content", "answers"
         )
         return queryset.filter(id=entity_id).first()
 
     def get_all(self) -> List[Question]:
         return list(
-            Question.objects
-            .all()
-            .prefetch_related("contents__content")
-            .order_by("-id")
+            Question.objects.all().prefetch_related("contents__content").order_by("-id")
         )
 
     def add(self, entity: Question) -> None:

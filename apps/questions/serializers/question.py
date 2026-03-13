@@ -36,4 +36,5 @@ class QuestionSerializer(serializers.ModelSerializer):
 
     def get_isNew(self, obj: Question) -> bool:
         from django.utils import timezone
+
         return (timezone.now() - obj.created_at).days <= 3

@@ -7,8 +7,7 @@ class AnswerRepository(ReadRepository[Answer], WriteRepository[Answer]):
 
     def get_by_id(self, entity_id: int) -> Optional[Answer]:
         return (
-            Answer.objects
-            .select_related("user", "question")
+            Answer.objects.select_related("user", "question")
             .prefetch_related("selected_options")
             .filter(id=entity_id)
             .first()
@@ -16,8 +15,7 @@ class AnswerRepository(ReadRepository[Answer], WriteRepository[Answer]):
 
     def get_all(self) -> List[Answer]:
         return list(
-            Answer.objects
-            .select_related("user", "question")
+            Answer.objects.select_related("user", "question")
             .prefetch_related("selected_options")
             .all()
         )
