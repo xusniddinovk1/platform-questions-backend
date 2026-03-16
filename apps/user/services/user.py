@@ -39,3 +39,9 @@ class UserService:
 
     def get_user_by_id(self, id: int) -> User | None:
         return self.user_repository.get_by_id(id=id)
+
+    def update_user(self, user: User) -> User:
+        """
+        Обновление существующего пользователя.
+        """
+        return self.user_repository.update(user)

@@ -1,6 +1,6 @@
 from django.urls import path
 
-from apps.auth.views.profile import ProfileView
+# from apps.auth.views.profile import ProfileView
 
 from .views.confirm_email import EmailConfirmAPIView
 from .views.login import LoginViaEmailView
@@ -16,7 +16,7 @@ urlpatterns = [
     path("auth/register/email/", RegisterEmailView.as_view(), name="register"),
     path("auth/refresh/", RefreshView.as_view(), name="refresh"),
     path("auth/logout/", LogoutView.as_view(), name="logout"),
-    path("auth/profile/", ProfileView.as_view(), name="profile"),
+    # path("auth/profile/", ProfileView.as_view(), name="profile"),
     path("auth/me/", MeView.as_view(), name="me-user"),
     path(
         "auth/confirm/<uidb64>/<token>/",
