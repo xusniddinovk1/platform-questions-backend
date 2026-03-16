@@ -28,9 +28,7 @@ class QuestionListAPIView(APIView):
         service = get_question_service()
         questions = list(service.list_questions())
         self.log.info(f"Fetched {len(questions)} questions")
-        return build_success_response(
-            data=QuestionSerializer(questions, many=True).data
-        )
+        return build_success_response(data=QuestionSerializer(questions, many=True).data)
 
 
 class QuestionDetailAPIView(APIView):
@@ -48,16 +46,14 @@ class QuestionDetailAPIView(APIView):
         try:
             question = service.get_question(pk)
             self.log.info(f"Question with id={pk} fetched successfully")
-            return build_success_response(
-                data=QuestionSerializer(question).data
-            )
+            return build_success_response(data=QuestionSerializer(question).data)
         except QuestionNotFound:
             self.log.warning(f"Question with id={pk} not found")
             return build_error_response(
                 status_code=status.HTTP_404_NOT_FOUND,
                 code="QUESTION_NOT_FOUND",
                 title="Question not found",
-                detail=f"Question with id {pk} does not exist"
+                detail=f"Question with id {pk} does not exist",
             )
 
     def patch(self, request: Request, pk: int) -> Response:
@@ -69,16 +65,14 @@ class QuestionDetailAPIView(APIView):
         try:
             updated = service.partial_update_question(pk, request.data)
             self.log.info(f"Question with id={pk} updated successfully")
-            return build_success_response(
-                data=QuestionSerializer(updated).data
-            )
+            return build_success_response(data=QuestionSerializer(updated).data)
         except QuestionNotFound:
             self.log.warning(f"Attempted to update non-existent question id={pk}")
             return build_error_response(
                 status_code=status.HTTP_404_NOT_FOUND,
                 code="QUESTION_NOT_FOUND",
                 title="Question not found",
-                detail=f"Question with id {pk} does not exist"
+                detail=f"Question with id {pk} does not exist",
             )
         except InvalidUpdatePayload:
             self.log.warning(f"Invalid update payload for question id={pk}")
@@ -86,5 +80,5 @@ class QuestionDetailAPIView(APIView):
                 status_code=status.HTTP_400_BAD_REQUEST,
                 code="INVALID_UPDATE_PAYLOAD",
                 title="Invalid update payload",
-                detail="Yangilash uchun ma'lumot yuborilmadi"
+                detail="Yangilash uchun ma'lumot yuborilmadi",
             )

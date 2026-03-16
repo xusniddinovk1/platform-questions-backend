@@ -4,7 +4,8 @@ from django.db import transaction
 
 from apps.core.logger import get_logger_service
 from apps.questions.exception.domainError import (
-    QuestionNotFound, AnswerAlreadyExists,
+    QuestionNotFound,
+    AnswerAlreadyExists,
 )
 from apps.questions.models.answer import Answer
 from apps.questions.models.question import Question
@@ -26,10 +27,10 @@ class CreateAnswerCommand:
 class AnswerService:
 
     def __init__(
-            self,
-            question_repo: QuestionRepository,
-            answer_repo: AnswerRepository,
-            content_repo: ContentRepository,
+        self,
+        question_repo: QuestionRepository,
+        answer_repo: AnswerRepository,
+        content_repo: ContentRepository,
     ) -> None:
         self.question_repo = question_repo
         self.answer_repo = answer_repo
@@ -38,9 +39,7 @@ class AnswerService:
     def _get_question(self, question_id: int) -> Question:
         question = self.question_repo.get_by_id(question_id)
         if question is None:
-            raise QuestionNotFound(
-                f'Question with id {question_id} not found'
-            )
+            raise QuestionNotFound(f"Question with id {question_id} not found")
         return question
 
     @transaction.atomic
@@ -54,14 +53,10 @@ class AnswerService:
             raise AnswerAlreadyExists()
 
         selected_options = Content.objects.filter(
-            id__in=cmd.selected_option_ids,
-            question=question
+            id__in=cmd.selected_option_ids, question=question
         )
 
-        answer = Answer(
-            question=question,
-            user_id=cmd.user_id
-        )
+        answer = Answer(question=question, user_id=cmd.user_id)
 
         self.answer_repo.add(answer)
         answer.selected_options.set(selected_options)

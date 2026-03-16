@@ -47,8 +47,7 @@ class AnswerCreateAPIView(APIView):
             answer = service.create_answer(cmd)
             self.log.info(f"Answer created successfully for user_id={user_id}")
             return build_success_response(
-                data=AnswerSerializer(answer).data,
-                status_code=status.HTTP_201_CREATED
+                data=AnswerSerializer(answer).data, status_code=status.HTTP_201_CREATED
             )
 
         except AnswerAlreadyExists:
@@ -57,5 +56,5 @@ class AnswerCreateAPIView(APIView):
                 status_code=status.HTTP_400_BAD_REQUEST,
                 code="ANSWER_ALREADY_EXISTS",
                 title="Answer already exists",
-                detail="Siz allaqachon javob bergansiz."
+                detail="Siz allaqachon javob bergansiz.",
             )
