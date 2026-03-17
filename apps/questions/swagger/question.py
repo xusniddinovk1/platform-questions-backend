@@ -2,113 +2,94 @@ from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from apps.core.swagger.common import envelope_schema
 
-content_schema = openapi.Schema(
+# ===== Option schema (payload ichida) =====
+option_schema = openapi.Schema(
     type=openapi.TYPE_OBJECT,
     properties={
-        "content_type": openapi.Schema(type=openapi.TYPE_STRING, example="text"),
-        "text": openapi.Schema(type=openapi.TYPE_STRING, example="Savol matni"),
-        "file": openapi.Schema(type=openapi.TYPE_STRING, format="uri"),
-        "created_at": openapi.Schema(type=openapi.TYPE_STRING, format="date-time"),
+        "id": openapi.Schema(type=openapi.TYPE_INTEGER, example=1),
+        "text": openapi.Schema(type=openapi.TYPE_STRING, example="1989"),
+        "isCorrect": openapi.Schema(type=openapi.TYPE_BOOLEAN, example=True),
     },
-    required=["content_type"],
 )
 
-
-question_content_response_schema = openapi.Schema(
+# ===== Payload schema =====
+payload_schema = openapi.Schema(
     type=openapi.TYPE_OBJECT,
+    description="Savol turiga qarab turli ma'lumotlar: options, imageUrls va h.k.",
     properties={
-        "id": openapi.Schema(type=openapi.TYPE_INTEGER),
-        "role": openapi.Schema(type=openapi.TYPE_STRING),
-        "order": openapi.Schema(type=openapi.TYPE_INTEGER),
-        "is_correct": openapi.Schema(type=openapi.TYPE_BOOLEAN),
-        "content": openapi.Schema(
-            type=openapi.TYPE_OBJECT,
-            properties={
-                "id": openapi.Schema(type=openapi.TYPE_INTEGER),
-                "content_type": openapi.Schema(type=openapi.TYPE_STRING),
-                "text": openapi.Schema(type=openapi.TYPE_STRING),
-                "file": openapi.Schema(type=openapi.TYPE_STRING, format="uri"),
-                "created_at": openapi.Schema(
-                    type=openapi.TYPE_STRING, format="date-time"
-                ),
-            },
+        "options": openapi.Schema(
+            type=openapi.TYPE_ARRAY,
+            items=option_schema,
+            description="Variant javoblar (text/image tipidagi savollarda bo'ladi)",
+        ),
+        "imageUrls": openapi.Schema(
+            type=openapi.TYPE_ARRAY,
+            items=openapi.Schema(type=openapi.TYPE_STRING, format="uri"),
+            description="Rasm URL'lari (image tipidagi savollarda bo'ladi)",
         ),
     },
 )
 
-
+# ===== Question response schema =====
 question_response_schema = openapi.Schema(
     type=openapi.TYPE_OBJECT,
     properties={
-        "id": openapi.Schema(type=openapi.TYPE_INTEGER),
-        "title": openapi.Schema(type=openapi.TYPE_STRING),
-        "allowed_answer_types": openapi.Schema(
-            type=openapi.TYPE_ARRAY,
-            items=openapi.Items(type=openapi.TYPE_STRING),
+        "id": openapi.Schema(type=openapi.TYPE_INTEGER, example=1),
+        "title": openapi.Schema(
+            type=openapi.TYPE_STRING, example="Python qachon yaratilgan?"
         ),
-        "created_at": openapi.Schema(type=openapi.TYPE_STRING, format="date-time"),
+        "type": openapi.Schema(
+            type=openapi.TYPE_STRING,
+            example="text",
+            description="Savol turi: text | image",
+            enum=["text", "image"],
+        ),
         "answersCount": openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={
-                "success": openapi.Schema(type=openapi.TYPE_INTEGER),
-                "failed": openapi.Schema(type=openapi.TYPE_INTEGER),
+                "success": openapi.Schema(type=openapi.TYPE_INTEGER, example=10),
+                "failed": openapi.Schema(type=openapi.TYPE_INTEGER, example=3),
             },
         ),
         "category": openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={
-                "id": openapi.Schema(type=openapi.TYPE_INTEGER),
-                "title": openapi.Schema(type=openapi.TYPE_STRING),
+                "id": openapi.Schema(type=openapi.TYPE_INTEGER, example=1),
+                "title": openapi.Schema(type=openapi.TYPE_STRING, example="Python"),
             },
         ),
-        "isNew": openapi.Schema(type=openapi.TYPE_BOOLEAN),
-        "startDeadline": openapi.Schema(type=openapi.TYPE_STRING, format="time"),
-        "endDeadline": openapi.Schema(type=openapi.TYPE_STRING, format="time"),
-        "contents": openapi.Schema(
-            type=openapi.TYPE_ARRAY,
-            items=question_content_response_schema,
+        "isNew": openapi.Schema(type=openapi.TYPE_BOOLEAN, example=True),
+        "startDeadline": openapi.Schema(
+            type=openapi.TYPE_STRING,
+            example="09:00:00",
+            description="HH:MM:SS formatida",
         ),
+        "endDeadline": openapi.Schema(
+            type=openapi.TYPE_STRING,
+            example="18:00:00",
+            description="HH:MM:SS formatida",
+        ),
+        "payload": payload_schema,
     },
 )
 
-
-question_create_update_request_schema = openapi.Schema(
+# ===== Pagination meta schema =====
+pagination_meta_schema = openapi.Schema(
     type=openapi.TYPE_OBJECT,
-    required=["title"],
     properties={
-        "title": openapi.Schema(type=openapi.TYPE_STRING, example="2+2 nechchi?"),
-        "allowed_answer_types": openapi.Schema(
-            type=openapi.TYPE_ARRAY,
-            items=openapi.Items(type=openapi.TYPE_STRING),
-            example=["text", "number"],
-        ),
-        "contents_payload": openapi.Schema(
-            type=openapi.TYPE_ARRAY,
-            description=(
-                "Content'larni yaratib question'ga bog'laydi (replace=True). "
-                "Har bir element content bilan bog'lanadi."
-            ),
-            items=openapi.Schema(
-                type=openapi.TYPE_OBJECT,
-                properties={
-                    "role": openapi.Schema(type=openapi.TYPE_STRING, example="question"),
-                    "order": openapi.Schema(type=openapi.TYPE_INTEGER, example=0),
-                    "content": content_schema,
-                },
-                required=["content"],
-            ),
-            example=[
-                {
-                    "role": "question",
-                    "order": 0,
-                    "content": {"content_type": "text", "text": "2+2 nechchi?"},
-                }
-            ],
-        ),
+        "pagination": openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                "page": openapi.Schema(type=openapi.TYPE_INTEGER, example=1),
+                "limit": openapi.Schema(type=openapi.TYPE_INTEGER, example=10),
+                "total": openapi.Schema(type=openapi.TYPE_INTEGER, example=125),
+                "totalPages": openapi.Schema(type=openapi.TYPE_INTEGER, example=13),
+            },
+        )
     },
 )
 
-
+# ===== Question list response schema =====
 question_list_response_schema = openapi.Schema(
     type=openapi.TYPE_OBJECT,
     properties={
@@ -116,20 +97,7 @@ question_list_response_schema = openapi.Schema(
             type=openapi.TYPE_ARRAY,
             items=question_response_schema,
         ),
-        "meta": openapi.Schema(
-            type=openapi.TYPE_OBJECT,
-            properties={
-                "pagination": openapi.Schema(
-                    type=openapi.TYPE_OBJECT,
-                    properties={
-                        "page": openapi.Schema(type=openapi.TYPE_INTEGER),
-                        "limit": openapi.Schema(type=openapi.TYPE_INTEGER),
-                        "total": openapi.Schema(type=openapi.TYPE_INTEGER),
-                        "totalPages": openapi.Schema(type=openapi.TYPE_INTEGER),
-                    },
-                )
-            },
-        ),
+        "meta": pagination_meta_schema,
         "errors": openapi.Schema(
             type=openapi.TYPE_ARRAY,
             items=openapi.Schema(type=openapi.TYPE_OBJECT),
@@ -138,13 +106,56 @@ question_list_response_schema = openapi.Schema(
     },
 )
 
+# ===== Update request schema =====
+question_create_update_request_schema = openapi.Schema(
+    type=openapi.TYPE_OBJECT,
+    required=["title"],
+    properties={
+        "title": openapi.Schema(type=openapi.TYPE_STRING, example="2+2 nechchi?"),
+        "start_deadline": openapi.Schema(
+            type=openapi.TYPE_STRING, example="09:00:00"
+        ),
+        "end_deadline": openapi.Schema(
+            type=openapi.TYPE_STRING, example="18:00:00"
+        ),
+    },
+)
 
+# ===== Query params =====
+question_list_query_params = [
+    openapi.Parameter(
+        name="page",
+        in_=openapi.IN_QUERY,
+        description="Sahifa raqami (default: 1)",
+        type=openapi.TYPE_INTEGER,
+        required=False,
+        default=1,
+    ),
+    openapi.Parameter(
+        name="limit",
+        in_=openapi.IN_QUERY,
+        description="Har sahifada nechta natija (default: 10, max: 100)",
+        type=openapi.TYPE_INTEGER,
+        required=False,
+        default=10,
+    ),
+    openapi.Parameter(
+        name="category_id",
+        in_=openapi.IN_QUERY,
+        description="Kategoriya ID bo'yicha filter",
+        type=openapi.TYPE_INTEGER,
+        required=False,
+    ),
+]
+
+# ===== Swagger dekoratorlar =====
 questions_list_schema = swagger_auto_schema(
     operation_summary="Questions list",
+    operation_description="Savollar ro'yxatini pagination bilan qaytaradi",
+    manual_parameters=question_list_query_params,
     responses={200: envelope_schema(question_list_response_schema)},
     tags=["Questions"],
 )
-
 
 get_question_by_id_schema = swagger_auto_schema(
     operation_summary="Get question by id",
@@ -152,7 +163,6 @@ get_question_by_id_schema = swagger_auto_schema(
     responses={200: envelope_schema(question_response_schema)},
     tags=["Questions"],
 )
-
 
 update_question_partial_schema = swagger_auto_schema(
     operation_summary="Update question partially",

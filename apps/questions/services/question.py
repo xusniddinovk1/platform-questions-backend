@@ -1,7 +1,15 @@
-from typing import Iterable, Any
+from typing import Iterable, Any, Optional
+from dataclasses import dataclass
 from apps.questions.models.question import Question
-from apps.questions.repositories.question import QuestionRepository
+from apps.questions.repositories.question import QuestionRepository, PaginatedResult
 from apps.questions.exception.domainError import QuestionNotFound, InvalidUpdatePayload
+
+
+@dataclass
+class ListQuestionsQuery:
+    page: int = 1
+    limit: int = 10
+    category_id: Optional[int] = None
 
 
 class QuestionService:
@@ -10,6 +18,15 @@ class QuestionService:
 
     def list_questions(self) -> Iterable[Question]:
         return self.repo.get_all()
+
+    def list_questions_paginated(self, query: ListQuestionsQuery) -> PaginatedResult:
+        page = max(1, query.page)
+        limit = min(max(1, query.limit), 100)  # max 100 ta limit
+        return self.repo.get_paginated(
+            page=page,
+            limit=limit,
+            category_id=query.category_id,
+        )
 
     def get_question(self, question_id: int) -> Question:
         question = self.repo.get_by_id(question_id)
@@ -29,6 +46,6 @@ class QuestionService:
         for key, value in payload.items():
             setattr(question, key, value)
 
-            self.repo.update(question)
+        self.repo.update(question)
 
         return question
