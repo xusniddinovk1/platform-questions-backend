@@ -16,7 +16,7 @@ class UserService:
             password=dto["password"],
             first_name=dto["first_name"],
             last_name=dto["last_name"],
-            is_active=True,
+            is_active=False,
             is_superuser=False,
             is_staff=False,
             birthday=dto["birthday"],

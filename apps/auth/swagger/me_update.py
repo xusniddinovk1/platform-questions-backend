@@ -27,6 +27,17 @@ me_update_request_schema = openapi.Schema(
             description="Новая фамилия пользователя",
             example="Иванов",
         ),
+        "university": openapi.Schema(
+            type=openapi.TYPE_STRING,
+            description="Новый университет пользователя",
+            example="MIT",
+        ),
+        "birthday": openapi.Schema(
+            type=openapi.TYPE_STRING,
+            format="date",
+            description="Новая дата рождения пользователя",
+            example="1990-01-01",
+        ),
     },
 )
 

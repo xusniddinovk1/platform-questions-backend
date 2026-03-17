@@ -31,3 +31,14 @@ class MeUpdateSerializer(serializers.Serializer):
         allow_blank=False,
         help_text="Новая фамилия пользователя",
     )
+    university = serializers.CharField(
+        max_length=100,
+        required=False,
+        allow_blank=False,
+        help_text="Новый университет пользователя",
+    )
+    birthday = serializers.DateField(
+        required=False,
+        allow_null=True,
+        help_text="Новая дата рождения пользователя",
+    )

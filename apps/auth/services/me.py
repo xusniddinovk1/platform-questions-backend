@@ -50,6 +50,12 @@ class MeService:
         if "last_name" in dto:
             user.last_name = dto["last_name"]
 
+        if "university" in dto:
+            user.university = dto["university"]
+
+        if "birthday" in dto:
+            user.birthday = dto["birthday"]
+
         updated_user = self.user_service.update_user(user)
 
         return updated_user
