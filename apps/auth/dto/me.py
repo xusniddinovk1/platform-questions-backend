@@ -1,4 +1,5 @@
 from typing import TypedDict
+import datetime
 
 
 class MeResponseDTO(TypedDict):
@@ -9,6 +10,8 @@ class MeResponseDTO(TypedDict):
     first_name: str
     is_active: bool
     role: str
+    university: str | None
+    birthday: datetime.date | None
 
 
 class MeUpdateRequestDTO(TypedDict, total=False):
@@ -22,3 +25,5 @@ class MeUpdateRequestDTO(TypedDict, total=False):
     email: str
     first_name: str
     last_name: str
+    university: str
+    birthday: datetime.date

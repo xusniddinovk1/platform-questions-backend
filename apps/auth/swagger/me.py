@@ -41,6 +41,17 @@ me_data_schema = openapi.Schema(
             example="USER",
             description="Роль пользователя",
         ),
+        "university": openapi.Schema(
+            type=openapi.TYPE_STRING,
+            example="MIT",
+            description="Университет пользователя",
+        ),
+        "birthday": openapi.Schema(
+            type=openapi.TYPE_STRING,
+            format="date",
+            example="1990-01-01",
+            description="Дата рождения пользователя",
+        ),
     },
 )
 
@@ -71,6 +82,8 @@ me_swagger = swagger_auto_schema(
                         "last_name": "Doe",
                         "is_active": True,
                         "role": "USER",
+                        "university": "MIT",
+                        "birthday": "1990-01-01",
                     },
                     "meta": {},
                     "errors": None,

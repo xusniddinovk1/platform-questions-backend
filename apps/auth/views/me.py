@@ -77,6 +77,8 @@ class MeView(APIView):
             first_name=user.first_name,
             is_active=user.is_active,
             role=user.role,
+            university=user.university,
+            birthday=user.birthday,
         )
 
         return build_success_response(dto)
@@ -147,6 +149,8 @@ class MeView(APIView):
             first_name=user.first_name,
             is_active=user.is_active,
             role=user.role,
+            university=user.university,
+            birthday=user.birthday,
         )
 
         return build_success_response(response_dto)
