@@ -12,10 +12,10 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class QuestionSerializer(serializers.ModelSerializer):
-    category = CategorySerializer()
+    category = CategorySerializer(read_only=True)
     type = serializers.SerializerMethodField()
     answersCount = serializers.SerializerMethodField()
-    isNew = serializers.SerializerMethodField()
+    isNew = serializers.BooleanField(source='is_new_calc', read_only=True)
     startDeadline = serializers.SerializerMethodField()
     endDeadline = serializers.SerializerMethodField()
     payload = serializers.SerializerMethodField()
@@ -23,83 +23,41 @@ class QuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Question
         fields = (
-            "id",
-            "title",
-            "type",
-            "answersCount",
-            "category",
-            "isNew",
-            "startDeadline",
-            "endDeadline",
-            "payload",
+            "id", "title", "type", "answersCount",
+            "category", "isNew", "startDeadline", "endDeadline", "payload"
         )
 
     def get_type(self, obj: Question) -> str:
-        """
-        Savolning turini aniqlaydi.
-        Hozircha faqat 'text' va 'image' turlari bor.
-        Kelajakda boshqa turlar qo'shilishi mumkin.
-        """
-        has_image = obj.contents.filter(
-            role=ContentRole.OPTION,
-            content__content_type=ContentType.IMAGE,
-        ).exists()
-        if has_image:
-            return "image"
-        return "text"
+        return "image" if getattr(obj, 'has_image_content', False) else "text"
 
     def get_answersCount(self, obj: Question) -> dict:
-        success = obj.answers.filter(is_correct=True).count()
-        failed = obj.answers.filter(is_correct=False).count()
-        return {"success": success, "failed": failed}
-
-    def get_isNew(self, obj: Question) -> bool:
-        from django.utils import timezone
-        return (timezone.now() - obj.created_at).days <= 3
+        return {
+            "success": getattr(obj, 'success_count', 0),
+            "failed": getattr(obj, 'failed_count', 0)
+        }
 
     def get_startDeadline(self, obj: Question) -> str | None:
-        """
-        TimeField -> "HH:MM:SS" string formatida qaytaradi.
-        """
-        if obj.start_deadline is None:
-            return None
-        return obj.start_deadline.strftime("%H:%M:%S")
+        return obj.start_deadline.strftime("%H:%M:%S") if obj.start_deadline else None
 
     def get_endDeadline(self, obj: Question) -> str | None:
-        """
-        TimeField -> "HH:MM:SS" string formatida qaytaradi.
-        """
-        if obj.end_deadline is None:
-            return None
-        return obj.end_deadline.strftime("%H:%M:%S")
+        return obj.end_deadline.strftime("%H:%M:%S") if obj.end_deadline else None
 
     def get_payload(self, obj: Question) -> dict:
-        """
-        Savolga bog'liq qo'shimcha ma'lumotlar.
-        Hozircha options qaytaradi.
-        Kelajakda imageUrls va boshqalar qo'shilishi mumkin.
-        """
         payload: dict = {}
 
-        # Options (variantlar)
-        option_contents = obj.contents.filter(
-            role=ContentRole.OPTION
-        ).select_related("content")
+        all_contents = list(obj.contents.all())
 
-        if option_contents.exists():
-            payload["options"] = OptionSerializer(option_contents, many=True).data
+        options = [c for c in all_contents if c.role == ContentRole.OPTION]
+        if options:
+            payload["options"] = OptionSerializer(options, many=True).data
 
-        # Image attachments
-        image_contents = obj.contents.filter(
-            role=ContentRole.ATTACHMENT,
-            content__content_type=ContentType.IMAGE,
-        ).select_related("content")
-
-        if image_contents.exists():
-            payload["imageUrls"] = [
-                qc.content.file.url
-                for qc in image_contents
-                if qc.content.file
-            ]
+        images = [
+            c.content.file.url for c in all_contents
+            if c.role == ContentRole.ATTACHMENT
+               and c.content.content_type == ContentType.IMAGE
+               and c.content.file
+        ]
+        if images:
+            payload["imageUrls"] = images
 
         return payload
