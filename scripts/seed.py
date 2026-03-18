@@ -3,7 +3,8 @@ import django
 import traceback
 from django.contrib.auth import get_user_model
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE",
+                      "config.settings")
 if not django.apps.apps.ready:
     django.setup()
 
@@ -33,7 +34,9 @@ def create_categories() -> list[Category]:
     return categories
 
 
-def create_text_question(title: str, category: Category, options: list[dict], **kwargs) -> Question:
+def create_text_question(title: str,
+                         category: Category,
+                         options: list[dict], **kwargs) -> Question:
     question = Question.objects.create(
         title=title,
         category=category,
@@ -41,7 +44,8 @@ def create_text_question(title: str, category: Category, options: list[dict], **
         end_deadline=kwargs.get("end_deadline", "18:00:00"),
     )
     for i, opt in enumerate(options):
-        content = Content.objects.create(content_type=ContentType.TEXT, text=opt["text"])
+        content = Content.objects.create(content_type=ContentType.TEXT,
+                                         text=opt["text"])
         QuestionContent.objects.create(
             question=question,
             content=content,
