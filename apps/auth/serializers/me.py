@@ -34,7 +34,7 @@ class MeUpdateSerializer(serializers.Serializer):
     university = serializers.CharField(
         max_length=100,
         required=False,
-        allow_blank=False,
+        allow_blank=True,
         help_text="Новый университет пользователя",
     )
     birthday = serializers.DateField(
