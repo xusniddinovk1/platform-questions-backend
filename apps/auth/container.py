@@ -61,5 +61,6 @@ def get_confirmation_activation_service() -> EmailConfirmationActivationService:
 def get_me_service() -> MeService:
     user_svc = get_user_service()
     jwt_svc = get_jwt_service()
-    svc = MeService(user_svc, jwt_svc)
+    email_confirm_svc = get_confirmation_service()
+    svc = MeService(user_svc, jwt_svc, email_confirm_svc)
     return svc

@@ -9,7 +9,7 @@ class QuestionRepository(ReadRepository[Question], WriteRepository[Question]):
     def get_by_id(self, entity_id: int) -> Optional[Question]:
         queryset = Question.objects.select_related("category").prefetch_related(
             "contents__content", "answers"
-        ) # type: ignore[misc]
+        )  # type: ignore[misc]
         return queryset.filter(id=entity_id).first()
 
     def get_all(self) -> List[Question]:

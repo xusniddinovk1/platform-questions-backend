@@ -53,8 +53,7 @@ class AnswerService:
             raise AnswerAlreadyExists()
 
         selected_options = Content.objects.filter(
-            id__in=cmd.selected_option_ids,
-            questioncontent__question=question
+            id__in=cmd.selected_option_ids, questioncontent__question=question
         )
         answer = Answer(question=question, user_id=cmd.user_id)
 
