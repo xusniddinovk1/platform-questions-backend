@@ -17,7 +17,6 @@ register_request_example = openapi.Schema(
         ),
         "password": openapi.Schema(type=openapi.TYPE_STRING, description="Пароль"),
         "birthday": openapi.Schema(type=openapi.TYPE_STRING, description="Дата рождения"),
-        "university": openapi.Schema(type=openapi.TYPE_STRING, description="Университет"),
     },
     required=[
         "username",
@@ -26,7 +25,6 @@ register_request_example = openapi.Schema(
         "email",
         "password",
         "birthday",
-        "university",
     ],
     example={
         "username": "user123",
@@ -35,7 +33,6 @@ register_request_example = openapi.Schema(
         "email": "user@example.com",
         "password": "strongpassword123",
         "birthday": "1990-01-01",
-        "university": "МГУ",
     },
 )
 

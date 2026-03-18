@@ -15,5 +15,4 @@ class RegisterEmailSerializer(serializers.ModelSerializer[User]):
             "first_name",
             "last_name",
             "birthday",
-            "university",
         )

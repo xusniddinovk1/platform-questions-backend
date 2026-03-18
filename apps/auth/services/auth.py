@@ -43,7 +43,6 @@ class AuthService:
             first_name=dto["first_name"],
             phone="",
             birthday=dto["birthday"],
-            university=dto["university"],
         )
 
         new_user = self.user_svc.create_user(prepare_data)
