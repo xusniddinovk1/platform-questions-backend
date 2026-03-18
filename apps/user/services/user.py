@@ -20,7 +20,7 @@ class UserService:
             is_superuser=False,
             is_staff=False,
             birthday=dto["birthday"],
-            university=dto["university"],
+            university="",
         )
         user.set_password(dto["password"])
 
