@@ -1,4 +1,5 @@
 import os
+
 import django
 import traceback
 from django.contrib.auth import get_user_model
@@ -34,18 +35,26 @@ def create_categories() -> list[Category]:
     return categories
 
 
-def create_text_question(title: str,
-                         category: Category,
-                         options: list[dict], **kwargs) -> Question:
+def create_text_question(
+    title: str,
+    category: Category,
+    options: list[dict],
+    start_deadline: str = "09:00:00",
+    end_deadline: str = "18:00:00",
+) -> Question:
+    """Variantli (text) savol yaratadi."""
     question = Question.objects.create(
         title=title,
         category=category,
-        start_deadline=kwargs.get("start_deadline", "09:00:00"),
-        end_deadline=kwargs.get("end_deadline", "18:00:00"),
+        start_deadline=start_deadline,
+        end_deadline=end_deadline,
     )
+
     for i, opt in enumerate(options):
-        content = Content.objects.create(content_type=ContentType.TEXT,
-                                         text=opt["text"])
+        content = Content.objects.create(
+            content_type=ContentType.TEXT,
+            text=opt["text"],
+        )
         QuestionContent.objects.create(
             question=question,
             content=content,
@@ -53,8 +62,8 @@ def create_text_question(title: str,
             order=i,
             is_correct=opt.get("is_correct", False),
         )
-    return question
 
+    return question
 
 def create_questions(categories: list[Category]) -> None:
     cats = {c.title: c for c in categories}
@@ -67,7 +76,7 @@ def create_questions(categories: list[Category]) -> None:
             {"text": "2006", "is_correct": False},
         ]
     )
-    print(f"❓ Savollar muvaffaqiyatli qo'shildi.")
+    print("❓ Savollar muvaffaqiyatli qo'shildi.")
 
 
 def run() -> None:
@@ -81,8 +90,8 @@ def run() -> None:
         print(f"📊 Jami: {Question.objects.count()} ta savol mavjud.")
 
     except Exception as e:
-        print(f"\n❌ XATOLIK:")
-        print(f"Xabar: {str(e)}")
+        print("\n❌ XATOLIK:")
+        print(f"Xabar: {e!s}")
         traceback.print_exc()
 
 
