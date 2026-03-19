@@ -16,7 +16,10 @@ class UserRepository:
         return User.objects.all()
 
     def get(self, id: int) -> User | None:
-        return User.objects.get(id=id)
+        try:
+            return User.objects.get(id=id)
+        except User.DoesNotExist:
+            return None
 
     def update(self, user: User) -> User:
         user.save()
@@ -30,7 +33,22 @@ class UserRepository:
         return user
 
     def get_by_email(self, email: str) -> User | None:
-        return User.objects.get(email=email)
+        try:
+            return User.objects.get(email=email)
+        except User.DoesNotExist:
+            return None
 
     def get_by_id(self, id: int) -> User | None:
-        return User.objects.get(id=id)
+        try:
+            return User.objects.get(id=id)
+        except User.DoesNotExist:
+            return None
+
+    def get_by_google_id(self, google_id: str) -> User | None:
+        try:
+            return User.objects.get(google_id=google_id)
+        except User.DoesNotExist:
+            return None
+
+    def exists_username(self, username: str) -> bool:
+        return User.objects.filter(username=username).exists()

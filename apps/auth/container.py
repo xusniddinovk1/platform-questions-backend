@@ -5,6 +5,7 @@ from apps.auth.services.email_confirmation import (
     EmailConfirmationActivationService,
     EmailConfirmationService,
 )
+from apps.auth.services.google_oauth import GoogleOAuthService
 from apps.auth.services.jwt import JWTService
 from apps.auth.services.me import MeService
 from apps.auth.services.profile import ProfileService
@@ -17,6 +18,10 @@ from apps.user.container import get_user_service
 
 def get_jwt_service() -> JWTService:
     return JWTService()
+
+
+def get_google_oauth_service() -> GoogleOAuthService:
+    return GoogleOAuthService()
 
 
 def get_cookie_service() -> CookieService:
