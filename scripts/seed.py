@@ -1,5 +1,4 @@
 import os
-
 import django
 import traceback
 from django.contrib.auth import get_user_model
@@ -17,12 +16,12 @@ User = get_user_model()
 
 
 def clear_data() -> None:
-    print("🧹 Eski ma'lumotlar o'chirilmoqda...")
+    print("Eski ma'lumotlar o'chirilmoqda...")
     QuestionContent.objects.all().delete()
     Question.objects.all().delete()
     Content.objects.all().delete()
     Category.objects.all().delete()
-    print("✨ Tozalandi.")
+    print("Tozalandi.")
 
 
 def create_categories() -> list[Category]:
@@ -31,7 +30,7 @@ def create_categories() -> list[Category]:
     for title in categories_data:
         cat, _ = Category.objects.get_or_create(title=title)
         categories.append(cat)
-    print(f"📁 {len(categories)} ta kategoriya tayyor.")
+    print(f"{len(categories)} ta kategoriya tayyor.")
     return categories
 
 
@@ -42,7 +41,6 @@ def create_text_question(
     start_deadline: str = "09:00:00",
     end_deadline: str = "18:00:00",
 ) -> Question:
-    """Variantli (text) savol yaratadi."""
     question = Question.objects.create(
         title=title,
         category=category,
@@ -76,21 +74,21 @@ def create_questions(categories: list[Category]) -> None:
             {"text": "2006", "is_correct": False},
         ]
     )
-    print("❓ Savollar muvaffaqiyatli qo'shildi.")
+    print("Savollar muvaffaqiyatli qo'shildi.")
 
 
 def run() -> None:
-    print("\n🚀 Seed script ishga tushdi...")
+    print("\nSeed script ishga tushdi...")
     try:
         clear_data()
         categories = create_categories()
         create_questions(categories)
 
-        print("\n✅ Hammasi tayyor!")
-        print(f"📊 Jami: {Question.objects.count()} ta savol mavjud.")
+        print("\nHammasi tayyor!")
+        print(f"Jami: {Question.objects.count()} ta savol mavjud.")
 
     except Exception as e:
-        print("\n❌ XATOLIK:")
+        print("\nXATOLIK:")
         print(f"Xabar: {e!s}")
         traceback.print_exc()
 

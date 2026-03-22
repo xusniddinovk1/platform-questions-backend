@@ -1,40 +1,44 @@
-from rest_framework import permissions, status
-from rest_framework.request import Request
-from rest_framework.response import Response
+from typing import List, cast, Optional
+from rest_framework import permissions
 from rest_framework.views import APIView
 from rest_framework.exceptions import ValidationError
-
-from apps.questions.container import get_question_service
-from apps.questions.serializers.question import QuestionSerializer
-from apps.core.responses import (
-    build_success_response,
-    build_error_response,
-    Meta,
-    PaginationMeta,
-)
+from apps.questions.models.question import Question
 from apps.questions.services.question import (
     QuestionNotFound,
-    InvalidUpdatePayload,
-    ListQuestionsQuery,
+    InvalidUpdatePayload, QuestionService,
 )
 from apps.questions.swagger.question import (
-    questions_list_schema,
     get_question_by_id_schema,
 )
+from rest_framework.request import Request
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.pagination import PageNumberPagination
+from apps.questions.container import get_question_service
+from apps.questions.serializers.question import QuestionSerializer
+from apps.questions.services.question import ListQuestionsQuery
+from apps.core.responses import (build_success_response,
+                                 build_error_response,
+                                 Meta,
+                                 PaginationMeta)
 from apps.core.logger import LoggerType, get_logger_service
+from apps.questions.swagger.question import questions_list_schema
 
 
 class QuestionListAPIView(APIView):
     permission_classes = (permissions.AllowAny,)
     log: LoggerType
+    service: QuestionService
 
-    def __init__(self, **kwargs: dict[str, object]) -> None:
+    def __init__(self,
+                 service: Optional[QuestionService] = None,
+                 **kwargs: dict[str, object]) -> None:
         super().__init__(**kwargs)
+        self.service = service or get_question_service()
         self.log = get_logger_service(__name__)
 
     @questions_list_schema
     def get(self, request: Request) -> Response:
-        # --- Query params o'qish ---
         try:
             page = int(request.query_params.get("page", 1))
             limit = int(request.query_params.get("limit", 10))
@@ -59,23 +63,26 @@ class QuestionListAPIView(APIView):
                     detail="category_id butun son bo'lishi kerak",
                 )
 
-        query = ListQuestionsQuery(page=page, limit=limit, category_id=category_id)
+        query = ListQuestionsQuery(category_id=category_id)
+        queryset = self.service.list_questions(query)
 
-        service = get_question_service()
-        result = service.list_questions_paginated(query)
+        paginator = PageNumberPagination()
+        paginator.page_size = limit
+        paginated_qs = paginator.paginate_queryset(queryset, request)
+        paginated_qs_list: List[Question] = cast(List[Question], paginated_qs)
+
+        data = QuestionSerializer(paginated_qs, many=True).data
 
         self.log.info(
-            f"Fetched {len(result.items)} questions "
-            f"(page={result.page}, limit={result.limit}, total={result.total})"
+            f"Fetched {len(paginated_qs_list)} questions "
+            f"(page={page}, limit={limit}, total={queryset.count()})"
         )
 
-        data = QuestionSerializer(result.items, many=True).data
-
         pagination: PaginationMeta = {
-            "page": result.page,
-            "limit": result.limit,
-            "total": result.total,
-            "totalPages": result.total_pages,
+            "page": page,
+            "limit": limit,
+            "total": queryset.count(),
+            "totalPages": (queryset.count() + limit - 1) // limit,
         }
         meta: Meta = {"pagination": pagination}
 
@@ -85,9 +92,13 @@ class QuestionListAPIView(APIView):
 class QuestionDetailAPIView(APIView):
     permission_classes = (permissions.AllowAny,)
     log: LoggerType
+    service: QuestionService
 
-    def __init__(self, **kwargs: dict[str, object]) -> None:
+    def __init__(self,
+                 service: Optional[QuestionService] = None,
+                 **kwargs: dict[str, object]) -> None:
         super().__init__(**kwargs)
+        self.service = service or get_question_service()
         self.log = get_logger_service(__name__)
 
     @get_question_by_id_schema

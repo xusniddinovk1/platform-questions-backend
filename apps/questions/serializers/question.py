@@ -28,28 +28,31 @@ class QuestionSerializer(serializers.ModelSerializer):
         )
 
     def get_type(self, obj: Question) -> str:
-        return "image" if getattr(obj, 'has_image_content', False) else "text"
-
-    def get_answersCount(self, obj: Question) -> dict:
-        return {
-            "success": getattr(obj, 'success_count', 0),
-            "failed": getattr(obj, 'failed_count', 0)
-        }
+        options = [c for c in getattr(obj,
+                                      "contents_cache",
+                                      obj.contents.all()) if c.role == ContentRole.OPTION]
+        if options:
+            return "options"
+        return "image" if getattr(obj, "has_image_content", False) else "text"
 
     def get_startDeadline(self, obj: Question) -> str | None:
-        return obj.start_deadline.strftime("%H:%M:%S") if obj.start_deadline else None
+        return obj.start_deadline.isoformat() if obj.start_deadline else None
 
     def get_endDeadline(self, obj: Question) -> str | None:
-        return obj.end_deadline.strftime("%H:%M:%S") if obj.end_deadline else None
+        return obj.end_deadline.isoformat() if obj.end_deadline else None
 
     def get_payload(self, obj: Question) -> dict:
+        q_type = self.get_type(obj)
+        if q_type == "text":
+            return {}
+
         payload: dict = {}
+        all_contents = getattr(obj, "contents_cache", obj.contents.all())
 
-        all_contents = list(obj.contents.all())
-
-        options = [c for c in all_contents if c.role == ContentRole.OPTION]
-        if options:
-            payload["options"] = OptionSerializer(options, many=True).data
+        if q_type == "options":
+            options = [c for c in all_contents if c.role == ContentRole.OPTION]
+            if options:
+                payload["options"] = OptionSerializer(options, many=True).data
 
         images = [
             c.content.file.url for c in all_contents
