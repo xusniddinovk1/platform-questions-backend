@@ -1,5 +1,7 @@
 from apps.auth.dto import RegisterRequestDTO
+from apps.auth.dto.google_oauth import GoogleUserInfoDTO
 from apps.user.models import User
+from apps.user.models.user_model import AuthProvider
 from apps.user.repositories.user import UserRepository
 
 
@@ -25,6 +27,36 @@ class UserService:
         user.set_password(dto["password"])
 
         return self.user_repository.create(user)
+
+    def create_google_user(self, info: GoogleUserInfoDTO) -> User:
+        """Create a new user from Google profile data."""
+        base_username = info["email"].split("@")[0]
+        username = self._unique_username(base_username)
+
+        user = User(
+            username=username,
+            email=info["email"],
+            first_name=info["given_name"],
+            last_name=info["family_name"],
+            google_id=info["sub"],
+            auth_provider=AuthProvider.GOOGLE,
+            is_active=True,
+            is_superuser=False,
+            is_staff=False,
+        )
+        user.set_unusable_password()
+        return self.user_repository.create(user)
+
+    def _unique_username(self, base: str) -> str:
+        candidate = base
+        counter = 1
+        while self.user_repository.exists_username(candidate):
+            candidate = f"{base}{counter}"
+            counter += 1
+        return candidate
+
+    def get_user_by_google_id(self, google_id: str) -> User | None:
+        return self.user_repository.get_by_google_id(google_id)
 
     def is_user_exists(self, email: str) -> bool:
         is_exists = self.user_repository.exists_email(email=email)
