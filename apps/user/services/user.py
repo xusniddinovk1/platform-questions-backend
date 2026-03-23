@@ -47,6 +47,11 @@ class UserService:
     #     user.set_unusable_password()
     #     return self.user_repository.create(user)
 
+    def create_social_account(self, user: User, provider: str, provider_id: str) -> None:
+        self.user_repository.create_social_account(
+            user=user, provider=provider, provider_id=provider_id
+        )
+
     def create_google_user(self, info: GoogleUserInfoDTO) -> User:
         base_username = info["email"].split("@")[0]
         username = self._unique_username(base_username)
@@ -63,7 +68,6 @@ class UserService:
         user.set_unusable_password()
         user = self.user_repository.create(user)
 
-        # Создаём связанный SocialAccount
         self.user_repository.create_social_account(
             user=user,
             provider=AuthProvider.GOOGLE,

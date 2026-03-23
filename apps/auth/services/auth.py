@@ -127,9 +127,14 @@ class AuthService:
             user = self.user_svc.get_user_by_email(google_user["email"])
 
             if user is not None:
+                self.user_svc.create_social_account(
+                    user=user,
+                    provider=AuthProvider.GOOGLE,
+                    provider_id=google_user["sub"],
+                )
                 if not user.is_active:
                     user.is_active = True
-                self.user_svc.update_user(user)
+                    self.user_svc.update_user(user)
             else:
                 is_new_user = True
                 user = self.user_svc.create_google_user(google_user)
