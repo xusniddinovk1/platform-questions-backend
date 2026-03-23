@@ -1,5 +1,6 @@
 from django.db.models import QuerySet
 
+from apps.auth.models import SocialAccount
 from apps.user.models import User
 
 
@@ -44,11 +45,21 @@ class UserRepository:
         except User.DoesNotExist:
             return None
 
-    def get_by_google_id(self, google_id: str) -> User | None:
-        try:
-            return User.objects.get(google_id=google_id)
-        except User.DoesNotExist:
-            return None
-
     def exists_username(self, username: str) -> bool:
         return User.objects.filter(username=username).exists()
+
+    def get_by_social(self, provider: str, provider_id: str) -> User | None:
+        try:
+            account = SocialAccount.objects.select_related("user").get(
+                provider=provider, provider_id=provider_id
+            )
+            return account.user
+        except SocialAccount.DoesNotExist:
+            return None
+
+    def create_social_account(
+        self, user: User, provider: str, provider_id: str
+    ) -> SocialAccount:
+        return SocialAccount.objects.create(
+            user=user, provider=provider, provider_id=provider_id
+        )
