@@ -1,4 +1,6 @@
 import os
+from django.utils import timezone
+from datetime import datetime
 import django
 import traceback
 from django.contrib.auth import get_user_model
@@ -38,14 +40,14 @@ def create_text_question(
     title: str,
     category: Category,
     options: list[dict],
-    start_deadline: str = "09:00:00",
-    end_deadline: str = "18:00:00",
+    start_deadline: str = "2026-01-01 09:00:00",
+    end_deadline: str = "2026-12-31 18:00:00",
 ) -> Question:
     question = Question.objects.create(
         title=title,
         category=category,
-        start_deadline=start_deadline,
-        end_deadline=end_deadline,
+        start_deadline=timezone.make_aware(datetime.strptime(start_deadline, "%Y-%m-%d %H:%M:%S")),
+        end_deadline=timezone.make_aware(datetime.strptime(end_deadline, "%Y-%m-%d %H:%M:%S")),
     )
 
     for i, opt in enumerate(options):
