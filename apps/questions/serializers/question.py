@@ -27,8 +27,11 @@ class QuestionSerializer(serializers.ModelSerializer):
             "category", "isNew", "startDeadline", "endDeadline", "payload"
         )
 
-    def get_answersCount(self, obj: Question) -> int:
-        return obj.answers.count()
+    def get_answersCount(self, obj: Question) -> dict:
+        return {
+            "success": getattr(obj, "success_count", 0),
+            "failed": getattr(obj, "failed_count", 0),
+        }
 
     def get_type(self, obj: Question) -> str:
         options = [c for c in getattr(obj,

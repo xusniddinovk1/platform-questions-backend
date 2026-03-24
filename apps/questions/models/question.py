@@ -23,7 +23,7 @@ class Question(models.Model):
 
     start_deadline = models.DateTimeField(blank=True, null=True)
 
-    end_deadline = models.DateField(blank=True, null=True)
+    end_deadline = models.DateTimeField(blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
