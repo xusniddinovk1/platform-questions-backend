@@ -46,8 +46,10 @@ def create_text_question(
     question = Question.objects.create(
         title=title,
         category=category,
-        start_deadline=timezone.make_aware(datetime.strptime(start_deadline, "%Y-%m-%d %H:%M:%S")),
-        end_deadline=timezone.make_aware(datetime.strptime(end_deadline, "%Y-%m-%d %H:%M:%S")),
+        start_deadline=timezone.make_aware(datetime.strptime(start_deadline,
+                                                             "%Y-%m-%d %H:%M:%S")),
+        end_deadline=timezone.make_aware(datetime.strptime(end_deadline,
+                                                           "%Y-%m-%d %H:%M:%S")),
     )
 
     for i, opt in enumerate(options):
