@@ -7,6 +7,7 @@ from django.contrib.auth import get_user_model
 from apps.questions.models.category import Category
 from apps.questions.models.content import Content, ContentType, ContentRole
 from apps.questions.models.question import Question, QuestionContent
+from apps.questions.models.answer import Answer
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE",
                       "config.settings")
@@ -65,9 +66,6 @@ def create_text_question(
         )
 
     return question
-
-
-from apps.questions.models.answer import Answer
 
 
 def create_answers(question: Question, success: int, failed: int) -> None:
