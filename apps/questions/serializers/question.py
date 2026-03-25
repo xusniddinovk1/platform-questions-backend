@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from apps.questions.models.question import Question
-from apps.questions.models.content import ContentRole, ContentType
-from apps.questions.serializers.option import OptionSerializer
+from apps.questions.repositories.question import QuestionRepository
+from apps.questions.services.question import QuestionService
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -27,46 +27,22 @@ class QuestionSerializer(serializers.ModelSerializer):
             "category", "isNew", "startDeadline", "endDeadline", "payload"
         )
 
+    def get_type(self, obj: Question) -> str:
+        service = QuestionService(QuestionRepository())
+        return service.get_question_type(obj)
+
+    def get_payload(self, obj: Question) -> dict:
+        service = QuestionService(QuestionRepository())
+        return service.get_payload(obj)
+
     def get_answersCount(self, obj: Question) -> dict:
         return {
             "success": getattr(obj, "success_count", 0),
             "failed": getattr(obj, "failed_count", 0),
         }
 
-    def get_type(self, obj: Question) -> str:
-        options = [c for c in getattr(obj,
-                                      "contents_cache",
-                                      obj.contents.all()) if c.role == ContentRole.OPTION]
-        if options:
-            return "options"
-        return "image" if getattr(obj, "has_image_content", False) else "text"
-
     def get_startDeadline(self, obj: Question) -> str | None:
         return obj.start_deadline.isoformat() if obj.start_deadline else None
 
     def get_endDeadline(self, obj: Question) -> str | None:
         return obj.end_deadline.isoformat() if obj.end_deadline else None
-
-    def get_payload(self, obj: Question) -> dict:
-        q_type = self.get_type(obj)
-        if q_type == "text":
-            return {}
-
-        payload: dict = {}
-        all_contents = getattr(obj, "contents_cache", obj.contents.all())
-
-        if q_type == "options":
-            options = [c for c in all_contents if c.role == ContentRole.OPTION]
-            if options:
-                payload["options"] = OptionSerializer(options, many=True).data
-
-        images = [
-            c.content.file.url for c in all_contents
-            if c.role == ContentRole.ATTACHMENT
-               and c.content.content_type == ContentType.IMAGE
-               and c.content.file
-        ]
-        if images:
-            payload["imageUrls"] = images
-
-        return payload

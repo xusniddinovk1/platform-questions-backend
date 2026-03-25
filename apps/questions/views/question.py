@@ -92,13 +92,12 @@ class QuestionListAPIView(APIView):
 class QuestionDetailAPIView(APIView):
     permission_classes = (permissions.AllowAny,)
     log: LoggerType
-    service: QuestionService
 
     def __init__(self,
                  service: Optional[QuestionService] = None,
                  **kwargs: dict[str, object]) -> None:
         super().__init__(**kwargs)
-        self.service = service or get_question_service()
+        self.service = get_question_service()
         self.log = get_logger_service(__name__)
 
     @get_question_by_id_schema

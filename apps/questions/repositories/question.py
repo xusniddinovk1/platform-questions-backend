@@ -1,6 +1,13 @@
 from typing import List, Optional, Sequence, Tuple
-from django.db.models import QuerySet, Prefetch
+from datetime import datetime
+from django.db.models import (
+    QuerySet,
+    Prefetch,
+    Count, Q, Exists, OuterRef,
+    BooleanField,
+    ExpressionWrapper)
 from apps.questions.models.question import Question, QuestionContent
+from apps.questions.models.content import ContentRole, ContentType
 
 
 class QuestionRepository:
@@ -15,29 +22,31 @@ class QuestionRepository:
             "category"
         )
 
+    def get_annotated_list(self, new_threshold_date: datetime) -> QuerySet[Question]:
+        return self.get_queryset().annotate(
+            success_count=Count('answers', filter=Q(answers__is_correct=True)),
+            failed_count=Count('answers', filter=Q(answers__is_correct=False)),
+            is_new_calc=ExpressionWrapper(
+                Q(created_at__gte=new_threshold_date),
+                output_field=BooleanField()
+            ),
+            has_image_content=Exists(
+                QuestionContent.objects.filter(
+                    question_id=OuterRef('pk'),
+                    role=ContentRole.OPTION,
+                    content__content_type=ContentType.IMAGE
+                )
+            )
+        )
 
     def get_by_id(self, entity_id: int) -> Optional[Question]:
-        return (
-            self.get_queryset()
-            .select_related("category")
-            .prefetch_related("contents__content", "answers") # type: ignore[misc]
-            .filter(id=entity_id)
-            .first()
-        )
-
+        return self.get_queryset().filter(id=entity_id).first()
 
     def get_all(self) -> List[Question]:
-        return list(
-            self.get_queryset()
-            .select_related("category")
-            .prefetch_related("contents__content", "answers") # type: ignore[misc]
-            .order_by("-id")
-        )
-
+        return list(self.get_queryset().order_by("-id"))
 
     def filter_by_category(self, category_id: int) -> QuerySet[Question]:
         return self.get_queryset().filter(category_id=category_id)
-
 
     def get_paginated(
             self,
@@ -46,27 +55,21 @@ class QuestionRepository:
             category_id: Optional[int] = None,
     ) -> Tuple[Sequence[Question], int]:
         queryset = self.get_queryset().order_by("-id")
-
         if category_id is not None:
             queryset = queryset.filter(category_id=category_id)
 
         total = queryset.count()
         offset = (page - 1) * limit
-
         items = list(queryset[offset: offset + limit])
-
         return items, total
-
 
     def add(self, entity: Question) -> Question:
         entity.save()
         return entity
 
-
     def update(self, entity: Question) -> Question:
         entity.save()
         return entity
-
 
     def delete(self, entity_id: int) -> None:
         Question.objects.filter(id=entity_id).delete()
