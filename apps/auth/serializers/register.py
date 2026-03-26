@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from apps.user.models.user_model import User
+from apps.user.models import User
 
 
 class RegisterEmailSerializer(serializers.ModelSerializer[User]):

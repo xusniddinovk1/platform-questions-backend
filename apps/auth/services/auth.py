@@ -12,6 +12,7 @@ from apps.auth.dto.token import RefreshTokenRequestDTO, RefreshTokenResponseDTO
 from apps.auth.exceptions.google_oauth import GoogleEmailNotVerified
 from apps.auth.exceptions.invalid_credentials import InvalidCredentials
 from apps.auth.exceptions.is_user_already_exists import IsUserAlreadyExists
+from apps.auth.models import AuthProvider
 from apps.auth.services.email_confirmation import EmailConfirmationService
 from apps.auth.services.jwt import JWTService
 from apps.user.dto import UserDTO
@@ -117,16 +118,23 @@ class AuthService:
             raise GoogleEmailNotVerified()
 
         is_new_user = False
-        user = self.user_svc.get_user_by_google_id(google_user["sub"])
+        # user = self.user_svc.get_user_by_google_id(google_user["sub"])
+        user = self.user_svc.get_user_by_social(
+            provider=AuthProvider.GOOGLE, provider_id=google_user["sub"]
+        )
 
         if user is None:
             user = self.user_svc.get_user_by_email(google_user["email"])
 
             if user is not None:
-                user.google_id = google_user["sub"]
+                self.user_svc.create_social_account(
+                    user=user,
+                    provider=AuthProvider.GOOGLE,
+                    provider_id=google_user["sub"],
+                )
                 if not user.is_active:
                     user.is_active = True
-                self.user_svc.update_user(user)
+                    self.user_svc.update_user(user)
             else:
                 is_new_user = True
                 user = self.user_svc.create_google_user(google_user)

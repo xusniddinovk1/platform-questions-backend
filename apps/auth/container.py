@@ -67,5 +67,6 @@ def get_me_service() -> MeService:
     user_svc = get_user_service()
     jwt_svc = get_jwt_service()
     email_confirm_svc = get_confirmation_service()
-    svc = MeService(user_svc, jwt_svc, email_confirm_svc)
+    log = get_logger_service("me_service")
+    svc = MeService(user_svc, jwt_svc, email_confirm_svc, log)
     return svc
