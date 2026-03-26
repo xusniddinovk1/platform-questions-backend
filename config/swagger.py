@@ -4,7 +4,7 @@ from drf_yasg.generators import OpenAPISchemaGenerator
 from drf_yasg.views import get_schema_view
 
 
-class JWTSchemGenerator(OpenAPISchemaGenerator):  # type: ignore[misc]
+class JWTSchemGenerator(OpenAPISchemaGenerator):
     def get_security_definitions(self) -> Dict[str, Dict[str, str]]:
         security_definitions = cast(
             Dict[str, Dict[str, str]], super().get_security_definitions()

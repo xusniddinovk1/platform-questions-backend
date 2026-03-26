@@ -25,7 +25,17 @@ from apps.core.logger import LoggerType, get_logger_service
 from apps.questions.swagger.question import questions_list_schema
 
 
-def get_clean_int(value: str | int | None, param_name: str) -> int:
+def get_clean_int(value: str | int | None,
+                  param_name: str,
+                  default: int | None = None) -> int:
+    if value is None and default is not None:
+        return default
+
+    if value is None:
+        raise InvalidPaginationParams(
+            detail=f"{param_name} ko'rsatilishi shart."
+        )
+
     try:
         res = int(value)
         if res <= 0:
@@ -53,10 +63,23 @@ class QuestionListAPIView(APIView):
     def get(self, request: Request) -> Response:
         service = get_questions_svc()
 
-        page = get_clean_int(request, "page", 1)
-        limit = get_clean_int(request, "limit", 10)
-        category_id = get_clean_int(request, "category_id")
+        page = get_clean_int(
+            value=request.query_params.get("page"),
+            param_name="page",
+            default=1
+        )
 
+        limit = get_clean_int(
+            value=request.query_params.get("limit"),
+            param_name="limit",
+            default=10
+        )
+
+        category_id_raw = request.query_params.get("category_id")
+        category_id = get_clean_int(
+            value=category_id_raw,
+            param_name="category_id"
+        )
         query = ListQuestionsQuery(category_id=category_id)
         queryset = service.list_questions(query)
 

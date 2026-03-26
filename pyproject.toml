@@ -46,16 +46,23 @@ ignore = ["D100", "D101"]
 
 
 [tool.mypy]
+mypy_path = "."
+
 plugins = ["mypy_django_plugin.main", "mypy_drf_plugin.main"]
+
 ignore_missing_imports = false
-follow_imports = "silent"
+follow_imports = "normal"
+
 disable_error_code = ["untyped-decorator", "import-untyped"]
+
+check_untyped_defs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
 
 [tool.django-stubs]
 django_settings_module = "config.settings.dev"
 strict_settings = true
 strict_model_abstract_attrs = true
-
 [[tool.mypy.overrides]]
 module = [
     "drf_yasg",
