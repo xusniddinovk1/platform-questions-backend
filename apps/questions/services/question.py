@@ -84,3 +84,7 @@ class QuestionService:
             setattr(question, key, value)
 
         return self.repo.update(question)
+
+def get_questions_svc() -> QuestionService:
+    repository = QuestionRepository()
+    return QuestionService(repo=repository)

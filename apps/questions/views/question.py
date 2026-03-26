@@ -1,11 +1,12 @@
-from typing import List, cast, Optional
+from typing import Optional
 from rest_framework import permissions
 from rest_framework.views import APIView
 from rest_framework.exceptions import ValidationError
-from apps.questions.models.question import Question
+
+from apps.questions.exception.pagination_error import InvalidPaginationParams
 from apps.questions.services.question import (
     QuestionNotFound,
-    InvalidUpdatePayload, QuestionService,
+    InvalidUpdatePayload, QuestionService, get_questions_svc,
 )
 from apps.questions.swagger.question import (
     get_question_by_id_schema,
@@ -19,10 +20,21 @@ from apps.questions.serializers.question import QuestionSerializer
 from apps.questions.services.question import ListQuestionsQuery
 from apps.core.responses import (build_success_response,
                                  build_error_response,
-                                 Meta,
                                  PaginationMeta)
 from apps.core.logger import LoggerType, get_logger_service
 from apps.questions.swagger.question import questions_list_schema
+
+
+def get_clean_int(value: str | int | None, param_name: str) -> int:
+    try:
+        res = int(value)
+        if res <= 0:
+            raise ValueError
+        return res
+    except (ValueError, TypeError):
+        raise InvalidPaginationParams(
+            detail=f"{param_name} noto'g'ri formatda yoki 0 dan kichik."
+        )
 
 
 class QuestionListAPIView(APIView):
@@ -39,54 +51,33 @@ class QuestionListAPIView(APIView):
 
     @questions_list_schema
     def get(self, request: Request) -> Response:
-        try:
-            page = int(request.query_params.get("page", 1))
-            limit = int(request.query_params.get("limit", 10))
-        except (ValueError, TypeError):
-            return build_error_response(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                code="INVALID_QUERY_PARAMS",
-                title="Invalid query params",
-                detail="page va limit butun son bo'lishi kerak",
-            )
+        service = get_questions_svc()
 
-        category_id_raw = request.query_params.get("category_id")
-        category_id = None
-        if category_id_raw is not None:
-            try:
-                category_id = int(category_id_raw)
-            except (ValueError, TypeError):
-                return build_error_response(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    code="INVALID_QUERY_PARAMS",
-                    title="Invalid query params",
-                    detail="category_id butun son bo'lishi kerak",
-                )
+        page = get_clean_int(request, "page", 1)
+        limit = get_clean_int(request, "limit", 10)
+        category_id = get_clean_int(request, "category_id")
 
         query = ListQuestionsQuery(category_id=category_id)
-        queryset = self.service.list_questions(query)
+        queryset = service.list_questions(query)
 
         paginator = PageNumberPagination()
         paginator.page_size = limit
         paginated_qs = paginator.paginate_queryset(queryset, request)
-        paginated_qs_list: List[Question] = cast(List[Question], paginated_qs)
 
         data = QuestionSerializer(paginated_qs, many=True).data
 
-        self.log.info(
-            f"Fetched {len(paginated_qs_list)} questions "
-            f"(page={page}, limit={limit}, total={queryset.count()})"
-        )
-
+        total_count = queryset.count()
         pagination: PaginationMeta = {
             "page": page,
             "limit": limit,
-            "total": queryset.count(),
-            "totalPages": (queryset.count() + limit - 1) // limit,
+            "total": total_count,
+            "totalPages": (total_count + limit - 1) // limit,
         }
-        meta: Meta = {"pagination": pagination}
 
-        return build_success_response(data=data, meta=meta)
+        self.log.info(f"Fetched {len(data)} questions (page={page}, limit={limit})")
+
+        return build_success_response(data=data,
+                                      meta={"pagination": pagination})
 
 
 class QuestionDetailAPIView(APIView):

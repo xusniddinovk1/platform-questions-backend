@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from apps.questions.models.question import Question
-from apps.questions.repositories.question import QuestionRepository
-from apps.questions.services.question import QuestionService
+from apps.questions.services.question import get_questions_svc
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -28,11 +27,11 @@ class QuestionSerializer(serializers.ModelSerializer):
         )
 
     def get_type(self, obj: Question) -> str:
-        service = QuestionService(QuestionRepository())
+        service = get_questions_svc()
         return service.get_question_type(obj)
 
     def get_payload(self, obj: Question) -> dict:
-        service = QuestionService(QuestionRepository())
+        service = get_questions_svc()
         return service.get_payload(obj)
 
     def get_answersCount(self, obj: Question) -> dict:
