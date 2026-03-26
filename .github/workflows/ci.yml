@@ -60,3 +60,6 @@ jobs:
 
       - name: Run tests
         run: make test
+
+      - name: Run lint-deps
+        run: make lint-deps

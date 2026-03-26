@@ -5,7 +5,7 @@ from django.test import TestCase
 
 from apps.auth.config import ACCESS_TOKEN_EXPIRE_MINUTES, JWT_ALGORITHM, JWT_SECRET
 from apps.auth.services.jwt import JWTService
-from apps.user.models.user_model import User
+from apps.user.models import User
 
 
 class JWTServiceTestCase(TestCase):

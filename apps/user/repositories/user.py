@@ -1,5 +1,6 @@
 from django.db.models import QuerySet
 
+from apps.auth.models import SocialAccount
 from apps.user.models import User
 
 
@@ -16,7 +17,10 @@ class UserRepository:
         return User.objects.all()
 
     def get(self, id: int) -> User | None:
-        return User.objects.get(id=id)
+        try:
+            return User.objects.get(id=id)
+        except User.DoesNotExist:
+            return None
 
     def update(self, user: User) -> User:
         user.save()
@@ -30,7 +34,32 @@ class UserRepository:
         return user
 
     def get_by_email(self, email: str) -> User | None:
-        return User.objects.get(email=email)
+        try:
+            return User.objects.get(email=email)
+        except User.DoesNotExist:
+            return None
 
     def get_by_id(self, id: int) -> User | None:
-        return User.objects.get(id=id)
+        try:
+            return User.objects.get(id=id)
+        except User.DoesNotExist:
+            return None
+
+    def exists_username(self, username: str) -> bool:
+        return User.objects.filter(username=username).exists()
+
+    def get_by_social(self, provider: str, provider_id: str) -> User | None:
+        try:
+            account = SocialAccount.objects.select_related("user").get(
+                provider=provider, provider_id=provider_id
+            )
+            return account.user
+        except SocialAccount.DoesNotExist:
+            return None
+
+    def create_social_account(
+        self, user: User, provider: str, provider_id: str
+    ) -> SocialAccount:
+        return SocialAccount.objects.create(
+            user=user, provider=provider, provider_id=provider_id
+        )

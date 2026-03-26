@@ -4,6 +4,7 @@ from rest_framework.response import Response
 
 from apps.auth.container import get_auth_service, get_cookie_service
 from apps.auth.dto.token import RefreshTokenRequestDTO
+from apps.auth.exceptions.invalid_credentials import InvalidCredentials
 from apps.auth.exceptions.invalid_token import InvalidToken
 from apps.auth.services.auth import AuthService
 from apps.auth.services.cookie import CookieService
@@ -50,6 +51,14 @@ class RefreshView(views.APIView):
                 code="INVALID_REFRESH_TOKEN",
                 title="Invalid refresh token",
                 detail="Refresh token is invalid",
+            )
+        except InvalidCredentials:
+            self.log.error("Invalid credentials")
+            return build_error_response(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                code="INVALID_CREDENTIALS",
+                title="Invalid credentials",
+                detail="Invalid credentials",
             )
 
         payload = {

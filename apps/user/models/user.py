@@ -9,11 +9,7 @@ class Role(models.TextChoices):
 
 class User(AbstractUser):
     phone = models.CharField(max_length=20, unique=True, null=True, blank=True)
-    role = models.CharField(
-        max_length=20,
-        choices=Role.choices,
-        default=Role.USER,
-    )
+    role = models.CharField(max_length=20, choices=Role.choices, default=Role.USER)
     birthday = models.DateField(null=True, blank=True)
     university = models.CharField(max_length=100, null=True, blank=True)
 
