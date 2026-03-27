@@ -20,9 +20,10 @@ class JWTService:
         self.jwt_secret = JWT_SECRET
         self.refresh_token_expire_days = REFRESH_TOKEN_EXPIRE_DAYS
 
-    def create_access_token(self, user_id: int) -> str:
+    def create_access_token(self, user_id: int, *, role: str | None = None) -> str:
         payload = {
             "user_id": user_id,
+            "role": role,
             "exp": datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
             "iat": datetime.utcnow(),
         }
@@ -47,6 +48,7 @@ class JWTService:
                 user_id=payload["user_id"],
                 exp=payload["exp"],
                 iat=payload["iat"],
+                role=payload.get("role"),
             )
         except jwt.ExpiredSignatureError:
             raise TokenExpired()

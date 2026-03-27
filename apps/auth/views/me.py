@@ -16,12 +16,14 @@ from apps.core.responses import build_error_response, build_success_response
 from apps.user.exceptions.user_not_found import UserNotFoundException
 from apps.user.models import User
 
+from apps.auth.permissions import IsAuthenticatedUser
+
 
 class MeView(APIView):
     me_service: MeService
     log: LoggerType
 
-    # permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticatedUser,)
 
     def __init__(self) -> None:
         super().__init__()
@@ -30,7 +32,8 @@ class MeView(APIView):
 
     @me_swagger
     def get(self, request: Request) -> Response:
-        accest_token = request.headers.get("Authorization", "").split("Bearer ")[-1]
+        accest_token = request.headers.get("Authorization", "")
+        accest_token = accest_token.replace("Bearer ", "", 1).strip()
 
         if not accest_token:
             self.log.warning("Access token is missing in the request headers")
@@ -88,7 +91,8 @@ class MeView(APIView):
         """
         Частичное обновление данных текущего пользователя.
         """
-        access_token = request.headers.get("Authorization", "").split("Bearer ")[-1]
+        access_token = request.headers.get("Authorization", "")
+        access_token = access_token.replace("Bearer ", "", 1).strip()
 
         if not access_token:
             self.log.warning("Access token is missing in the request headers")

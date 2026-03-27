@@ -20,3 +20,4 @@ class JWTPayload:
     user_id: int
     exp: int
     iat: int
+    role: str | None = None
