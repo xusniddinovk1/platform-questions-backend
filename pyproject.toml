@@ -48,7 +48,7 @@ ignore = ["D100", "D101"]
 plugins = ["mypy_django_plugin.main", "mypy_drf_plugin.main"]
 
 ignore_missing_imports = false
-follow_imports = "silent"
+follow_imports = "normal"
 
 disable_error_code = ["untyped-decorator", "import-untyped"]
 
