@@ -21,9 +21,9 @@ class Question(models.Model):
         Category, on_delete=models.CASCADE, related_name="questions"
     )
 
-    start_deadline = models.TimeField(blank=True, null=True)
+    start_deadline = models.DateTimeField(blank=True, null=True)
 
-    end_deadline = models.TimeField(blank=True, null=True)
+    end_deadline = models.DateTimeField(blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
 

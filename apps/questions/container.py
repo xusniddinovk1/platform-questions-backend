@@ -13,13 +13,19 @@ def get_answer_repository() -> AnswerRepository:
     return AnswerRepository()
 
 
+def get_content_repository() -> ContentRepository:
+    return ContentRepository()
+
+
 def get_question_service() -> QuestionService:
-    return QuestionService(repo=get_question_repository())
+    return QuestionService(
+        repo=get_question_repository()
+    )
 
 
 def get_answer_service() -> AnswerService:
     return AnswerService(
-        question_repo=QuestionRepository(),
-        answer_repo=AnswerRepository(),
-        content_repo=ContentRepository(),
+        question_repo=get_question_repository(),
+        answer_repo=get_answer_repository(),
+        content_repo=get_content_repository(),
     )

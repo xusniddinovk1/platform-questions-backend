@@ -1,43 +1,117 @@
-from rest_framework import permissions, status
-from rest_framework.request import Request
-from rest_framework.response import Response
+from typing import Optional
+from rest_framework import permissions
 from rest_framework.views import APIView
 from rest_framework.exceptions import ValidationError
-from apps.questions.container import get_question_service
-from apps.questions.serializers.question import QuestionSerializer
-from apps.core.responses import build_success_response, build_error_response
-from apps.questions.services.question import QuestionNotFound, InvalidUpdatePayload
+
+from apps.questions.exception.pagination_error import InvalidPaginationParams
+from apps.questions.services.question import (
+    QuestionNotFound,
+    InvalidUpdatePayload, QuestionService, get_questions_svc,
+)
 from apps.questions.swagger.question import (
-    questions_list_schema,
     get_question_by_id_schema,
 )
+from rest_framework.request import Request
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.pagination import PageNumberPagination
+from apps.questions.container import get_question_service
+from apps.questions.serializers.question import QuestionSerializer
+from apps.questions.services.question import ListQuestionsQuery
+from apps.core.responses import (build_success_response,
+                                 build_error_response,
+                                 PaginationMeta)
 from apps.core.logger import LoggerType, get_logger_service
+from apps.questions.swagger.question import questions_list_schema
+
+
+def get_clean_int(value: str | int | None,
+                  param_name: str,
+                  default: int | None = None) -> int:
+    if value is None and default is not None:
+        return default
+
+    if value is None:
+        raise InvalidPaginationParams(
+            detail=f"{param_name} ko'rsatilishi shart."
+        )
+
+    try:
+        res = int(value)
+        if res <= 0:
+            raise ValueError
+        return res
+    except (ValueError, TypeError):
+        raise InvalidPaginationParams(
+            detail=f"{param_name} noto'g'ri formatda yoki 0 dan kichik."
+        )
 
 
 class QuestionListAPIView(APIView):
     permission_classes = (permissions.AllowAny,)
     log: LoggerType
+    service: QuestionService
 
-    def __init__(self, **kwargs: dict[str, object]) -> None:
+    def __init__(self,
+                 service: Optional[QuestionService] = None,
+                 **kwargs: dict[str, object]) -> None:
         super().__init__(**kwargs)
-
+        self.service = service or get_question_service()
         self.log = get_logger_service(__name__)
 
     @questions_list_schema
     def get(self, request: Request) -> Response:
-        service = get_question_service()
-        questions = list(service.list_questions())
-        self.log.info(f"Fetched {len(questions)} questions")
-        return build_success_response(data=QuestionSerializer(questions, many=True).data)
+        service = get_questions_svc()
+
+        page = get_clean_int(
+            value=request.query_params.get("page"),
+            param_name="page",
+            default=1
+        )
+
+        limit = get_clean_int(
+            value=request.query_params.get("limit"),
+            param_name="limit",
+            default=10
+        )
+
+        category_id_raw = request.query_params.get("category_id")
+        category_id = get_clean_int(
+            value=category_id_raw,
+            param_name="category_id"
+        )
+        query = ListQuestionsQuery(category_id=category_id)
+        queryset = service.list_questions(query)
+
+        paginator = PageNumberPagination()
+        paginator.page_size = limit
+        paginated_qs = paginator.paginate_queryset(queryset, request)
+
+        data = QuestionSerializer(paginated_qs, many=True).data
+
+        total_count = queryset.count()
+        pagination: PaginationMeta = {
+            "page": page,
+            "limit": limit,
+            "total": total_count,
+            "totalPages": (total_count + limit - 1) // limit,
+        }
+
+        self.log.info(f"Fetched {len(data)} questions (page={page}, limit={limit})")
+
+        return build_success_response(data=data,
+                                      meta={"pagination": pagination})
 
 
 class QuestionDetailAPIView(APIView):
     permission_classes = (permissions.AllowAny,)
     log: LoggerType
 
-    def __init__(self, **kwargs: dict[str, object]) -> None:
+    def __init__(self,
+                 service: Optional[QuestionService] = None,
+                 **kwargs: dict[str, object]) -> None:
         super().__init__(**kwargs)
-
+        self.service = get_question_service()
         self.log = get_logger_service(__name__)
 
     @get_question_by_id_schema

@@ -44,18 +44,18 @@ ignore = ["D100", "D101"]
 
 
 
-
 [tool.mypy]
 plugins = ["mypy_django_plugin.main", "mypy_drf_plugin.main"]
+
 ignore_missing_imports = false
-follow_imports = "silent"
+follow_imports = "normal"
+
 disable_error_code = ["untyped-decorator", "import-untyped"]
 
 [tool.django-stubs]
 django_settings_module = "config.settings.dev"
 strict_settings = true
 strict_model_abstract_attrs = true
-
 [[tool.mypy.overrides]]
 module = [
     "drf_yasg",
@@ -82,4 +82,4 @@ dev = [
 
 
 [tool.deptry]
-per_rule_ignores = {DEP002 = ["colorlog", "django-filter", "django-stubs", "djangorestframework-simplejwt", "gunicorn", "psycopg2-binary", "cryptography", "whitenoise"]}
+per_rule_ignores = { DEP002 = ["colorlog", "django-filter", "django-stubs", "djangorestframework-simplejwt", "gunicorn", "psycopg2-binary", "cryptography", "whitenoise"] }
