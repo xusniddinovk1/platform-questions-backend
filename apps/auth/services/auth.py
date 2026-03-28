@@ -52,7 +52,7 @@ class AuthService:
 
         self.email_confierm_svc.send_confirmation(new_user)
 
-        access_token = self.jwt_svc.create_access_token(new_user.pk)
+        access_token = self.jwt_svc.create_access_token(new_user.pk, role=new_user.role)
         refresh_token = self.jwt_svc.create_refresh_token(new_user.pk)
 
         return RegisterResponseDTO(
@@ -72,7 +72,7 @@ class AuthService:
         if not user or not user.check_password(dto["password"]):
             raise InvalidCredentials()
 
-        access_token = self.jwt_svc.create_access_token(user.pk)
+        access_token = self.jwt_svc.create_access_token(user.pk, role=user.role)
         refresh_token = self.jwt_svc.create_refresh_token(user.pk)
 
         user_data: UserDTO = cast(UserDTO, UserSerializer(user).data)
@@ -88,7 +88,7 @@ class AuthService:
         if not user:
             raise InvalidCredentials()
 
-        access_token = self.jwt_svc.create_access_token(user.pk)
+        access_token = self.jwt_svc.create_access_token(user.pk, role=user.role)
         refresh_token = self.jwt_svc.create_refresh_token(user.pk)
 
         return RefreshTokenResponseDTO(
@@ -139,7 +139,7 @@ class AuthService:
                 is_new_user = True
                 user = self.user_svc.create_google_user(google_user)
 
-        access_token = self.jwt_svc.create_access_token(user.pk)
+        access_token = self.jwt_svc.create_access_token(user.pk, role=user.role)
         refresh_token = self.jwt_svc.create_refresh_token(user.pk)
 
         return GoogleCallbackResponseDTO(

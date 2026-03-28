@@ -1,6 +1,10 @@
 from __future__ import annotations
 
-from rest_framework.exceptions import AuthenticationFailed, ValidationError
+from rest_framework.exceptions import (
+    AuthenticationFailed,
+    NotAuthenticated,
+    ValidationError,
+)
 from rest_framework.response import Response
 from rest_framework.views import exception_handler
 
@@ -83,6 +87,14 @@ def custom_exception_handler(
         )
 
     if isinstance(exc, AuthenticationFailed):
+        return build_error_response(
+            status_code=401,
+            code="ACCESS_TOKEN_REQUIRED",
+            title="Access token is required",
+            detail="Access token must be provided in the Authorization header",
+        )
+
+    if isinstance(exc, NotAuthenticated):
         return build_error_response(
             status_code=401,
             code="ACCESS_TOKEN_REQUIRED",
