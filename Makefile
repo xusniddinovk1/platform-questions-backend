@@ -1,6 +1,8 @@
 
+
+
 seed:
-    uv run python manage.py shell < scripts/seed.py
+	uv run python manage.py shell < scripts/seed.py
 
 dev:
 	uv run manage.py runserver 0.0.0.0:8000
